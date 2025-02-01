@@ -65,3 +65,19 @@
 ```
 
 [tailwind peer](https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-sibling-state)
+
+- \*:
+
+  > 모든 자식요소에 공통 적용할 클래스
+
+- has-[]:
+
+  > 자식의 요소중 [:상태, #id, .class] 인 경우에 부모에 적용할 클래스
+
+  ```jsx
+    <div className="*:outline-none ring ring-transparent transition-shadow has-[:invalid]:ring-red-200">
+      <!-- children.. -->
+    </div>
+
+    // 자식 요소중 invaild한 값을 가진 것이 있다면 div 의 ring color 붉은 색으로 변경됨
+  ```
