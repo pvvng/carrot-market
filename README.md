@@ -72,7 +72,7 @@
 
 - has-[]:
 
-  > 자식의 요소중 [:상태, #id, .class] 인 경우에 부모에 적용할 클래스
+  > 자식의 요소중 [:상태, .class] 인 경우에 부모에 적용할 클래스
 
   ```jsx
     <div className="*:outline-none ring ring-transparent transition-shadow has-[:invalid]:ring-red-200">
@@ -81,3 +81,7 @@
 
     // 자식 요소중 invaild한 값을 가진 것이 있다면 div 의 ring color 붉은 색으로 변경됨
   ```
+
+  > ⚠️주의
+  > has-[#keyOfChild]는 적용되지 않음
+  > has-[input[data-key='email']] 와 같이 사용 권장
