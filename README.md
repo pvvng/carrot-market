@@ -54,6 +54,7 @@
 
   > ⚠️ 주의!
   > peer 마커는 이전 형제에서만 사용할 수 있다는 점을 유의
+  > [tailwind peer](https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-sibling-state)
 
   ```
     // 작동XXX. 이전 형제 자매만 peer로 표시될 수 있음.
@@ -63,8 +64,6 @@
     < input type="email" class="peer ..."/ >
     < /label >
   ```
-
-  - [tailwind peer](https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-sibling-state)
 
 - \*:
 
