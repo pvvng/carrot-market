@@ -2,17 +2,17 @@
 
 ### 1. tailwind
 
-- flex justify
+- **flex justify**
 
   ✔ 양 끝에도 여백이 필요한 경우 justify-around
+  
   ✔ 양 끝을 부모 컨테이너에 딱 붙이고 싶으면 justify-between
 
-- 굳이 flex-col 쓰는 이유는?
+- **굳이 flex-col 쓰는 이유는?**
 
-  ✔ 블록 요소끼리는 기본적으로 세로로 정렬되지만,
-  ✔ flex flex-col을 사용하면 align-items, gap, justify-content, order 등을 활용할 수 있어서 더 유연한 레이아웃을 만들 수 있음.
+  ✔ 블록 요소끼리는 기본적으로 세로로 정렬되지만, flex flex-col을 사용하면 align-items, justify-content, order 등을 활용할 수 있어서 더 유연한 레이아웃을 만들 수 있음.
 
-- tailwind의 변수 설정 클래스
+- **tailwind의 변수 설정 클래스**
 
   예를 들어, ring class의 경우엔 다양한 variable을 추가 선언 가능하다.
 
@@ -35,7 +35,7 @@
   <div classname="ring ring-shadow ring-offset-2 ring-blue-500"></div>
   ```
 
-- required input를 invalid 가상 클래스를 통해 스타일 제어가 가능함.
+- **required input를 invalid 가상 클래스를 통해 스타일 제어**
 
   ```jsx
   // 유효한 입력값이 아닐 때, input focus하면 ring color 붉은색으로 보임
@@ -47,7 +47,7 @@
   />
   ```
 
-- 형제 상태에 따른 스타일 지정 (peer-{modifier})
+- **형제 상태에 따른 스타일 지정 (peer-{modifier})**
 
   형제 요소의 상태에 따라 요소의 스타일을 지정해야 하는 경우 형제를 peer 클래스로 표시하고 peer-invalid와 같은 peer-\* 수정자를 사용하여 대상 요소의 스타일을 지정.
 
@@ -65,11 +65,11 @@
   </label>
   ```
 
-- \*:
+- **\*: (자식 선택)**
 
   모든 자식요소에 공통 적용할 클래스
 
-- has-[]:
+- **has-[]**:
 
   자식의 요소중 [:상태, .class] 인 경우에 부모에 적용할 클래스
 
@@ -87,9 +87,14 @@
 ### 2. Server Action
 
 - **Route Handler (API Route)**
-  - Route Handlers를 사용하면 웹 요청 및 응답 API를 사용하여 특정 경로에 대한 사용자 커스텀 요청 핸들러를 생성할 수 있다.
-  - Route Handlers는 app 디렉터리 내에서만 사용할 수 있다.
+  
+  ✔ Route Handlers를 사용하면 웹 요청 및 응답 API를 사용하여 특정 경로에 대한 사용자 커스텀 요청 핸들러를 생성할 수 있다.
+  
+  ✔ Route Handlers는 app 디렉터리 내에서만 사용할 수 있다.
     > app/api(www)/[users]/route.ts
-  - 다만, `Server Action`을 사용하면 굳이 사용할 필요가 없다. 통신을 위해 JS를 사용해야하기 때문이다.
-  - [Route Handler](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
-  - [Route.ts](https://nextjs.org/docs/app/api-reference/file-conventions/route)
+    
+  ✔ 다만, `Server Action`을 사용하면 굳이 사용할 필요가 없다. 통신을 위해 JS를 사용해야하기 때문이다.
+
+  ✔  공식 문서
+    - [Route Handler](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
+    - [Route.ts](https://nextjs.org/docs/app/api-reference/file-conventions/route)
