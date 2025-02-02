@@ -6,6 +6,12 @@ export default {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  theme: {},
+  theme: {
+    extend: {
+      borderRadius: {
+        sexy: "11.11px",
+      },
+    },
+  },
   plugins: [],
 } satisfies Config;
