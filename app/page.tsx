@@ -23,7 +23,7 @@ export default function Home() {
           </div>
         ))}
         <div className="flex flex-col gap-3 group">
-          <a href="/" className="text-bigger">
+          <a href="#" className="text-bigger">
             Link
           </a>
           <input
