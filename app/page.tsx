@@ -23,6 +23,9 @@ export default function Home() {
           </div>
         ))}
         <div className="flex flex-col gap-3 group">
+          <a href="/" className="text-bigger">
+            Link
+          </a>
           <input
             className="w-full bg-gray-200 px-2"
             placeholder="write email"
@@ -31,9 +34,7 @@ export default function Home() {
           <span className="group-focus-within:block hidden">
             Make sure it is a invaild email
           </span>
-          <button className="bg-blue-500 text-white px-2 rounded-sexy">
-            submit
-          </button>
+          <button className="btn">submit</button>
         </div>
       </div>
     </main>

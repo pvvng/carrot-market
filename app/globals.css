@@ -1,3 +1,30 @@
+/* 브라우저 기본 제공 스타일 제거 */
 @tailwind base;
 @tailwind components;
+/* 컴파일러가 생성한 css util class name 저장소 */
 @tailwind utilities;
+
+/* apply directive -> tailwind util classname을 여기서 사용 가능하게 해줌 */
+
+/* layer는 기능의 확장 */
+
+/* new default value */
+@layer base {
+  a {
+    @apply text-red-500;
+  }
+}
+
+/* new utility classname */
+@layer utilities {
+  .text-bigger {
+    @apply text-3xl font-bold;
+  }
+}
+
+/* new component (abstractive) */
+@layer components {
+  .btn {
+    @apply bg-blue-500 text-white py-3 rounded-sexy;
+  }
+}
