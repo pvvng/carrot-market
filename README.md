@@ -85,3 +85,13 @@
   > ⚠️주의
   > has-[#keyOfChild]는 적용되지 않음
   > has-[input[data-key='email']] 와 같이 사용 권장
+
+### 2. Server Action
+
+- **Route Handler (API Route)**
+  - Route Handlers를 사용하면 웹 요청 및 응답 API를 사용하여 특정 경로에 대한 사용자 커스텀 요청 핸들러를 생성할 수 있다.
+  - Route Handlers는 app 디렉터리 내에서만 사용할 수 있다.
+    > app/api(www)/[users]/route.ts
+  - 다만, `Server Action`을 사용하면 굳이 사용할 필요가 없다. 통신을 위해 JS를 사용해야하기 때문이다.
+  - [Route Handler](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
+  - [Route.ts](https://nextjs.org/docs/app/api-reference/file-conventions/route)
