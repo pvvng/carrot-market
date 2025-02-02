@@ -37,34 +37,34 @@
 
 - required input를 invalid 가상 클래스를 통해 스타일 제어가 가능함.
 
-```jsx
-<input
-  className="ring ring-transparent focus:ring-green-500 focus:ring-offset-2  invalid:focus:ring-red-500 peer"
-  type="email"
-  placeholder="Email Address"
-  required
-/>
+  ```jsx
+  <input
+    className="ring ring-transparent focus:ring-green-500 focus:ring-offset-2  invalid:focus:ring-red-500 peer"
+    type="email"
+    placeholder="Email Address"
+    required
+  />
 
-// 유효한 입력값이 아닐 때, input focus하면 ring color 붉은색으로 보임
-```
+  // 유효한 입력값이 아닐 때, input focus하면 ring color 붉은색으로 보임
+  ```
 
 - 형제 상태에 따른 스타일 지정(peer-{modifier})
 
-형제 요소의 상태에 따라 요소의 스타일을 지정해야 하는 경우 형제를 peer 클래스로 표시하고 peer-invalid와 같은 peer-\* 수정자를 사용하여 대상 요소의 스타일을 지정.
+  형제 요소의 상태에 따라 요소의 스타일을 지정해야 하는 경우 형제를 peer 클래스로 표시하고 peer-invalid와 같은 peer-\* 수정자를 사용하여 대상 요소의 스타일을 지정.
 
-> ⚠️ 주의!
-> peer 마커는 이전 형제에서만 사용할 수 있다는 점을 유의
+  > ⚠️ 주의!
+  > peer 마커는 이전 형제에서만 사용할 수 있다는 점을 유의
 
-```
-// 작동XXX. 이전 형제 자매만 peer로 표시될 수 있음.
-// input이 span보다 앞에 있어야 함
-< label >
-< span class="peer-invalid:text-red-500 ..." >Email< /span >
-< input type="email" class="peer ..."/ >
-< /label >
-```
+  ```
+    // 작동XXX. 이전 형제 자매만 peer로 표시될 수 있음.
+    // input이 span보다 앞에 있어야 함
+    < label >
+    < span class="peer-invalid:text-red-500 ..." >Email< /span >
+    < input type="email" class="peer ..."/ >
+    < /label >
+  ```
 
-[tailwind peer](https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-sibling-state)
+  - [tailwind peer](https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-sibling-state)
 
 - \*:
 
@@ -73,6 +73,9 @@
 - has-[]:
 
   > 자식의 요소중 [:상태, .class] 인 경우에 부모에 적용할 클래스
+  > ⚠️주의
+  > has-[#keyOfChild]는 적용되지 않음
+  > has-[input[data-key='email']] 와 같이 사용 권장
 
   ```jsx
     <div className="*:outline-none ring ring-transparent transition-shadow has-[:invalid]:ring-red-200">
@@ -81,10 +84,6 @@
 
     // 자식 요소중 invaild한 값을 가진 것이 있다면 div 의 ring color 붉은 색으로 변경됨
   ```
-
-  > ⚠️주의
-  > has-[#keyOfChild]는 적용되지 않음
-  > has-[input[data-key='email']] 와 같이 사용 권장
 
 ### 2. Server Action
 
