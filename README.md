@@ -4,17 +4,17 @@
 
 - flex justify
 
-  > ✔ 양 끝에도 여백이 필요한 경우 justify-around
-  > ✔ 양 끝을 부모 컨테이너에 딱 붙이고 싶으면 justify-between
+  ✔ 양 끝에도 여백이 필요한 경우 justify-around
+  ✔ 양 끝을 부모 컨테이너에 딱 붙이고 싶으면 justify-between
 
 - 굳이 flex-col 쓰는 이유는?
 
-  > ✔ 블록 요소끼리는 기본적으로 세로로 정렬되지만,
-  > ✔ flex flex-col을 사용하면 align-items, gap, justify-content, order 등을 활용할 수 있어서 더 유연한 레이아웃을 만들 수 있음.
+  ✔ 블록 요소끼리는 기본적으로 세로로 정렬되지만,
+  ✔ flex flex-col을 사용하면 align-items, gap, justify-content, order 등을 활용할 수 있어서 더 유연한 레이아웃을 만들 수 있음.
 
 - tailwind의 변수 설정 클래스
 
-  > 예를 들어, ring class의 경우엔 다양한 variable을 추가 선언 가능하다.
+  예를 들어, ring class의 경우엔 다양한 variable을 추가 선언 가능하다.
 
   ```css
   .ring {
@@ -38,14 +38,13 @@
 - required input를 invalid 가상 클래스를 통해 스타일 제어가 가능함.
 
   ```jsx
+  // 유효한 입력값이 아닐 때, input focus하면 ring color 붉은색으로 보임
   <input
     className="ring ring-transparent focus:ring-green-500 focus:ring-offset-2  invalid:focus:ring-red-500 peer"
     type="email"
     placeholder="Email Address"
     required
   />
-
-  // 유효한 입력값이 아닐 때, input focus하면 ring color 붉은색으로 보임
   ```
 
 - 형제 상태에 따른 스타일 지정 (peer-{modifier})
@@ -57,32 +56,32 @@
   >
   > [tailwind peer](https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-sibling-state)
 
-  ```
-    // 작동XXX. 이전 형제 자매만 peer로 표시될 수 있음.
-    // input이 span보다 앞에 있어야 함
-    < label >
-    < span class="peer-invalid:text-red-500 ..." >Email< /span >
-    < input type="email" class="peer ..."/ >
-    < /label >
+  ```jsx
+  // 작동XXX. 이전 형제 자매만 peer로 표시될 수 있음.
+  // input이 span보다 앞에 있어야 함
+  <label>
+    <span class="peer-invalid:text-red-500 ...">Email</span>
+    <input type="email" class="peer ..." />
+  </label>
   ```
 
 - \*:
 
-  > 모든 자식요소에 공통 적용할 클래스
+  모든 자식요소에 공통 적용할 클래스
 
 - has-[]:
 
-  > 자식의 요소중 [:상태, .class] 인 경우에 부모에 적용할 클래스
+  자식의 요소중 [:상태, .class] 인 경우에 부모에 적용할 클래스
+
   > ⚠️주의
   > has-[#keyOfChild]는 적용되지 않음
   > has-[input[data-key='email']] 와 같이 사용 권장
 
   ```jsx
+    // 자식 요소중 invaild한 값을 가진 것이 있다면 div 의 ring color 붉은 색으로 변경됨
     <div className="*:outline-none ring ring-transparent transition-shadow has-[:invalid]:ring-red-200">
       <!-- children.. -->
     </div>
-
-    // 자식 요소중 invaild한 값을 가진 것이 있다면 div 의 ring color 붉은 색으로 변경됨
   ```
 
 ### 2. Server Action
