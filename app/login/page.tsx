@@ -9,6 +9,7 @@ export default function Login() {
     // next가 자동으로 Route Handler 만들어 주는 것
     "use server";
     console.log("i run in the server");
+    await new Promise((res) => setTimeout(res, 5000));
     console.log(formData.get("email"), formData.get("password"));
   };
 
@@ -33,7 +34,7 @@ export default function Login() {
           required
           errors={[]}
         />
-        <FormButton text="Create Account" isLoading={false} />
+        <FormButton text="Create Account" />
       </form>
       <SocialLogin />
     </div>
