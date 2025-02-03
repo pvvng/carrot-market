@@ -5,7 +5,7 @@
 - **flex justify**
 
   ✔ 양 끝에도 여백이 필요한 경우 justify-around
-  
+
   ✔ 양 끝을 부모 컨테이너에 딱 붙이고 싶으면 justify-between
 
 - **굳이 flex-col 쓰는 이유는?**
@@ -87,14 +87,47 @@
 ### 2. Server Action
 
 - **Route Handler (API Route)**
-  
+
   ✔ Route Handlers를 사용하면 웹 요청 및 응답 API를 사용하여 특정 경로에 대한 사용자 커스텀 요청 핸들러를 생성할 수 있다.
-  
+
   ✔ Route Handlers는 app 디렉터리 내에서만 사용할 수 있다.
-    > app/api(www)/[users]/route.ts
-    
+
+  > app/api(www)/[users]/route.ts
+
   ✔ 다만, `Server Action`을 사용하면 굳이 사용할 필요가 없다. 통신을 위해 JS를 사용해야하기 때문이다.
 
-  ✔  공식 문서
-    - [Route Handler](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
-    - [Route.ts](https://nextjs.org/docs/app/api-reference/file-conventions/route)
+  ✔ 공식 문서
+
+  - [Route Handler](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
+  - [Route.ts](https://nextjs.org/docs/app/api-reference/file-conventions/route)
+
+- **useServerStatus**
+
+  ✔ 부모 form action의 진행(pending)을 알기 위해 사용
+
+  ✔ 프로젝트에서는 submit 버튼의 연속 클릭 방지를 위해 사용
+
+  ✔ form의 자식인 client 컴포넌트에서만 사용 가능 (form이 작성된 컴포넌트에서는 사용 불가)
+
+  ```jsx
+  const { pending } = useFormStatus();
+  ```
+
+- **useActionState**
+
+  ✔ form action의 결과를 알기 위해 사용
+
+  ```jsx
+  // state -> form이 반환한 값, action의 실행 결과값이 된다.
+  // trigger(dispatch, action) -> form의 action 실행 함수
+  const [state, action] = useActionState(
+    handleForm, // form 핸들러 함수
+    null // state의 초기값 설정
+  );
+  ```
+
+  > **useActionState의 실행 순서**
+  >
+  > 1. 초기값(state) handleForm으로 전송
+  > 2. action 트리거 (form 제출)
+  > 3. 초기값 state, action 결과값으로 갱신
