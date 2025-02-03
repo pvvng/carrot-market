@@ -1,17 +1,29 @@
+"use client";
+
 import FormButton from "@/components/form-btn";
 import FormInput from "@/components/form-input";
 import SocialLogin from "@/components/social-login";
 
+import { handleForm } from "./actions";
+import { useActionState } from "react";
+
 export default function Login() {
-  const handleForm = async (formData: FormData) => {
-    // 서버에서 실행하도록
-    // 버튼 클릭할때 network 확인해보면 /login으로 POST 요청 보냄
-    // next가 자동으로 Route Handler 만들어 주는 것
-    "use server";
-    console.log("i run in the server");
-    await new Promise((res) => setTimeout(res, 5000));
-    console.log(formData.get("email"), formData.get("password"));
-  };
+  /**
+   * useActionState : 클라이언트 컴포넌트에서만 사용 가능한 form 훅
+   *
+   * state -> form이 반환한 값, action의 실행 결과값이 된다.
+   * trigger(dispatch, action) -> form의 action 실행 함수
+   */
+  const [state, action] = useActionState(
+    handleForm,
+    null // form state의 초기값 설정
+  );
+
+  // useActionState의 실행 순서
+  // 0. 초기값(state) handleForm으로 전송
+  // 1. action 트리거 (form 제출)
+  // 2. 초기값 state, action 결과값으로 갱신
+  console.log(state);
 
   return (
     <div className="flex flex-col gap-10 py-8 px-6">
@@ -19,7 +31,7 @@ export default function Login() {
         <h1 className="text-2xl">안녕하세요!</h1>
         <h2 className="text-xl">Login with email and password</h2>
       </div>
-      <form className="flex flex-col gap-3" action={handleForm}>
+      <form className="flex flex-col gap-3" action={action}>
         <FormInput
           name="email"
           type="email"
@@ -32,7 +44,8 @@ export default function Login() {
           type="password"
           placeholder="password"
           required
-          errors={[]}
+          // 반환받은 에러를 보내기. 에러가 없으면 빈 배열
+          errors={state?.errors ?? []}
         />
         <FormButton text="Create Account" />
       </form>
