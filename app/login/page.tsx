@@ -32,20 +32,12 @@ export default function Login() {
         <h2 className="text-xl">Login with email and password</h2>
       </div>
       <form className="flex flex-col gap-3" action={action}>
-        <FormInput
-          name="email"
-          type="email"
-          placeholder="email"
-          required
-          errors={[]}
-        />
+        <FormInput name="email" type="email" placeholder="email" required />
         <FormInput
           name="password"
           type="password"
           placeholder="password"
           required
-          // 반환받은 에러를 보내기. 에러가 없으면 빈 배열
-          errors={state?.errors ?? []}
         />
         <FormButton text="Create Account" />
       </form>

@@ -1,8 +1,15 @@
+"use client";
+
 import FormButton from "@/components/form-btn";
 import FormInput from "@/components/form-input";
 import SocialLogin from "@/components/social-login";
 
+import { useActionState } from "react";
+import { createAccount } from "./actions";
+
 export default function CreateAccount() {
+  const [state, action] = useActionState(createAccount, null);
+
   return (
     <div className="flex flex-col gap-10 py-8 px-6">
       <div className="flex flex-col gap-2 *:font-medium">
@@ -11,22 +18,27 @@ export default function CreateAccount() {
           회원가입을 위해 아래에 있는 폼을 채워주세요.
         </h2>
       </div>
-      <form className="flex flex-col gap-3 ">
-        <FormInput type="text" placeholder="username" required errors={[]} />
-        <FormInput type="email" placeholder="email" required errors={[]} />
+      <form action={action} className="flex flex-col gap-3 ">
         <FormInput
+          name="username"
+          type="text"
+          placeholder="username"
+          required
+        />
+        <FormInput name="email" type="email" placeholder="email" required />
+        <FormInput
+          name="password"
           type="password"
           placeholder="password"
           required
-          errors={[]}
         />
         <FormInput
+          name="confirmPassword"
           type="password"
           placeholder="confirm password"
           required
-          errors={[]}
         />
-        <FormButton text="Create Account" isLoading={false} />
+        <FormButton text="Create Account" />
       </form>
       <SocialLogin />
     </div>
