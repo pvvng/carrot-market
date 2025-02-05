@@ -6,8 +6,14 @@ import Input from "@/components/input";
 import { useActionState } from "react";
 import { smsLogin } from "./actions";
 
+// initialState error에 타입 지정하면 자동으로 state 타입이 지정됨
+const initialState = {
+  token: false,
+  error: undefined,
+};
+
 export default function SMSLogin() {
-  const [state, action] = useActionState(smsLogin, null);
+  const [state, action] = useActionState(smsLogin, initialState);
 
   return (
     <div className="flex flex-col gap-10 py-8 px-6">
@@ -16,16 +22,25 @@ export default function SMSLogin() {
         <h2 className="text-xl">Verify your phone number</h2>
       </div>
       <form action={action} className="flex flex-col gap-3 ">
-        <Input name="phone" type="text" placeholder="phone number" required />
-        <Input
-          name="token"
-          type="number"
-          placeholder="Verification code"
-          required
-          min={100000}
-          max={999999}
-        />
-        <Button text="Verify" />
+        {state.token ? (
+          <Input
+            name="token"
+            type="number"
+            placeholder="Verification code"
+            required
+            min={100000}
+            max={999999}
+          />
+        ) : (
+          <Input
+            name="phone"
+            type="text"
+            placeholder="phone number"
+            required
+            errors={state.error?.formErrors}
+          />
+        )}
+        <Button text={state.token ? "Verify" : "Send SMS Message"} />
       </form>
     </div>
   );
