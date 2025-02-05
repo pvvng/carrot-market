@@ -14,7 +14,10 @@ const phoneSchema = z
   );
 
 // coerce : formdata 형변환
-const tokenSchema = z.coerce.number().min(100000).max(999999);
+const tokenSchema = z.coerce
+  .number()
+  .min(100000, "인증코드는 100000 미만일 수 없습니다.")
+  .max(999999, "인증코드는 999999 초과일 수 없습니다.");
 
 interface ActionState {
   token: boolean;
