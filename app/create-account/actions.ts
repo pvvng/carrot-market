@@ -1,8 +1,17 @@
 "use server";
 
+import {
+  EMAIL_ERROR,
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_MIN_LENGTH_ERROR,
+  PASSWORD_NOT_CONFIRMED_ERROR,
+  PASSWORD_REGEX,
+  PASSWORD_REGEX_ERROR,
+  USERNAME_INVALID_ERROR,
+  USERNAME_TYPE_ERROR,
+} from "@/lib/constants";
 import { z } from "zod";
 
-const chekcUsername = (username: string) => !username.includes("$");
 const checkPasswords = ({
   password,
   confirmPassword,
@@ -10,41 +19,29 @@ const checkPasswords = ({
   password: string;
   confirmPassword: string;
 }) => password === confirmPassword;
-// 소문자, 대문자, 특수문자 검증하는 regex
-const passwordRegex = new RegExp(
-  /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).+$/
-);
 
 // zod에게 검증할 데이터를 설명할때는 스키마(블루프린트) 생성이 필요함
 const formSchema = z
   .object({
     username: z
       .string({
-        invalid_type_error: "사용자 이름은 문자만 허용됩니다.",
-        required_error: "사용자 이름이 확인되지 않습니다.",
+        invalid_type_error: USERNAME_TYPE_ERROR,
+        required_error: USERNAME_INVALID_ERROR,
       })
-      .min(3, "비밀번호는 3자 이상이어야 합니다.")
-      .max(10, "비밀번호는 10자 이하여야 합니다.")
-      // transform
       .toLowerCase()
-      .trim()
-      // custom transform
-      // .transform((username) => `🔥`)
-      // custome validation
-      .refine(chekcUsername, "$ 문자는 사용할 수 없습니다."),
-    email: z.string().email("이메일 형식이 아닙니다.").toLowerCase(),
+      .trim(),
+    email: z.string().email(EMAIL_ERROR).toLowerCase(),
     password: z
       .string()
-      .min(8, "비밀번호는 10자 이상이어야합니다.")
-      .regex(
-        passwordRegex,
-        "비밀번호는 숫자, 대문자, 특수문자를 포함해야 합니다."
-      ),
-    confirmPassword: z.string().min(8, "비밀번호는 10자 이상이어야합니다."),
+      .min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_ERROR)
+      .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
+    confirmPassword: z
+      .string()
+      .min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_ERROR),
   })
   // global 에러를 특정 영역에서 처리하기 위해 에러 책임 지저하는 path 명시
   .refine(checkPasswords, {
-    message: "비밀번호가 일치하지 않습니다.",
+    message: PASSWORD_NOT_CONFIRMED_ERROR,
     path: ["confirmPassword"],
   });
 
