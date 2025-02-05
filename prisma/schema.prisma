@@ -1,3 +1,12 @@
+// npm i prisma
+// npx prisma init
+
+// npx prisma migrate dev
+// -> 변경된 스키마를 기반으로 마이그레이션 생성
+// -> 생성된 마이그레이션 파일을 데이터베이스에 적용
+// -> npx prisma create 명령어도 함께 실행. 이 명령어로 Client 생성
+// -> Generated Prisma Client (v6.3.1) to ./node_modules/@prisma/client
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -5,4 +14,23 @@ generator client {
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
+}
+
+// model -> db에 든 객체
+// model schema 정의
+model User {
+  // @default(autoincrement()) -> 사용자 id 자동으로 증가시키기
+  // 최초 사용자 id = 1
+  id         Int       @id @default(autoincrement())
+  username   String    @unique
+  // 전화번호, 소셜 로그인 한 유저의 경우에는 email, pw가 정의되지 않을 수 있으므로 ? 사용
+  email      String?   @unique
+  password   String?
+  phone      String?   @unique
+  github_id  String?   @unique
+  avatar     String?
+  // now() -> 사용자가 생성되는 시간 반환 함수
+  created_at DateTime? @default(now())
+  // 사용자 레코드가 수정된 시간을 속성에 넣기
+  updated_at DateTime? @updatedAt
 }
