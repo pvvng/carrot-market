@@ -1,4 +1,5 @@
 "use server";
+
 import { z } from "zod";
 
 const chekcUsername = (username: string) => !username.includes("$");
@@ -28,7 +29,7 @@ const formSchema = z
       .toLowerCase()
       .trim()
       // custom transform
-      .transform((username) => `🔥`)
+      // .transform((username) => `🔥`)
       // custome validation
       .refine(chekcUsername, "$ 문자는 사용할 수 없습니다."),
     email: z.string().email("이메일 형식이 아닙니다.").toLowerCase(),
