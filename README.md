@@ -134,39 +134,51 @@
 
 ### 3. Prisma
 
-> Prisma는 Node.js와 TypeScript에서 사용되는 ORM(Object-Relational Mapping) 도구. 데이터베이스와 애플리케이션 간의 상호작용을 쉽게 해주는 강력한 도구로, SQL 쿼리를 TypeScript 코드로 대체 가능
+> Prisma는 Node.js와 TypeScript에서 사용되는 ORM(Object-Relational Mapping) 도구.
+> 
+> 데이터베이스와 애플리케이션 간의 상호작용을 쉽게 해주는 강력한 도구로, SQL 쿼리를 TypeScript 코드로 대체 가능
 
-> **사용 방법**
->
-> npm i prisma
-> npx prisma init (schema.prisma 파일 생성)
+- **사용 방법**
+
+  ```node
+    npm i prisma
+  ```
+  -> prisma 설치
+  ```node  
+    npx prisma init
+  ```
+  -> schema.prisma 파일 생성
 
 - **prisma model**
 
-```prisma
-  // model -> db에 든 객체
-  // model schema 정의
-  model User {
-    // @default(autoincrement()) -> 사용자 id 자동으로 증가시키기
-    // 최초 사용자 id = 1
-    id         Int       @id @default(autoincrement())
-    username   String    @unique
-    // 전화번호, 소셜 로그인 한 유저의 경우에는 email, pw가 정의되지 않을 수 있으므로 ? 사용
-    email      String?   @unique
-    password   String?
-    phone      String?   @unique
-    github_id  String?   @unique
-    avatar     String?
-    // now() -> 사용자가 생성되는 시간 반환 함수
-    created_at DateTime? @default(now())
-    // 사용자 레코드가 수정된 시간을 속성에 넣기
-    updated_at DateTime? @updatedAt
-  }
-```
+  ```prisma
+    // model -> db에 든 객체
+    // model schema 정의
+    model User {
+      // @default(autoincrement()) -> 사용자 id 자동으로 증가시키기
+      // 최초 사용자 id = 1
+      id         Int       @id @default(autoincrement())
+      username   String    @unique
+      // 전화번호, 소셜 로그인 한 유저의 경우에는 email, pw가 정의되지 않을 수 있으므로 ? 사용
+      email      String?   @unique
+      password   String?
+      phone      String?   @unique
+      github_id  String?   @unique
+      avatar     String?
+      // now() -> 사용자가 생성되는 시간 반환 함수
+      created_at DateTime? @default(now())
+      // 사용자 레코드가 수정된 시간을 속성에 넣기
+      updated_at DateTime? @updatedAt
+    }
+  ```
 
 - **migration**
 
-> npx prisma migrate dev
-> -> 생성된 마이그레이션 파일을 데이터베이스에 적용 (migration.sql 파일에 작성한 model에 관한 sql문 생성)
-> -> npx prisma create 명령어도 함께 실행. 이 명령어로 Client 생성
-> -> Generated Prisma Client (v6.3.1) to ./node_modules/@prisma/client
+  ```node
+  npx prisma migrate dev
+  ```
+  > -> 생성된 마이그레이션 파일을 데이터베이스에 적용 (migration.sql 파일에 작성한 model에 관한 sql문 생성)
+  > 
+  > -> npx prisma create 명령어도 함께 실행. 이 명령어로 Client 생성
+  >
+  > Generated Prisma Client (v6.3.1) to ./node_modules/@prisma/client
