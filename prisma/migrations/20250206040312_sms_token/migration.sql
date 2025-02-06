@@ -1,5 +1,3 @@
--- npx prisma migrate dev 후 add_<modal name> 입력하고 생성된 sql문
-
 -- CreateTable
 CREATE TABLE "User" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -13,6 +11,16 @@ CREATE TABLE "User" (
     "updated_at" DATETIME
 );
 
+-- CreateTable
+CREATE TABLE "SMSToken" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "token" TEXT NOT NULL,
+    "created_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" DATETIME,
+    "userId" INTEGER NOT NULL,
+    CONSTRAINT "SMSToken_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 
@@ -24,3 +32,6 @@ CREATE UNIQUE INDEX "User_phone_key" ON "User"("phone");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_github_id_key" ON "User"("github_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SMSToken_token_key" ON "SMSToken"("token");

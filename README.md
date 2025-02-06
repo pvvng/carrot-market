@@ -187,8 +187,50 @@
   >
   > Generated Prisma Client (v6.3.1) to ./node_modules/@prisma/client
 
-- Prisma Studio
+- **Prisma Studio**
+
   ```node
     npx prisma studio
   ```
+
   > localhost:5555로 열림. 데이터베이스 시각화
+
+- **@relation**
+
+  > 관계된 두 모델 연결시키기
+
+  ```prisma
+    model User{
+      // ...다른 필드값
+      SMSToken   SMSToken[]
+    }
+
+    model SMSToken {
+      id         Int       @id @default(autoincrement())
+      token      String    @unique
+      created_at DateTime? @default(now())
+      updated_at DateTime? @updatedAt
+      // 아래 줄을 기입하는 이유는
+      // prisma에게 userId가 가지는 의미(사용자 아이디) userId를 어디서 찾아야하는지 이런걸 명시적으로 알려주기 위해서
+      // SMSToken의 userId 필드는 User model의 id 필드를 참조한다는 의미
+      user       User      @relation(fields: [userId], references: [id])
+      userId     Int
+      // 실제로 저장되는 값은 userId
+      // userId를 바탕으로 User정보를 찾는것
+    }
+  ```
+
+  ```ts
+  async function test() {
+    const token = await db.sMSToken.findUnique({
+      where: {
+        id: 1,
+      },
+      // smsToken와 관계된(relation) user data 불러오기
+      include: {
+        user: true,
+      },
+    });
+    console.log(token);
+  }
+  ```
