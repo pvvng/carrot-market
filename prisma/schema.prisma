@@ -44,7 +44,8 @@ model SMSToken {
   // 아래 줄을 기입하는 이유는 
   // prisma에게 userId가 가지는 의미(사용자 아이디) userId를 어디서 찾아야하는지 이런걸 명시적으로 알려주기 위해서
   // SMSToken의 userId 필드는 User model의 id 필드를 참조한다는 의미
-  user       User      @relation(fields: [userId], references: [id])
+  // onDelete : Cascade -> User 삭제시 연계된 relation model 삭제
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     Int
   // 실제로 저장되는 값은 userId
   // userId를 바탕으로 User정보를 찾는것

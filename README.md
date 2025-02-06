@@ -140,52 +140,52 @@
 
 - **사용 방법**
 
-  ```node
-    npm i prisma
-  ```
+```node
+  npm i prisma
+```
 
-  -> prisma 설치
+-> prisma 설치
 
-  ```node
-    npx prisma init
-  ```
+```node
+  npx prisma init
+```
 
-  -> schema.prisma 파일 생성
+-> schema.prisma 파일 생성
 
 - **prisma model**
 
-  ```prisma
-    // model -> db에 든 객체
-    // model schema 정의
-    model User {
-      // @default(autoincrement()) -> 사용자 id 자동으로 증가시키기
-      // 최초 사용자 id = 1
-      id         Int       @id @default(autoincrement())
-      username   String    @unique
-      // 전화번호, 소셜 로그인 한 유저의 경우에는 email, pw가 정의되지 않을 수 있으므로 ? 사용
-      email      String?   @unique
-      password   String?
-      phone      String?   @unique
-      github_id  String?   @unique
-      avatar     String?
-      // now() -> 사용자가 생성되는 시간 반환 함수
-      created_at DateTime? @default(now())
-      // 사용자 레코드가 수정된 시간을 속성에 넣기
-      updated_at DateTime? @updatedAt
-    }
-  ```
+```prisma
+  // model -> db에 든 객체
+  // model schema 정의
+  model User {
+    // @default(autoincrement()) -> 사용자 id 자동으로 증가시키기
+    // 최초 사용자 id = 1
+    id         Int       @id @default(autoincrement())
+    username   String    @unique
+    // 전화번호, 소셜 로그인 한 유저의 경우에는 email, pw가 정의되지 않을 수 있으므로 ? 사용
+    email      String?   @unique
+    password   String?
+    phone      String?   @unique
+    github_id  String?   @unique
+    avatar     String?
+    // now() -> 사용자가 생성되는 시간 반환 함수
+    created_at DateTime? @default(now())
+    // 사용자 레코드가 수정된 시간을 속성에 넣기
+    updated_at DateTime? @updatedAt
+  }
+```
 
 - **migration**
 
-  ```node
-  npx prisma migrate dev
-  ```
+```node
+npx prisma migrate dev
+```
 
-  > -> 생성된 마이그레이션 파일을 데이터베이스에 적용 (migration.sql 파일에 작성한 model에 관한 sql문 생성)
-  >
-  > -> npx prisma create 명령어도 함께 실행. 이 명령어로 Client 생성
-  >
-  > Generated Prisma Client (v6.3.1) to ./node_modules/@prisma/client
+> -> 생성된 마이그레이션 파일을 데이터베이스에 적용 (migration.sql 파일에 작성한 model에 관한 sql문 생성)
+>
+> -> npx prisma create 명령어도 함께 실행. 이 명령어로 Client 생성
+>
+> Generated Prisma Client (v6.3.1) to ./node_modules/@prisma/client
 
 - **Prisma Studio**
 
@@ -197,40 +197,52 @@
 
 - **@relation**
 
-  > 관계된 두 모델 연결시키기
+> 관계된 두 모델 연결시키기
 
-  ```prisma
-    model User{
-      // ...다른 필드값
-      SMSToken   SMSToken[]
-    }
-
-    model SMSToken {
-      id         Int       @id @default(autoincrement())
-      token      String    @unique
-      created_at DateTime? @default(now())
-      updated_at DateTime? @updatedAt
-      // 아래 줄을 기입하는 이유는
-      // prisma에게 userId가 가지는 의미(사용자 아이디) userId를 어디서 찾아야하는지 이런걸 명시적으로 알려주기 위해서
-      // SMSToken의 userId 필드는 User model의 id 필드를 참조한다는 의미
-      user       User      @relation(fields: [userId], references: [id])
-      userId     Int
-      // 실제로 저장되는 값은 userId
-      // userId를 바탕으로 User정보를 찾는것
-    }
-  ```
-
-  ```ts
-  async function test() {
-    const token = await db.sMSToken.findUnique({
-      where: {
-        id: 1,
-      },
-      // smsToken와 관계된(relation) user data 불러오기
-      include: {
-        user: true,
-      },
-    });
-    console.log(token);
+```prisma
+  model User{
+    // ...다른 필드값
+    SMSToken   SMSToken[]
   }
-  ```
+
+  model SMSToken {
+    id         Int       @id @default(autoincrement())
+    token      String    @unique
+    created_at DateTime? @default(now())
+    updated_at DateTime? @updatedAt
+    // 아래 줄을 기입하는 이유는
+    // prisma에게 userId가 가지는 의미(사용자 아이디) userId를 어디서 찾아야하는지 이런걸 명시적으로 알려주기 위해서
+    // SMSToken의 userId 필드는 User model의 id 필드를 참조한다는 의미
+    user       User      @relation(fields: [userId], references: [id])
+    userId     Int
+    // 실제로 저장되는 값은 userId
+    // userId를 바탕으로 User정보를 찾는것
+  }
+```
+
+```ts
+async function test() {
+  const token = await db.sMSToken.findUnique({
+    where: {
+      id: 1,
+    },
+    // smsToken와 관계된(relation) user data 불러오기
+    include: {
+      user: true,
+    },
+  });
+  console.log(token);
+}
+```
+
+- **onDelete**
+
+> Referential actions는 관련된 레코드가 삭제되거나 업데이트될 때 어떤 일이 발생하는지를 결정.
+>
+> Prisma는 아래의 referential actions 종류를 지원함
+
+- Cascade: 참조 레코드를 삭제하면 참조 레코드의 삭제가 트리거.
+- Restrict: 참조 레코드가 있는 경우 삭제를 방지.
+- NoAction: Restrict과 유사하지만 사용 중인 데이터베이스에 따라 다름.
+- SetNull: 참조 필드가 NULL로 설정. (optional일 때만 정상 작동)
+- SetDefault: 참조 필드가 기본값으로 설정.
