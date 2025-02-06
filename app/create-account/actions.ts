@@ -10,6 +10,7 @@ import {
   USERNAME_INVALID_ERROR,
   USERNAME_TYPE_ERROR,
 } from "@/lib/constants";
+import db from "@/lib/db";
 import { z } from "zod";
 
 const checkPasswords = ({
@@ -20,6 +21,26 @@ const checkPasswords = ({
   confirmPassword: string;
 }) => password === confirmPassword;
 
+// zod의 유효성 검사를 통해 db에 username 중복이 존재하는지 확인하기
+const checkUniqueUserName = async (username: string) => {
+  const user = await db.user.findUnique({
+    where: { username },
+    select: { id: true },
+  });
+
+  // user가 검출되면 false, 아니면 true
+  return !Boolean(user);
+};
+
+const checkEmail = async (email: string) => {
+  const user = await db.user.findUnique({
+    where: { email },
+    select: { id: true },
+  });
+
+  return !Boolean(user);
+};
+
 // zod에게 검증할 데이터를 설명할때는 스키마(블루프린트) 생성이 필요함
 const formSchema = z
   .object({
@@ -29,12 +50,15 @@ const formSchema = z
         required_error: USERNAME_INVALID_ERROR,
       })
       .toLowerCase()
-      .trim(),
-    email: z.string().email(EMAIL_ERROR).toLowerCase(),
-    password: z
+      .trim()
+      .refine(checkUniqueUserName, "이미 사용 중인 사용자 이름입니다."),
+    email: z
       .string()
-      .min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_ERROR)
-      .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
+      .email(EMAIL_ERROR)
+      .toLowerCase()
+      .refine(checkEmail, "이 이메일로 회원가입 된 계정이 이미 존재합니다."),
+    password: z.string().min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_ERROR),
+    // .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
     confirmPassword: z
       .string()
       .min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_ERROR),
@@ -53,16 +77,16 @@ export async function createAccount(prevState: any, formData: FormData) {
     confirmPassword: formData.get("confirmPassword"),
   };
 
-  // parse 메서드는 에러를 throw 하지만 safePased는 에러 반환 안함
-  // { success: false; error: ZodError }
-  const result = formSchema.safeParse(data);
+  // safeParseAsync -> promise 함수에 알아서 async await
+  const result = await formSchema.safeParseAsync(data);
 
   if (!result.success) {
-    console.log(result.error.flatten());
     // 에러메시지 깔끔하게 깔끼하기 위해 flatten 메서드 사용
     return result.error.flatten();
   }
 
-  // validated, transformed data
-  console.log(result.data);
+  // hash password
+  // save the user to db
+  // log the user in
+  // redirect "/"
 }
