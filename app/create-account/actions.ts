@@ -13,6 +13,9 @@ import {
 import db from "@/lib/db";
 import { z } from "zod";
 import bcrypt from "bcrypt";
+import { getIronSession } from "iron-session";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 const checkPasswords = ({
   password,
@@ -21,7 +24,6 @@ const checkPasswords = ({
   password: string;
   confirmPassword: string;
 }) => password === confirmPassword;
-
 // zod의 유효성 검사를 통해 db에 username 중복이 존재하는지 확인하기
 const checkUniqueUserName = async (username: string) => {
   const user = await db.user.findUnique({
@@ -103,6 +105,19 @@ export async function createAccount(prevState: any, formData: FormData) {
     },
   });
   // log the user in
-  console.log(user);
-  // redirect "/"
+  // 쿠키를 한번 저장하면 다음에 유저가 http 통신을 할때 쿠키도 보냄
+  // 사용자 정보가 필요한 페이지에서도 쿠키를 사용 가능함
+
+  // 쿠키를 받아서 getIronSession을 통해 delicios-carrot 쿠키 생성 혹은 가져오기
+  const cookie = await getIronSession(await cookies(), {
+    cookieName: "delicios-carrot",
+    password: process.env.COOKIE_PASSWORD!,
+  });
+  // @ts-ignore
+  // 회원가입한 사용자의 암호화 된 db-id를 쿠키에 저장
+  cookie.id = user.id;
+  await cookie.save();
+
+  // 사용자 리다이렉트
+  redirect("/profile");
 }
