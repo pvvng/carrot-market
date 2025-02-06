@@ -13,9 +13,8 @@ import {
 import db from "@/lib/db";
 import { z } from "zod";
 import bcrypt from "bcrypt";
-import { getIronSession } from "iron-session";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import getSession from "@/lib/session";
 
 const checkPasswords = ({
   password,
@@ -83,7 +82,7 @@ export async function createAccount(prevState: any, formData: FormData) {
   };
 
   // safeParseAsync -> promise 함수에 알아서 async await
-  const result = await formSchema.safeParseAsync(data);
+  const result = await formSchema.spa(data);
 
   if (!result.success) {
     // 에러메시지 깔끔하게 깔끼하기 위해 flatten 메서드 사용
@@ -104,19 +103,10 @@ export async function createAccount(prevState: any, formData: FormData) {
       id: true,
     },
   });
-  // log the user in
-  // 쿠키를 한번 저장하면 다음에 유저가 http 통신을 할때 쿠키도 보냄
-  // 사용자 정보가 필요한 페이지에서도 쿠키를 사용 가능함
 
-  // 쿠키를 받아서 getIronSession을 통해 delicios-carrot 쿠키 생성 혹은 가져오기
-  const cookie = await getIronSession(await cookies(), {
-    cookieName: "delicios-carrot",
-    password: process.env.COOKIE_PASSWORD!,
-  });
-  // @ts-ignore
-  // 회원가입한 사용자의 암호화 된 db-id를 쿠키에 저장
-  cookie.id = user.id;
-  await cookie.save();
+  const session = await getSession();
+  session.id = user.id;
+  await session.save();
 
   // 사용자 리다이렉트
   redirect("/profile");
