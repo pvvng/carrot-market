@@ -1,4 +1,18 @@
 import Link from "next/link";
+// db 파일 실행
+import "@/lib/db";
+// 클라이언트 생성 결과
+// {
+//   id: 1,
+//   username: 'test',
+//   email: null,
+//   password: null,
+//   phone: null,
+//   github_id: null,
+//   avatar: null,
+//   created_at: 2025-02-06T02:57:09.843Z,
+//   updated_at: 2025-02-06T02:57:09.843Z
+// }
 
 export default function Home() {
   return (
