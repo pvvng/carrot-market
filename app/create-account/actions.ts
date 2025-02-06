@@ -12,6 +12,7 @@ import {
 } from "@/lib/constants";
 import db from "@/lib/db";
 import { z } from "zod";
+import bcrypt from "bcrypt";
 
 const checkPasswords = ({
   password,
@@ -57,8 +58,10 @@ const formSchema = z
       .email(EMAIL_ERROR)
       .toLowerCase()
       .refine(checkEmail, "이 이메일로 회원가입 된 계정이 이미 존재합니다."),
-    password: z.string().min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_ERROR),
-    // .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
+    password: z
+      .string()
+      .min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_ERROR)
+      .regex(PASSWORD_REGEX, PASSWORD_REGEX_ERROR),
     confirmPassword: z
       .string()
       .min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_ERROR),
@@ -86,7 +89,20 @@ export async function createAccount(prevState: any, formData: FormData) {
   }
 
   // hash password
+  const hashedPassword = await bcrypt.hash(result.data.password, 12);
+
   // save the user to db
+  const user = await db.user.create({
+    data: {
+      username: result.data.username,
+      email: result.data.email,
+      password: hashedPassword,
+    },
+    select: {
+      id: true,
+    },
+  });
   // log the user in
+  console.log(user);
   // redirect "/"
 }
