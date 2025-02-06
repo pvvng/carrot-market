@@ -135,7 +135,7 @@
 ### 3. Prisma
 
 > Prisma는 Node.js와 TypeScript에서 사용되는 ORM(Object-Relational Mapping) 도구.
-> 
+>
 > 데이터베이스와 애플리케이션 간의 상호작용을 쉽게 해주는 강력한 도구로, SQL 쿼리를 TypeScript 코드로 대체 가능
 
 - **사용 방법**
@@ -143,10 +143,13 @@
   ```node
     npm i prisma
   ```
+
   -> prisma 설치
-  ```node  
+
+  ```node
     npx prisma init
   ```
+
   -> schema.prisma 파일 생성
 
 - **prisma model**
@@ -177,8 +180,15 @@
   ```node
   npx prisma migrate dev
   ```
+
   > -> 생성된 마이그레이션 파일을 데이터베이스에 적용 (migration.sql 파일에 작성한 model에 관한 sql문 생성)
-  > 
+  >
   > -> npx prisma create 명령어도 함께 실행. 이 명령어로 Client 생성
   >
   > Generated Prisma Client (v6.3.1) to ./node_modules/@prisma/client
+
+- Prisma Studio
+  ```node
+    npx prisma studio
+  ```
+  > localhost:5555로 열림. 데이터베이스 시각화
