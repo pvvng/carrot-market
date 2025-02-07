@@ -23,25 +23,6 @@ const checkPasswords = ({
   password: string;
   confirmPassword: string;
 }) => password === confirmPassword;
-// zod의 유효성 검사를 통해 db에 username 중복이 존재하는지 확인하기
-const checkUniqueUserName = async (username: string) => {
-  const user = await db.user.findUnique({
-    where: { username },
-    select: { id: true },
-  });
-
-  // user가 검출되면 false, 아니면 true
-  return !Boolean(user);
-};
-
-const checkEmail = async (email: string) => {
-  const user = await db.user.findUnique({
-    where: { email },
-    select: { id: true },
-  });
-
-  return !Boolean(user);
-};
 
 // zod에게 검증할 데이터를 설명할때는 스키마(블루프린트) 생성이 필요함
 const formSchema = z
@@ -52,13 +33,8 @@ const formSchema = z
         required_error: USERNAME_INVALID_ERROR,
       })
       .toLowerCase()
-      .trim()
-      .refine(checkUniqueUserName, "이미 사용 중인 사용자 이름입니다."),
-    email: z
-      .string()
-      .email(EMAIL_ERROR)
-      .toLowerCase()
-      .refine(checkEmail, "이 이메일로 회원가입 된 계정이 이미 존재합니다."),
+      .trim(),
+    email: z.string().email(EMAIL_ERROR).toLowerCase(),
     password: z
       .string()
       .min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_ERROR)
@@ -66,6 +42,39 @@ const formSchema = z
     confirmPassword: z
       .string()
       .min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_ERROR),
+  })
+  // fatal한 에러 발생시 뒤의 validation을 실행하지 않고 얼리리턴
+  .superRefine(async ({ username }, ctx) => {
+    const user = await db.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
+    if (user) {
+      ctx.addIssue({
+        code: "custom",
+        message: "이미 사용중인 이름입니다.",
+        path: ["username"],
+        fatal: true,
+      });
+
+      return z.NEVER;
+    }
+  })
+  .superRefine(async ({ email }, ctx) => {
+    const user = await db.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+    if (user) {
+      ctx.addIssue({
+        code: "custom",
+        message: "이 이메일로 가입된 계정이 이미 존재합니다.",
+        path: ["email"],
+        fatal: true,
+      });
+
+      return z.NEVER;
+    }
   })
   // global 에러를 특정 영역에서 처리하기 위해 에러 책임 지저하는 path 명시
   .refine(checkPasswords, {
@@ -85,6 +94,7 @@ export async function createAccount(prevState: any, formData: FormData) {
   const result = await formSchema.spa(data);
 
   if (!result.success) {
+    console.log(result.error.flatten());
     // 에러메시지 깔끔하게 깔끼하기 위해 flatten 메서드 사용
     return result.error.flatten();
   }

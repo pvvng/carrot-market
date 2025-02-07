@@ -268,3 +268,26 @@
     > 3. 브라우저가 쿠키안에 세션ID와 페이지 데이터를 서버에 전달
     >
     > 4. 서버에서 세션ID를 검색하고 페이지에 맞는 데이터 전달.
+
+- **zod superRefine**
+
+  > fatal한 에러 발생시 뒤의 validation을 실행하지 않고 얼리리턴
+
+  ```tsx
+    .superRefine(async ({ username }, ctx) => {
+      const user = await db.user.findUnique({
+        where: { username },
+        select: { id: true },
+      });
+      if (user) {
+        ctx.addIssue({
+          code: "custom",
+          message: "이미 사용중인 이름입니다.",
+          path: ["username"],
+          fatal: true,
+        });
+
+        return z.NEVER;
+      }
+    })
+  ```
