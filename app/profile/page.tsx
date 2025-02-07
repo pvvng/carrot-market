@@ -1,6 +1,6 @@
 import db from "@/lib/db";
 import getSession from "@/lib/session";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 async function getUser() {
   const session = await getSession();
@@ -30,7 +30,9 @@ export default async function Profile() {
     "use server";
     const session = await getSession();
     // 세션 쿠키 삭제
-    session.destroy();
+    await session.destroy();
+
+    redirect("/");
   };
 
   return (
