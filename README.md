@@ -354,10 +354,10 @@
 
 - **Edge Runtime**
 
-> 미들웨어는 현재 Edge 런타임과 호환되는 API만 지원
->
-> Node.js 전용 API는 지원 XXX
->
-> [Runtime](https://nextjs.org/docs/app/building-your-application/rendering/edge-and-nodejs-runtimes)
->
-> [Edge Runtime](https://nextjs.org/docs/app/api-reference/edge)
+  > 미들웨어는 현재 Edge 런타임과 호환되는 API만 지원
+  >
+  > Node.js 전용 API는 지원 XXX
+  >
+  > [Runtime](https://nextjs.org/docs/app/building-your-application/rendering/edge-and-nodejs-runtimes)
+  >
+  > [Edge Runtime](https://nextjs.org/docs/app/api-reference/edge)
