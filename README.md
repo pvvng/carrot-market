@@ -306,31 +306,36 @@
 - **Middleware**
 
   - 사용자 페이지 이동 전 `어떠한 코드` 실행 가능
-    - GET /profile ---> middleware() ---> <Profile />
+    - GET /profile ---> middleware() ---> `<Profile />`
+      
   - 웹사이트의 모든 req마다 middleware가 실행된다.
     - 즉 웹사이트의 모든 req를 인터셉트할 수 있음.
 
-  ```tsx
-  export async function middleware(req: NextRequest) {
-    if (req.nextUrl.pathname === "/not-allowed") {
-      /** fetch api 로 새로운 JSON 응답 보내기 */
-      return Response.redirect({
-        error: "you are not allowed here",
-      });
+  - 예시)
+    ```tsx
+    export async function middleware(req: NextRequest) {
+      if (req.nextUrl.pathname === "/not-allowed") {
+        /** fetch api 로 새로운 JSON 응답 보내기 */
+        return Response.redirect({
+          error: "you are not allowed here",
+        });
+      }
+      if (req.nextUrl.pathname === "/profile") {
+        // 쿠키 받아오기
+        const session = await getSession();
+  
+        /** js constructor URL을 사용하여 redirect 시키기 */
+        return Response.redirect(new URL("/", req.url));
+      }
     }
-    if (req.nextUrl.pathname === "/profile") {
-      // 쿠키 받아오기
-      const session = await getSession();
-
-      /** js constructor URL을 사용하여 redirect 시키기 */
-      return Response.redirect(new URL("/", req.url));
-    }
-  }
-  ```
+    ```
+  
 
 - **Middleware config matcher**
 
   > matcher를 사용하면 matcher에 지정한 특정 경로들에서만 미들웨어가 실행되도록 할 수 있음.
+  > 
+  > [공식문서](https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher)
 
   ```tsx
   // 배열 구문을 사용하여 단일 경로 또는 다중 경로를 일치시킬 수 있음.
@@ -339,7 +344,7 @@
   };
   ```
 
-  - [공식문서](https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher)
+
 
   - mathcer는 전체 정규식 표현식(regex)을 허용 (부정 예측 또는 문자 일치 등)
 
