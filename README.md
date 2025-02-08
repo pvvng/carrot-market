@@ -327,3 +327,24 @@
     }
   }
   ```
+
+- **Middleware config matcher**
+
+  > matcher를 사용하면 matcher에 지정한 특정 경로들에서만 미들웨어가 실행되도록 할 수 있음.
+
+  ```tsx
+  // 배열 구문을 사용하여 단일 경로 또는 다중 경로를 일치시킬 수 있음.
+  export const config = {
+    matcher: ["/profile", "/about/:path*", "/dashboard/:path*"],
+  };
+  ```
+
+  - [공식문서](https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher)
+
+  - mathcer는 전체 정규식 표현식(regex)을 허용 (부정 예측 또는 문자 일치 등)
+
+  ```tsx
+  export const config = {
+    matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  };
+  ```
