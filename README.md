@@ -302,3 +302,28 @@
   | **서버 확장성** | 서버 확장에 유리 | 서버 확장 시 관리 복잡성 증가 |
   | **장기 세션 관리** | 부적합 (단기 세션에 적합) | 적합 (장기 상태 유지 가능) |
   | **복잡한 사용자 상태 관리** | 어려움 | 용이 |
+
+- **Middleware**
+
+  - 사용자 페이지 이동 전 `어떠한 코드` 실행 가능
+    - GET /profile ---> middleware() ---> <Profile />
+  - 웹사이트의 모든 req마다 middleware가 실행된다.
+    - 즉 웹사이트의 모든 req를 인터셉트할 수 있음.
+
+  ```tsx
+  export async function middleware(req: NextRequest) {
+    if (req.nextUrl.pathname === "/not-allowed") {
+      /** fetch api 로 새로운 JSON 응답 보내기 */
+      return Response.redirect({
+        error: "you are not allowed here",
+      });
+    }
+    if (req.nextUrl.pathname === "/profile") {
+      // 쿠키 받아오기
+      const session = await getSession();
+
+      /** js constructor URL을 사용하여 redirect 시키기 */
+      return Response.redirect(new URL("/", req.url));
+    }
+  }
+  ```
