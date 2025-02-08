@@ -38,13 +38,13 @@
 - **required input를 invalid 가상 클래스를 통해 스타일 제어**
 
   ```jsx
-    // 유효한 입력값이 아닐 때, input focus하면 ring color 붉은색으로 보임
-    <input
-      className="ring ring-transparent focus:ring-green-500 focus:ring-offset-2  invalid:focus:ring-red-500 peer"
-      type="email"
-      placeholder="Email Address"
-      required
-    />
+  // 유효한 입력값이 아닐 때, input focus하면 ring color 붉은색으로 보임
+  <input
+    className="ring ring-transparent focus:ring-green-500 focus:ring-offset-2  invalid:focus:ring-red-500 peer"
+    type="email"
+    placeholder="Email Address"
+    required
+  />
   ```
 
 - **형제 상태에 따른 스타일 지정 (peer-{modifier})**
@@ -140,16 +140,16 @@
 
 - **사용 방법**
 
-  ```node
+  ```zsh
     npm i prisma
   ```
-  
+
   > prisma 설치
-  
-  ```node
+
+  ```zsh
     npx prisma init
   ```
-  
+
   > schema.prisma 파일 생성
 
 - **prisma model**
@@ -176,11 +176,11 @@
   ```
 
 - **migration**
-  
-  ```node
+
+  ```zsh
   npx prisma migrate dev
   ```
-  
+
   > -> 생성된 마이그레이션 파일을 데이터베이스에 적용 (migration.sql 파일에 작성한 model에 관한 sql문 생성)
   >
   > -> npx prisma create 명령어도 함께 실행. 이 명령어로 Client 생성
@@ -189,7 +189,7 @@
 
 - **Prisma Studio**
 
-  ```node
+  ```zsh
     npx prisma studio
   ```
 
@@ -198,13 +198,13 @@
 - **@relation**
 
   > 관계된 두 모델 연결시키기
-  
+
   ```prisma
     model User{
       // ...다른 필드값
       SMSToken   SMSToken[]
     }
-  
+
     model SMSToken {
       id         Int       @id @default(autoincrement())
       token      String    @unique
@@ -219,7 +219,7 @@
       // userId를 바탕으로 User정보를 찾는것
     }
   ```
-  
+
   ```ts
   async function test() {
     const token = await db.sMSToken.findUnique({
@@ -238,11 +238,126 @@
 - **onDelete**
 
   > Referential actions는 관련된 레코드가 삭제되거나 업데이트될 때 어떤 일이 발생하는지를 결정.
-  
+
   > Prisma는 아래의 referential actions 종류를 지원함
-  
+
   - Cascade: 참조 레코드를 삭제하면 참조 레코드의 삭제가 트리거.
   - Restrict: 참조 레코드가 있는 경우 삭제를 방지.
   - NoAction: Restrict과 유사하지만 사용 중인 데이터베이스에 따라 다름.
   - SetNull: 참조 필드가 NULL로 설정. (optional일 때만 정상 작동)
   - SetDefault: 참조 필드가 기본값으로 설정.
+
+- **iron-session**
+
+  > iron-session은 안전하고, statelss한, 쿠키 기반 JavaScript용 세션 라이브러리.
+
+  ```zsh
+  npm i iron-session
+  ```
+
+- **Cookie vs Session**
+
+  - Cookie - Web Browser (Client에서 사용)
+  - Session - Server에서 사용
+  - 단 쿠키안에 세션 ID가 있고 서버에 세션ID 안에 세션 존재.
+  - 작동 방식
+    > 1. 브라우저가 서버 접속
+    >
+    > 2. 서버에서 쿠키안에 세션ID를 브라우저에 전달
+    >
+    > 3. 브라우저가 쿠키안에 세션ID와 페이지 데이터를 서버에 전달
+    >
+    > 4. 서버에서 세션ID를 검색하고 페이지에 맞는 데이터 전달.
+
+- **zod superRefine**
+
+  > fatal한 에러 발생시 뒤의 validation을 실행하지 않고 얼리리턴
+
+  ```tsx
+    .superRefine(async ({ username }, ctx) => {
+      const user = await db.user.findUnique({
+        where: { username },
+        select: { id: true },
+      });
+      if (user) {
+        ctx.addIssue({
+          code: "custom",
+          message: "이미 사용중인 이름입니다.",
+          path: ["username"],
+          fatal: true,
+        });
+
+        return z.NEVER;
+      }
+    })
+  ```
+
+- **Iron-Session vs session DB**
+  | **기준** | **IronSession (HttpOnly 쿠키)** | **Session DB (Redis, SQL)** |
+  |--------------------------|----------------------------------------------|--------------------------------------------|
+  | **설정 및 구현** | 간단하고 설정이 쉬움 | 복잡한 설정 필요 (DB 구축) |
+  | **데이터 크기 제한** | 약 4KB 제한 | 제한 없음 |
+  | **보안** | 암호화된 쿠키, HTTPS 필요, 쿠키 하이재킹에 취약 | 서버 관리, 세션 만료 관리 용이, 데이터베이스 보안 설정 필요 |
+  | **응답 속도** | 빠름 (Stateless) | 다소 느릴 수 있음 (DB 액세스 필요) |
+  | **서버 확장성** | 서버 확장에 유리 | 서버 확장 시 관리 복잡성 증가 |
+  | **장기 세션 관리** | 부적합 (단기 세션에 적합) | 적합 (장기 상태 유지 가능) |
+  | **복잡한 사용자 상태 관리** | 어려움 | 용이 |
+
+- **Middleware**
+
+  - 사용자 페이지 이동 전 `어떠한 코드` 실행 가능
+    - GET /profile ---> middleware() ---> `<Profile />`
+  - 웹사이트의 모든 req마다 middleware가 실행된다.
+
+    - 즉 웹사이트의 모든 req를 인터셉트할 수 있음.
+
+  - 예시)
+
+    ```tsx
+    export async function middleware(req: NextRequest) {
+      if (req.nextUrl.pathname === "/not-allowed") {
+        /** fetch api 로 새로운 JSON 응답 보내기 */
+        return Response.redirect({
+          error: "you are not allowed here",
+        });
+      }
+      if (req.nextUrl.pathname === "/profile") {
+        // 쿠키 받아오기
+        const session = await getSession();
+
+        /** js constructor URL을 사용하여 redirect 시키기 */
+        return Response.redirect(new URL("/", req.url));
+      }
+    }
+    ```
+
+- **Middleware config matcher**
+
+  > matcher를 사용하면 matcher에 지정한 특정 경로들에서만 미들웨어가 실행되도록 할 수 있음.
+  >
+  > [공식문서](https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher)
+
+  ```tsx
+  // 배열 구문을 사용하여 단일 경로 또는 다중 경로를 일치시킬 수 있음.
+  export const config = {
+    matcher: ["/profile", "/about/:path*", "/dashboard/:path*"],
+  };
+  ```
+
+  - mathcer는 전체 정규식 표현식(regex)을 허용 (부정 예측 또는 문자 일치 등)
+
+  ```tsx
+  export const config = {
+    matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  };
+  ```
+
+- **Edge Runtime**
+
+  > 미들웨어는 현재 Edge 런타임과 호환되는 API만 지원
+  >
+  > Node.js 전용 API는 지원 XXX
+  >
+  > [Runtime](https://nextjs.org/docs/app/building-your-application/rendering/edge-and-nodejs-runtimes)
+  >
+  > [Edge Runtime](https://nextjs.org/docs/app/api-reference/edge)

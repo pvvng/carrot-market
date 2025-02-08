@@ -10,7 +10,11 @@ import {
   USERNAME_INVALID_ERROR,
   USERNAME_TYPE_ERROR,
 } from "@/lib/constants";
+import db from "@/lib/db";
 import { z } from "zod";
+import bcrypt from "bcrypt";
+import { redirect } from "next/navigation";
+import getSession from "@/lib/session";
 
 const checkPasswords = ({
   password,
@@ -39,6 +43,39 @@ const formSchema = z
       .string()
       .min(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_ERROR),
   })
+  // fatal한 에러 발생시 뒤의 validation을 실행하지 않고 얼리리턴
+  .superRefine(async ({ username }, ctx) => {
+    const user = await db.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
+    if (user) {
+      ctx.addIssue({
+        code: "custom",
+        message: "이미 사용중인 이름입니다.",
+        path: ["username"],
+        fatal: true,
+      });
+
+      return z.NEVER;
+    }
+  })
+  .superRefine(async ({ email }, ctx) => {
+    const user = await db.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+    if (user) {
+      ctx.addIssue({
+        code: "custom",
+        message: "이 이메일로 가입된 계정이 이미 존재합니다.",
+        path: ["email"],
+        fatal: true,
+      });
+
+      return z.NEVER;
+    }
+  })
   // global 에러를 특정 영역에서 처리하기 위해 에러 책임 지저하는 path 명시
   .refine(checkPasswords, {
     message: PASSWORD_NOT_CONFIRMED_ERROR,
@@ -53,9 +90,8 @@ export async function createAccount(prevState: any, formData: FormData) {
     confirmPassword: formData.get("confirmPassword"),
   };
 
-  // parse 메서드는 에러를 throw 하지만 safePased는 에러 반환 안함
-  // { success: false; error: ZodError }
-  const result = formSchema.safeParse(data);
+  // safeParseAsync -> promise 함수에 알아서 async await
+  const result = await formSchema.spa(data);
 
   if (!result.success) {
     console.log(result.error.flatten());
@@ -63,6 +99,25 @@ export async function createAccount(prevState: any, formData: FormData) {
     return result.error.flatten();
   }
 
-  // validated, transformed data
-  console.log(result.data);
+  // hash password
+  const hashedPassword = await bcrypt.hash(result.data.password, 12);
+
+  // save the user to db
+  const user = await db.user.create({
+    data: {
+      username: result.data.username,
+      email: result.data.email,
+      password: hashedPassword,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  const session = await getSession();
+  session.id = user.id;
+  await session.save();
+
+  // 사용자 리다이렉트
+  redirect("/profile");
 }
