@@ -358,6 +358,6 @@
 >
 > Node.js 전용 API는 지원 XXX
 >
-> [Runtime]https://nextjs.org/docs/app/building-your-application/rendering/edge-and-nodejs-runtimes
+> [Runtime](https://nextjs.org/docs/app/building-your-application/rendering/edge-and-nodejs-runtimes)
 >
-> [Edge Runtime]https://nextjs.org/docs/app/api-reference/edge
+> [Edge Runtime](https://nextjs.org/docs/app/api-reference/edge)
