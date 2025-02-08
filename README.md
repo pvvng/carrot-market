@@ -307,11 +307,12 @@
 
   - 사용자 페이지 이동 전 `어떠한 코드` 실행 가능
     - GET /profile ---> middleware() ---> `<Profile />`
-      
   - 웹사이트의 모든 req마다 middleware가 실행된다.
+
     - 즉 웹사이트의 모든 req를 인터셉트할 수 있음.
 
   - 예시)
+
     ```tsx
     export async function middleware(req: NextRequest) {
       if (req.nextUrl.pathname === "/not-allowed") {
@@ -323,18 +324,17 @@
       if (req.nextUrl.pathname === "/profile") {
         // 쿠키 받아오기
         const session = await getSession();
-  
+
         /** js constructor URL을 사용하여 redirect 시키기 */
         return Response.redirect(new URL("/", req.url));
       }
     }
     ```
-  
 
 - **Middleware config matcher**
 
   > matcher를 사용하면 matcher에 지정한 특정 경로들에서만 미들웨어가 실행되도록 할 수 있음.
-  > 
+  >
   > [공식문서](https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher)
 
   ```tsx
@@ -344,8 +344,6 @@
   };
   ```
 
-
-
   - mathcer는 전체 정규식 표현식(regex)을 허용 (부정 예측 또는 문자 일치 등)
 
   ```tsx
@@ -353,3 +351,13 @@
     matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
   };
   ```
+
+- **Edge Runtime**
+
+> 미들웨어는 현재 Edge 런타임과 호환되는 API만 지원
+>
+> Node.js 전용 API는 지원 XXX
+>
+> [Runtime]https://nextjs.org/docs/app/building-your-application/rendering/edge-and-nodejs-runtimes
+>
+> [Edge Runtime]https://nextjs.org/docs/app/api-reference/edge
