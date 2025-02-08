@@ -1,30 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import getSession from "./lib/session";
 
-export async function middleware(req: NextRequest) {
-  console.log("hello");
-  const pathname = req.nextUrl.pathname;
-  if (pathname === "/") {
-    // 사용자에게 제공할 response 설정
-    const response = NextResponse.next();
-    response.cookies.set("middleware-cookie", "middleware");
-    // req 인터셉트 후 수정해서 res 전송
-    return response;
-  }
-  if (pathname === "/profile") {
-    // 쿠키 받아오기
-    const session = await getSession();
-    console.log(session);
+// 검색 속도 개선을 위해 set 사용
+const publicOnlyURL = new Set(["/", "/login", "/sms", "/create-account"]);
 
-    /** js constructor URL을 사용하여 redirect 시키기 */
-    return Response.redirect(new URL("/", req.url));
+export async function middleware(req: NextRequest) {
+  // true ? public page : private page
+  const isPublicPath = publicOnlyURL.has(req.nextUrl.pathname);
+  const isLoggedIn = Boolean((await getSession()).id);
+
+  // 로그아웃 상태
+  // private page 이동 시도
+  if (!isLoggedIn && !isPublicPath) {
+    return NextResponse.redirect(new URL("/", req.url));
   }
+
+  // 로그인 상태
+  // public page 이동 시도
+  // if (isLoggedIn && isPublicPath) {
+  //   return NextResponse.redirect(new URL("/home", req.url));
+  // }
 }
 
-// middleware가 실행되어야할 req 설정 가능
-// regex도 사용 가능
 export const config = {
-  // /api, _next/static, _next/image, favicion.ico 등 배제 가능
   matcher: [
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
