@@ -379,3 +379,23 @@
     > 4. 중앙 컨텐츠 우측 상단 'New OAuth App'
     >
     > 5. secret 키, 인증 콜백 설정
+
+- **Access Token**
+
+  > [Access Token(GitHub가 사용자를 사이트로 다시 리디렉션)](https://docs.github.com/ko/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#2-users-are-redirected-back-to-your-site-by-github)
+
+  - 잘못된 인증 코드 오류
+
+    - 전달한 인증 코드가 올바르지 않거나 만료되었거나
+      첫 번째 권한 부여 요청에서 받은 코드와 일치하지 않으면 이 오류가 발생.
+      이 오류를 해결하려면 OAuth 권한 부여 프로세스를 다시 시작하고 새 코드를 가져와야함.
+
+    - [인증 코드 에러](https://docs.github.com/ko/apps/oauth-apps/maintaining-oauth-apps/troubleshooting-oauth-app-access-token-request-errors#bad-verification-code)
+
+    ```json
+    {
+      "error": "bad_verification_code",
+      "error_description": "The code passed is incorrect or expired.",
+      "error_uri": "/apps/managing-oauth-apps/troubleshooting-oauth-app-access-token-request-errors/#bad-verification-code"
+    }
+    ```
