@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 
 async function getUser() {
   const session = await getSession();
+  console.log(session);
   // 쿠키 세션을 통해서 user id 알아내기
   if (session.id) {
     const user = await db.user.findUnique({

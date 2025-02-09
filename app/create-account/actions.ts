@@ -14,7 +14,7 @@ import db from "@/lib/db";
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
-import getSession from "@/lib/session";
+import LogUserIn from "@/lib/login";
 
 const checkPasswords = ({
   password,
@@ -114,9 +114,7 @@ export async function createAccount(prevState: any, formData: FormData) {
     },
   });
 
-  const session = await getSession();
-  session.id = user.id;
-  await session.save();
+  await LogUserIn(user.id);
 
   // 사용자 리다이렉트
   redirect("/profile");
