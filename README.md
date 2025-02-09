@@ -247,6 +247,8 @@
   - SetNull: 참조 필드가 NULL로 설정. (optional일 때만 정상 작동)
   - SetDefault: 참조 필드가 기본값으로 설정.
 
+### 4. Authentication
+
 - **iron-session**
 
   > iron-session은 안전하고, statelss한, 쿠키 기반 JavaScript용 세션 라이브러리.
@@ -302,6 +304,8 @@
   | **서버 확장성** | 서버 확장에 유리 | 서버 확장 시 관리 복잡성 증가 |
   | **장기 세션 관리** | 부적합 (단기 세션에 적합) | 적합 (장기 상태 유지 가능) |
   | **복잡한 사용자 상태 관리** | 어려움 | 용이 |
+
+### 5. Middleware
 
 - **Middleware**
 
@@ -362,23 +366,23 @@
   >
   > [Edge Runtime](https://nextjs.org/docs/app/api-reference/edge)
 
-- Social Login (Github Authentication)
+### 6. Social Login (Github Authentication)
 
-  - github application 생성
+- github application 생성
 
-    - [app 생성 바로가기](https://github.com/settings/applications/new)
-    - [권한 부여](https://docs.github.com/ko/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps)
-    - [스코프](https://docs.github.com/ko/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps)
+  - [app 생성 바로가기](https://github.com/settings/applications/new)
+  - [권한 부여](https://docs.github.com/ko/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps)
+  - [스코프](https://docs.github.com/ko/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps)
 
-    > 1. 사용자 프로필 클릭
-    >
-    > 2. 사이드메뉴 맨 아래 '<> Developer settings' 메뉴 클릭
-    >
-    > 3. OAuth Apps 메뉴 클릭
-    >
-    > 4. 중앙 컨텐츠 우측 상단 'New OAuth App'
-    >
-    > 5. secret 키, 인증 콜백 설정
+  > 1. 사용자 프로필 클릭
+  >
+  > 2. 사이드메뉴 맨 아래 '<> Developer settings' 메뉴 클릭
+  >
+  > 3. OAuth Apps 메뉴 클릭
+  >
+  > 4. 중앙 컨텐츠 우측 상단 'New OAuth App'
+  >
+  > 5. secret 키, 인증 콜백 설정
 
 - **Access Token**
 
