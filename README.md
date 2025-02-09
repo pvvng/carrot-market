@@ -403,3 +403,12 @@
       "error_uri": "/apps/managing-oauth-apps/troubleshooting-oauth-app-access-token-request-errors/#bad-verification-code"
     }
     ```
+
+- **액세스 토큰을 사용하여 API에 액세스**
+
+  > [github api](https://docs.github.com/ko/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps#3-use-the-access-token-to-access-the-api)
+
+  ```bash
+    Authorization: `Bearer ${AccessToken}`
+    GET https://api.github.com/user
+  ```
