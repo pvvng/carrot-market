@@ -94,7 +94,6 @@ export async function createAccount(prevState: any, formData: FormData) {
   const result = await formSchema.spa(data);
 
   if (!result.success) {
-    console.log(result.error.flatten());
     // 에러메시지 깔끔하게 깔끼하기 위해 flatten 메서드 사용
     return result.error.flatten();
   }
