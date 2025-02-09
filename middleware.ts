@@ -2,7 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import getSession from "./lib/session";
 
 // 검색 속도 개선을 위해 set 사용
-const publicOnlyURL = new Set(["/", "/login", "/sms", "/create-account"]);
+const publicOnlyURL = new Set([
+  "/",
+  "/login",
+  "/sms",
+  "/create-account",
+  "/github/start",
+  "/github/complete",
+]);
 
 export async function middleware(req: NextRequest) {
   // true ? public page : private page

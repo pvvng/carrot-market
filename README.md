@@ -361,3 +361,21 @@
   > [Runtime](https://nextjs.org/docs/app/building-your-application/rendering/edge-and-nodejs-runtimes)
   >
   > [Edge Runtime](https://nextjs.org/docs/app/api-reference/edge)
+
+- Social Login (Github Authentication)
+
+  - github application 생성
+
+    - [app 생성 바로가기](https://github.com/settings/applications/new)
+    - [권한 부여](https://docs.github.com/ko/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps)
+    - [스코프](https://docs.github.com/ko/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps)
+
+    > 1. 사용자 프로필 클릭
+    >
+    > 2. 사이드메뉴 맨 아래 '<> Developer settings' 메뉴 클릭
+    >
+    > 3. OAuth Apps 메뉴 클릭
+    >
+    > 4. 중앙 컨텐츠 우측 상단 'New OAuth App'
+    >
+    > 5. secret 키, 인증 콜백 설정
