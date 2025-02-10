@@ -14,7 +14,7 @@ import db from "@/lib/db";
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
-import getSession from "@/lib/session";
+import LogUserIn from "@/lib/login";
 
 const checkPasswords = ({
   password,
@@ -94,7 +94,6 @@ export async function createAccount(prevState: any, formData: FormData) {
   const result = await formSchema.spa(data);
 
   if (!result.success) {
-    console.log(result.error.flatten());
     // 에러메시지 깔끔하게 깔끼하기 위해 flatten 메서드 사용
     return result.error.flatten();
   }
@@ -114,9 +113,7 @@ export async function createAccount(prevState: any, formData: FormData) {
     },
   });
 
-  const session = await getSession();
-  session.id = user.id;
-  await session.save();
+  await LogUserIn(user.id);
 
   // 사용자 리다이렉트
   redirect("/profile");
