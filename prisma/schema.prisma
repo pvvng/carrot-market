@@ -39,6 +39,7 @@ model User {
 model SMSToken {
   id         Int       @id @default(autoincrement())
   token      String    @unique
+  phone      String    @unique
   created_at DateTime? @default(now())
   updated_at DateTime? @updatedAt
   // 아래 줄을 기입하는 이유는 

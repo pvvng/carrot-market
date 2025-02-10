@@ -6,9 +6,9 @@ import Input from "@/components/input";
 import { useActionState } from "react";
 import { smsLogin } from "./actions";
 
-// initialState error에 타입 지정하면 자동으로 state 타입이 지정됨
 const initialState = {
   token: false,
+  phone: undefined,
   error: undefined,
 };
 
@@ -22,6 +22,15 @@ export default function SMSLogin() {
         <h2 className="text-xl">Verify your phone number</h2>
       </div>
       <form action={action} className="flex flex-col gap-3 ">
+        <Input
+          name="phone"
+          type="text"
+          placeholder="phone number"
+          required
+          defaultValue={state.phone}
+          readOnly={Boolean(state.phone)}
+          errors={!Boolean(state.phone) ? state.error?.formErrors : []}
+        />
         {state.token ? (
           <Input
             name="token"
@@ -32,15 +41,7 @@ export default function SMSLogin() {
             max={999999}
             errors={state.error?.formErrors}
           />
-        ) : (
-          <Input
-            name="phone"
-            type="text"
-            placeholder="phone number"
-            required
-            errors={state.error?.formErrors}
-          />
-        )}
+        ) : null}
         <Button text={state.token ? "Verify" : "Send SMS Message"} />
       </form>
     </div>
