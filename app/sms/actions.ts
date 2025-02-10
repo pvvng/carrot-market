@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import db from "@/lib/db";
 import crypto from "crypto";
 import LogUserIn from "@/lib/login";
+import { Vonage } from "@vonage/server-sdk";
+import { Auth } from "@vonage/auth";
 
 const phoneSchema = z
   .string()
@@ -43,7 +45,7 @@ export async function smsLogin(prevState: ActionState, formData: FormData) {
 
   // initial state
   // prevestate.token === false 인 상황
-  // 그러니까 사용자의 핸드폰 번호가 제대로 작성되지 않은 상황
+  // 토큰이 사용자에게 보내지지 않은 상황
   if (!prevState.token) {
     const result = phoneSchema.safeParse(phone);
     // db에 저장된 이전 토큰 삭제하기
@@ -70,7 +72,21 @@ export async function smsLogin(prevState: ActionState, formData: FormData) {
         },
       },
     });
-    // send the token using twillio
+
+    // Vonage로 메시지 보내지
+    const credentials = new Auth({
+      apiKey: process.env.VONAGE_API_KEY,
+      apiSecret: process.env.VONAGE_API_SECRET,
+    });
+
+    const vonage = new Vonage(credentials);
+
+    await vonage.sms.send({
+      to: process.env.MY_PHONE_NUMBER!,
+      //to: result.data,
+      from: process.env.VONAGE_SMS_FROM!,
+      text: `Your Carrot-market code is : ${token}`,
+    });
 
     return {
       token: result.success,
