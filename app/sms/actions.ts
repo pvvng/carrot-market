@@ -3,6 +3,8 @@
 import { z } from "zod";
 import validator from "validator";
 import { redirect } from "next/navigation";
+import db from "@/lib/db";
+import crypto from "crypto";
 
 const phoneSchema = z
   .string()
@@ -32,6 +34,31 @@ export async function smsLogin(prevState: ActionState, formData: FormData) {
   // 그러니까 사용자의 핸드폰 번호가 제대로 작성되지 않은 상황
   if (!prevState.token) {
     const result = phoneSchema.safeParse(phone);
+    // db에 저장된 이전 토큰 삭제하기
+    await db.sMSToken.deleteMany({
+      where: { user: { phone: result.data } },
+    });
+    // create new token
+    const token = await getToken();
+    // token 생성하기
+    await db.sMSToken.create({
+      data: {
+        token,
+        // 토큰 모델을 사용자랑 연결하는데
+        user: {
+          connectOrCreate: {
+            // 이미 존재하는 사용자 (로그인) 인 경우에는 연결만 해주기
+            where: { phone: result.data },
+            // 회원가입하는 사용자는 임시 사용자명 설정 및 phone 기록해두기
+            create: {
+              username: crypto.randomBytes(10).toString("hex"),
+              phone: result.data,
+            },
+          },
+        },
+      },
+    });
+    // send the token using twillio
 
     return {
       token: result.success,
@@ -48,11 +75,27 @@ export async function smsLogin(prevState: ActionState, formData: FormData) {
   if (!result.success) {
     return {
       token: true,
-      // return error
       error: result.error.flatten(),
     };
   }
 
   // 전화번호 및 토큰 검증이 완료되면 redirect
   return redirect("/");
+}
+
+async function getToken() {
+  // 토큰 생성
+  const token = crypto.randomInt(100000, 999999).toString();
+  // 이미 토큰이 존재하는지 확인
+  const exist = await db.sMSToken.findUnique({
+    where: { token },
+    select: { id: true },
+  });
+
+  // 이미 토큰이 존재하면 재귀
+  if (exist) {
+    return getToken();
+  }
+
+  return token;
 }
