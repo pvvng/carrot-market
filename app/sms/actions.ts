@@ -5,6 +5,7 @@ import validator from "validator";
 import { redirect } from "next/navigation";
 import db from "@/lib/db";
 import crypto from "crypto";
+import LogUserIn from "@/lib/login";
 
 const phoneSchema = z
   .string()
@@ -15,11 +16,22 @@ const phoneSchema = z
     "잘못된 전화번호 형식입니다."
   );
 
+// 입력한 토큰이 올바른지 검증
+const tokenExist = async (token: number) => {
+  const exist = await db.sMSToken.findUnique({
+    where: { token: token.toString() },
+    select: { id: true },
+  });
+
+  return Boolean(exist);
+};
+
 // coerce : formdata 형변환
 const tokenSchema = z.coerce
   .number()
   .min(100000, "인증코드는 100000 미만일 수 없습니다.")
-  .max(999999, "인증코드는 999999 초과일 수 없습니다.");
+  .max(999999, "인증코드는 999999 초과일 수 없습니다.")
+  .refine(tokenExist, "인증코드가 일치하지 않습니다.");
 
 interface ActionState {
   token: boolean;
@@ -68,7 +80,7 @@ export async function smsLogin(prevState: ActionState, formData: FormData) {
 
   // 사용자 핸드폰 번호가 확인되었을때 실행
   // 앞선 반환문으로 prevstate.token === true로 변경된 상황
-  const result = tokenSchema.safeParse(token);
+  const result = await tokenSchema.spa(token);
 
   // tokenSchema로 토큰 검증 결과 확인
   // 만약 토큰이 올바르지 않으면 실행
@@ -79,8 +91,17 @@ export async function smsLogin(prevState: ActionState, formData: FormData) {
     };
   }
 
+  // delete 는 삭제할 데이터를 반환함
+  const user = await db.sMSToken.delete({
+    where: { token: result.data.toString() },
+    select: { userId: true },
+  });
+
+  // 유저 로그인
+  await LogUserIn(user!.userId);
+
   // 전화번호 및 토큰 검증이 완료되면 redirect
-  return redirect("/");
+  return redirect("/profile");
 }
 
 async function getToken() {
