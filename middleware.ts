@@ -24,9 +24,9 @@ export async function middleware(req: NextRequest) {
 
   // 로그인 상태
   // public page 이동 시도
-  // if (isLoggedIn && isPublicPath) {
-  //   return NextResponse.redirect(new URL("/home", req.url));
-  // }
+  if (isLoggedIn && isPublicPath) {
+    return NextResponse.redirect(new URL("/products", req.url));
+  }
 }
 
 export const config = {
