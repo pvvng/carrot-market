@@ -412,3 +412,10 @@
     Authorization: `Bearer ${AccessToken}`
     GET https://api.github.com/user
   ```
+
+### 7. Products
+
+- **Layout.tsx의 특이점**
+  > (group A) 안에 Layout.tsx를 정의하면 해당 그룹에서만 사용가능한 레이아웃이 된다.
+  >
+  > 이를 이용하여 특정 페이지에서만 사용하는 네비게이션 등을 제작 가능함.
