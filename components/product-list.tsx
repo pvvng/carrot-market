@@ -13,29 +13,40 @@ export default function ProductList({ initialProducts }: ProductListProps) {
   // 부모(서버 컴포넌트)가 불러온 이니셜 제품 데이터로 상태 초기화하기
   const [products, setProducts] = useState(initialProducts);
   const [isLoading, setIsLoading] = useState(false);
+  // 현재 페이지
+  const [page, setPage] = useState(0);
+  const [isLastPage, setIsLastPage] = useState(false);
 
   // 버튼 클릭시 다음 페이지의 데이터 불러와서 기존 제품 데이터와 병합하기
   const onLoadMoreClick = async () => {
     setIsLoading(true);
-    const newProducts = await getMoreProducts(1);
-    await new Promise((res) => setTimeout(res, 3000));
-    setProducts((prevProducts) => [...prevProducts, ...newProducts]);
+    const newProducts = await getMoreProducts(page + 1);
+    // 더이상 가져올 데이터가 없을때에만 page 증가 금지
+    if (newProducts.length !== 0) {
+      setPage((pre) => pre + 1);
+      setProducts((prevProducts) => [...prevProducts, ...newProducts]);
+    } else {
+      setIsLastPage(true);
+    }
+
     setIsLoading(false);
   };
 
   return (
-    <div className="p-5 flex flex-col gap-5">
+    <div className="p-5 flex flex-col gap-5 mb-20">
       {products.map((product) => (
         <ListProduct key={product.id} {...product} />
       ))}
-      <button
-        className="text-sm font-semibold bg-orange-500 rounded-md text-white px-3 py-2 mx-auto
+      {!isLastPage && (
+        <button
+          className="text-sm font-semibold bg-orange-500 rounded-md text-white px-3 py-2 mx-auto
       hover:opacity-90 active:scale-95 disabled:bg-neutral-600"
-        onClick={onLoadMoreClick}
-        disabled={isLoading}
-      >
-        {isLoading ? "로딩 중" : "더 불러오기"}
-      </button>
+          onClick={onLoadMoreClick}
+          disabled={isLoading}
+        >
+          {isLoading ? "로딩 중" : "더 불러오기"}
+        </button>
+      )}
     </div>
   );
 }

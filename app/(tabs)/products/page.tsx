@@ -1,4 +1,5 @@
 import ProductList from "@/components/product-list";
+import { PAGE_DATA_COUNT } from "@/lib/constants";
 import db from "@/lib/db";
 import { Prisma } from "@prisma/client";
 
@@ -12,7 +13,7 @@ async function getInitialProducts() {
       id: true,
     },
     // 가져올 페이지/상품 개수
-    take: 1,
+    take: PAGE_DATA_COUNT,
     // 최신순 정렬(내림차순)
     orderBy: {
       created_at: "desc",
