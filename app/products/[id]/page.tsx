@@ -1,3 +1,4 @@
+import ProductDeleteButton from "@/components/product-delete-button";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { formatToWon } from "@/lib/utils";
@@ -97,19 +98,19 @@ export default async function ProductDetail({
         <span className="font-semibold text-xl">
           {formatToWon(product.price)}원
         </span>
-        {isOwner && (
-          <form action={deleteProduct}>
-            <button className="bg-red-500 p-5 rounded-md text-white font-semibold">
-              삭제하기
-            </button>
-          </form>
-        )}
-        <Link
-          className="bg-orange-500 p-5 rounded-md text-white font-semibold"
-          href={``}
-        >
-          채팅하기
-        </Link>
+        <div className="flex items-center gap-2">
+          {isOwner && (
+            <form action={deleteProduct}>
+              <ProductDeleteButton title={product.title} />
+            </form>
+          )}
+          <Link
+            className="bg-orange-500 p-5 rounded-md text-white font-semibold"
+            href={``}
+          >
+            채팅하기
+          </Link>
+        </div>
       </div>
     </div>
   );
