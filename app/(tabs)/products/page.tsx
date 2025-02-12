@@ -1,8 +1,9 @@
 import ListProduct from "@/components/list-product";
+import ProductList from "@/components/product-list";
 import db from "@/lib/db";
+import { Prisma } from "@prisma/client";
 
-async function getProducts() {
-  // await new Promise((res) => setTimeout(res, 3000));
+async function getInitialProducts() {
   const products = await db.product.findMany({
     select: {
       title: true,
@@ -11,19 +12,28 @@ async function getProducts() {
       photo: true,
       id: true,
     },
+    // 가져올 페이지/상품 개수
+    take: 1,
+    // 최신순 정렬(내림차순)
+    orderBy: {
+      created_at: "desc",
+    },
   });
 
   return products;
 }
 
+// db 데이터 타입
+export type initialProducts = Prisma.PromiseReturnType<
+  typeof getInitialProducts
+>;
+
 export default async function Products() {
-  const products = await getProducts();
+  const initialProducts = await getInitialProducts();
 
   return (
-    <div className="p-5 flex flex-col gap-5">
-      {products.map((product) => (
-        <ListProduct key={product.id} {...product} />
-      ))}
+    <div>
+      <ProductList initialProducts={initialProducts} />
     </div>
   );
 }
