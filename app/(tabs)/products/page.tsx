@@ -1,4 +1,3 @@
-import ListProduct from "@/components/list-product";
 import ProductList from "@/components/product-list";
 import db from "@/lib/db";
 import { Prisma } from "@prisma/client";
@@ -28,6 +27,7 @@ export type initialProducts = Prisma.PromiseReturnType<
   typeof getInitialProducts
 >;
 
+// 페이지 실행시에는 최초 제품 페이지만 불러오기
 export default async function Products() {
   const initialProducts = await getInitialProducts();
 

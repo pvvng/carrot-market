@@ -10,9 +10,11 @@ interface ProductListProps {
 }
 
 export default function ProductList({ initialProducts }: ProductListProps) {
+  // 부모(서버 컴포넌트)가 불러온 이니셜 제품 데이터로 상태 초기화하기
   const [products, setProducts] = useState(initialProducts);
   const [isLoading, setIsLoading] = useState(false);
 
+  // 버튼 클릭시 다음 페이지의 데이터 불러와서 기존 제품 데이터와 병합하기
   const onLoadMoreClick = async () => {
     setIsLoading(true);
     const newProducts = await getMoreProducts(1);

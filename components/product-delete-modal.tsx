@@ -1,12 +1,28 @@
 "use client";
 
+import { deleteProduct } from "@/app/products/[id]/actions";
+import { redirect } from "next/navigation";
+import { useState } from "react";
+
 export default function ProductModal({
   title,
+  id,
   closeModal,
 }: {
   title: string;
+  id: number;
   closeModal: () => void;
 }) {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const onDeleteClick = async () => {
+    setIsLoading(true);
+    await deleteProduct(id);
+    setIsLoading(false);
+    alert(`${title} 제품을 삭제했습니다.`);
+    redirect("/products");
+  };
+
   return (
     <div className="w-full h-screen mx-auto fixed inset-0 flex flex-col gap-2 justify-center items-center">
       <div
@@ -25,7 +41,11 @@ export default function ProductModal({
         </div>
         <div className="grid grid-cols-2 gap-2 mt-5">
           {/* product-delete-button */}
-          <button className="bg-red-500 p-3 rounded-md text-white font-semibold mt-2">
+          <button
+            onClick={onDeleteClick}
+            disabled={isLoading}
+            className="bg-red-500 p-3 rounded-md text-white font-semibold mt-2 disabled:bg-neutral-700"
+          >
             예
           </button>
           <span

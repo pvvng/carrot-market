@@ -52,16 +52,6 @@ export default async function ProductDetail({
 
   const isOwner = await getIsOwner(product.userId);
 
-  // 상품 삭제하는 함수
-  const deleteProduct = async () => {
-    "use server";
-    await db.product.delete({
-      where: { id },
-    });
-
-    redirect("/products");
-  };
-
   return (
     <div>
       <div className="relative aspect-square">
@@ -101,9 +91,7 @@ export default async function ProductDetail({
         </span>
         <div className="flex justify-center items-center gap-2">
           {isOwner && (
-            <form action={deleteProduct} className="flex">
-              <ProductDeleteButton title={product.title} />
-            </form>
+            <ProductDeleteButton title={product.title} id={product.id} />
           )}
           <Link
             className="bg-orange-500 p-5 rounded-md text-white font-semibold"
