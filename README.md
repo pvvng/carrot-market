@@ -416,6 +416,45 @@
 ### 7. Products
 
 - **Layout.tsx의 특이점**
+
   > (group A) 안에 Layout.tsx를 정의하면 해당 그룹에서만 사용가능한 레이아웃이 된다.
   >
   > 이를 이용하여 특정 페이지에서만 사용하는 네비게이션 등을 제작 가능함.
+
+- **Intl.RelativeTimeFormat**
+
+  > Intl.RelativeTimeFormat은 JavaScript의 국제화(Intl) API 중 하나로, 날짜나 시간을 현재 시점과의 상대적인 시간 표현으로 포맷해주는 기능을 제공함.
+  >
+  > 이를 통해 “3일 전”, “2시간 후”와 같은 상대적 시간 표현을 간편하게 구현할 수 있음.
+
+  ```jsx
+  /** 날짜를 x일 전, x일 후로 표기하는 함수 */
+  export function formatToTimeAgo(date: string): string {
+    const dayInMs = 1000 * 60 * 60 * 24;
+    const time = new Date(date).getTime();
+    const now = new Date().getTime();
+    const diff = Math.round((time - now) / dayInMs);
+
+    const formatter = new Intl.RelativeTimeFormat("ko");
+
+    return formatter.format(diff, "days");
+  }
+  ```
+
+- **Dynamic Route**
+
+  > app/[id]/page.tsx -> app/123으로 이동하면 해당 route의 params id를 알 수 있다
+
+  ```jsx
+  interface ProductDetailPageProps {
+    params: Promise<{ id: string }>;
+  }
+
+  export default async function ProductDetail({
+    params,
+  }: ProductDetailPageProps) {
+    const { id } = await params;
+
+    return <span>product detail {id}</span>;
+  }
+  ```

@@ -2,6 +2,7 @@ import ListProduct from "@/components/list-product";
 import db from "@/lib/db";
 
 async function getProducts() {
+  // await new Promise((res) => setTimeout(res, 3000));
   const products = await db.product.findMany({
     select: {
       title: true,
