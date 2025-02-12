@@ -458,3 +458,16 @@
     return <span>product detail {id}</span>;
   }
   ```
+
+- **Image HostName**
+
+  > Image 태그를 통해 외부 이미지 최적화를 진행 위해선 hostname 등록이 필요함
+
+  ```ts
+  const nextConfig: NextConfig = {
+    /* config options here */
+    images: {
+      remotePatterns: [{ hostname: "image.link.com" }],
+    },
+  };
+  ```
