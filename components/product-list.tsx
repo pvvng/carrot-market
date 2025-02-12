@@ -2,7 +2,7 @@
 
 import { initialProducts } from "@/app/(tabs)/products/page";
 import ListProduct from "./list-product";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getMoreProducts } from "@/app/(tabs)/products/actions";
 
 interface ProductListProps {
@@ -16,21 +16,53 @@ export default function ProductList({ initialProducts }: ProductListProps) {
   // 현재 페이지
   const [page, setPage] = useState(0);
   const [isLastPage, setIsLastPage] = useState(false);
+  const trigger = useRef<HTMLSpanElement>(null);
 
-  // 버튼 클릭시 다음 페이지의 데이터 불러와서 기존 제품 데이터와 병합하기
-  const onLoadMoreClick = async () => {
-    setIsLoading(true);
-    const newProducts = await getMoreProducts(page + 1);
-    // 더이상 가져올 데이터가 없을때에만 page 증가 금지
-    if (newProducts.length !== 0) {
-      setPage((pre) => pre + 1);
-      setProducts((prevProducts) => [...prevProducts, ...newProducts]);
-    } else {
-      setIsLastPage(true);
+  // 최초 렌더링 & page 상태 변경 시 마다 trigger observe
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      async (
+        entries: IntersectionObserverEntry[],
+        observer: IntersectionObserver
+      ) => {
+        const element = entries[0];
+        // 사용자의 뷰에 트리거가 감지되면
+        if (element.isIntersecting && trigger.current) {
+          // 옵저버 감시 중지
+          observer.unobserve(trigger.current);
+
+          // 데이터 불러오기
+          setIsLoading(true);
+          await new Promise((res) => setTimeout(res, 5000));
+          const newProducts = await getMoreProducts(page + 1);
+
+          // 더이상 가져올 데이터가 없을때에만 page 증가 금지
+          if (newProducts.length !== 0) {
+            setPage((pre) => pre + 1);
+            setProducts((prevProducts) => [...prevProducts, ...newProducts]);
+          } else {
+            setIsLastPage(true);
+          }
+
+          setIsLoading(false);
+        }
+      },
+      {
+        // 트리거가 전부 다 보여야 화면에 있다고 표시하기
+        threshold: 1.0,
+      }
+    );
+
+    if (trigger.current) {
+      // 트리거 span 감시 시작
+      observer.observe(trigger.current);
     }
 
-    setIsLoading(false);
-  };
+    // clean-up
+    return () => {
+      observer.disconnect();
+    };
+  }, [page]);
 
   return (
     <div className="p-5 flex flex-col gap-5 mb-20">
@@ -38,14 +70,9 @@ export default function ProductList({ initialProducts }: ProductListProps) {
         <ListProduct key={product.id} {...product} />
       ))}
       {!isLastPage && (
-        <button
-          className="text-sm font-semibold bg-orange-500 rounded-md text-white px-3 py-2 mx-auto
-      hover:opacity-90 active:scale-95 disabled:bg-neutral-600"
-          onClick={onLoadMoreClick}
-          disabled={isLoading}
-        >
-          {isLoading ? "로딩 중" : "더 불러오기"}
-        </button>
+        <span ref={trigger} className="text-white mx-auto">
+          {isLoading ? "로딩 중.." : "더 불러오기"}
+        </span>
       )}
     </div>
   );
