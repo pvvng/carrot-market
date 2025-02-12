@@ -22,7 +22,9 @@ export default function ProductList({ initialProducts }: ProductListProps) {
   useEffect(() => {
     const observer = new IntersectionObserver(
       async (
+        // observer가 관측할 요소들
         entries: IntersectionObserverEntry[],
+        // observer 그 자체
         observer: IntersectionObserver
       ) => {
         const element = entries[0];
@@ -33,7 +35,6 @@ export default function ProductList({ initialProducts }: ProductListProps) {
 
           // 데이터 불러오기
           setIsLoading(true);
-          await new Promise((res) => setTimeout(res, 5000));
           const newProducts = await getMoreProducts(page + 1);
 
           // 더이상 가져올 데이터가 없을때에만 page 증가 금지
