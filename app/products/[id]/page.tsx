@@ -77,6 +77,7 @@ export default async function ProductDetail({
               height={40}
               sizes="640"
               priority
+              className="object-cover"
             />
           ) : (
             <UserIcon />
@@ -98,9 +99,9 @@ export default async function ProductDetail({
         <span className="font-semibold text-xl">
           {formatToWon(product.price)}원
         </span>
-        <div className="flex items-center gap-2">
+        <div className="flex justify-center items-center gap-2">
           {isOwner && (
-            <form action={deleteProduct}>
+            <form action={deleteProduct} className="flex">
               <ProductDeleteButton title={product.title} />
             </form>
           )}
