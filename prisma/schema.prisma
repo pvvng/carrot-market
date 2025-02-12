@@ -30,24 +30,37 @@ model User {
   github_id  String?    @unique
   avatar     String?
   // now() -> 사용자가 생성되는 시간 반환 함수
-  created_at DateTime?  @default(now())
+  created_at DateTime   @default(now())
   // 사용자 레코드가 수정된 시간을 속성에 넣기
-  updated_at DateTime?  @updatedAt
+  updated_at DateTime   @updatedAt
   SMSToken   SMSToken[]
+  Product    Product[]
 }
 
 model SMSToken {
-  id         Int       @id @default(autoincrement())
-  token      String    @unique
-  phone      String    @unique
-  created_at DateTime? @default(now())
-  updated_at DateTime? @updatedAt
+  id         Int      @id @default(autoincrement())
+  token      String   @unique
+  phone      String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
   // 아래 줄을 기입하는 이유는 
   // prisma에게 userId가 가지는 의미(사용자 아이디) userId를 어디서 찾아야하는지 이런걸 명시적으로 알려주기 위해서
   // SMSToken의 userId 필드는 User model의 id 필드를 참조한다는 의미
   // onDelete : Cascade -> User 삭제시 연계된 relation model 삭제
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     Int
   // 실제로 저장되는 값은 userId
   // userId를 바탕으로 User정보를 찾는것
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  title       String
+  price       Float
+  description String
+  photo       String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
 }

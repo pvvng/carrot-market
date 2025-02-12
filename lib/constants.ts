@@ -9,3 +9,5 @@ export const EMAIL_ERROR = "이메일 형식이 아닙니다.";
 export const PASSWORD_MIN_LENGTH_ERROR = `비밀번호는 ${PASSWORD_MIN_LENGTH}자 이상이어야합니다.`;
 export const PASSWORD_REGEX_ERROR = "비밀번호는 영어, 숫자를 포함해야 합니다.";
 export const PASSWORD_NOT_CONFIRMED_ERROR = "비밀번호가 일치하지 않습니다.";
+
+export const PAGE_DATA_COUNT = 20;

@@ -412,3 +412,111 @@
     Authorization: `Bearer ${AccessToken}`
     GET https://api.github.com/user
   ```
+
+### 7. Products
+
+- **Layout.tsx의 특이점**
+
+  > (group A) 안에 Layout.tsx를 정의하면 해당 그룹에서만 사용가능한 레이아웃이 된다.
+  >
+  > 이를 이용하여 특정 페이지에서만 사용하는 네비게이션 등을 제작 가능함.
+
+- **Intl.RelativeTimeFormat**
+
+  > Intl.RelativeTimeFormat은 JavaScript의 국제화(Intl) API 중 하나로, 날짜나 시간을 현재 시점과의 상대적인 시간 표현으로 포맷해주는 기능을 제공함.
+  >
+  > 이를 통해 “3일 전”, “2시간 후”와 같은 상대적 시간 표현을 간편하게 구현할 수 있음.
+
+  ```jsx
+  /** 날짜를 x일 전, x일 후로 표기하는 함수 */
+  export function formatToTimeAgo(date: string): string {
+    const dayInMs = 1000 * 60 * 60 * 24;
+    const time = new Date(date).getTime();
+    const now = new Date().getTime();
+    const diff = Math.round((time - now) / dayInMs);
+
+    const formatter = new Intl.RelativeTimeFormat("ko");
+
+    return formatter.format(diff, "days");
+  }
+  ```
+
+- **Dynamic Route**
+
+  > app/[id]/page.tsx -> app/123으로 이동하면 해당 route의 params id를 알 수 있다
+
+  ```jsx
+  interface ProductDetailPageProps {
+    params: Promise<{ id: string }>;
+  }
+
+  export default async function ProductDetail({
+    params,
+  }: ProductDetailPageProps) {
+    const { id } = await params;
+
+    return <span>product detail {id}</span>;
+  }
+  ```
+
+- **Image HostName**
+
+  > Image 태그를 통해 외부 이미지 최적화를 진행 위해선 hostname 등록이 필요함
+
+  ```ts
+  const nextConfig: NextConfig = {
+    /* config options here */
+    images: {
+      remotePatterns: [{ hostname: "image.link.com" }],
+    },
+  };
+  ```
+
+- **즉시 실행 함수로 목업 데이터 심기**
+
+  - 즉시 실행 함수(IIFE)
+    ```js
+    (async () => {
+      console.log("Hello");
+    })();
+    ```
+
+  > /prisma/seed.js
+
+  ```js
+  (async () => {
+    for (let i = 0; i < 100; i++) {
+      const randomPrice = Math.floor(Math.random() * (99999 - 1000 + 1)) + 1000;
+
+      await db.product.create({
+        data: {
+          price: randomPrice,
+          description: `자동으로 생성된 세구세구 ${i + 1}번째`,
+          photo: "/gosegu.png",
+          title: `세구 ${i + 1}`,
+          userId: 19,
+        },
+      });
+    }
+
+    console.log("목업 데이터 삽입 완료!");
+    await db.$disconnect();
+  })();
+  ```
+
+````
+
+> package.json
+
+```json
+  "prisma": {
+  "seed": "node prisma/seed.js"
+},
+```
+
+> run
+
+```bash
+npx prisma db seed
+```
+````
