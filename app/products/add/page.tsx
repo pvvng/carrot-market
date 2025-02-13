@@ -3,12 +3,15 @@
 import Button from "@/components/button";
 import Input from "@/components/input";
 import { PhotoIcon } from "@heroicons/react/24/solid";
-import { useEffect, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { uploadProduct } from "./actions";
 
 const MAX_FILE_SIZE_MB = 1;
 
 export default function AddProduct() {
+  const [state, action] = useActionState(uploadProduct, null);
+  console.log(state);
+
   const [preview, setPreview] = useState("");
   const onImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -39,7 +42,7 @@ export default function AddProduct() {
 
   return (
     <div>
-      <form action={uploadProduct} className="flex flex-col gap-5 p-5">
+      <form action={action} className="flex flex-col gap-5 p-5">
         <label
           htmlFor="photo"
           className="border-2 border-neutral-300 rounded-md border-dashed aspect-square 
@@ -50,7 +53,7 @@ export default function AddProduct() {
             <>
               <PhotoIcon className="w-20" />
               <div className="text-neural-400 text-sm">
-                사진을 추가해주세요.
+                {state ? state?.fieldErrors.photo : "사진을 추가해주세요."}
               </div>
             </>
           )}
@@ -64,13 +67,26 @@ export default function AddProduct() {
           accept="image/*"
           onChange={onImageChange}
         />
-        <Input name="title" required placeholder="제목" type="text" />
-        <Input name="price" required placeholder="가격" type="number" />
+        <Input
+          name="title"
+          required
+          placeholder="제목"
+          type="text"
+          errors={state?.fieldErrors.title}
+        />
+        <Input
+          name="price"
+          required
+          placeholder="가격"
+          type="number"
+          errors={state?.fieldErrors.price}
+        />
         <Input
           name="description"
           required
           placeholder="자세한 설명"
           type="text"
+          errors={state?.fieldErrors.description}
         />
         <Button text="작성완료" />
       </form>
