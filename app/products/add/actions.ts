@@ -1,7 +1,6 @@
 "use server";
 
 import { z } from "zod";
-import fs from "fs/promises";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { redirect } from "next/navigation";
@@ -41,35 +40,6 @@ export async function uploadProduct(prevState: any, formData: FormData) {
     description: formData.get("description"),
   };
 
-  if (!(data.photo instanceof File)) {
-    return {
-      formErrors: [],
-      fieldErrors: { photo: ["파일이 확인되지 않습니다."] },
-    };
-  }
-
-  if (!data.photo.name || data.photo.size === 0) {
-    return {
-      formErrors: [],
-      fieldErrors: { photo: ["이미지가 확인되지 않습니다."] },
-    };
-  }
-
-  if (data.photo.size > MAX_FILE_SIZE) {
-    return {
-      formErrors: [],
-      fieldErrors: { photo: ["이미지 크기는 1MB까지 허용됩니다."] },
-    };
-  }
-
-  // 이미지 파일 버퍼로 만들기
-  const photoData = await data.photo.arrayBuffer();
-  // 임시방편으로 이미지 프로젝트 루트에 저장하기
-  await fs.appendFile(`./public/${data.photo.name}`, Buffer.from(photoData));
-
-  // data.photo 변경하기
-  data.photo = `/${data.photo.name}`;
-
   const result = productSchema.safeParse(data);
 
   if (!result.success) {
@@ -101,4 +71,21 @@ export async function uploadProduct(prevState: any, formData: FormData) {
   });
 
   return redirect(`/products/${product.id}`);
+}
+
+/** cloudflare에서 1회용 upload url 받는 action */
+export async function getUploadUrl() {
+  const response = await fetch(
+    `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v2/direct_upload`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.CLOUDFLARE_API_KEY}`,
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  return data;
 }

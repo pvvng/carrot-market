@@ -4,16 +4,17 @@ import Button from "@/components/button";
 import Input from "@/components/input";
 import { PhotoIcon } from "@heroicons/react/24/solid";
 import { useActionState, useEffect, useState } from "react";
-import { uploadProduct } from "./actions";
+import { getUploadUrl, uploadProduct } from "./actions";
 
 const MAX_FILE_SIZE_MB = 1;
 
 export default function AddProduct() {
   const [state, action] = useActionState(uploadProduct, null);
-  console.log(state);
 
+  const [uploadUrl, setUploadUrl] = useState("");
   const [preview, setPreview] = useState("");
-  const onImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  const onImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
 
     if (!files || files.length == 0) {
@@ -38,6 +39,13 @@ export default function AddProduct() {
     // 브라우저 메모리에 파일 임시저장되는거 사용하는거임
     const url = URL.createObjectURL(file);
     setPreview(url);
+
+    const { success, result } = await getUploadUrl();
+
+    if (success) {
+      const { id, uploadURL } = result;
+      setUploadUrl(uploadURL);
+    }
   };
 
   return (
