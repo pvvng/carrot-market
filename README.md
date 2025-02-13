@@ -504,19 +504,29 @@
   })();
   ```
 
-````
+  > package.json
 
-> package.json
+  ```json
+    "prisma": {
+      "seed": "node prisma/seed.js"
+    },
+  ```
 
-```json
-  "prisma": {
-  "seed": "node prisma/seed.js"
-},
-```
+  > run
 
-> run
+  ```bash
+    npx prisma db seed
+  ```
 
-```bash
-npx prisma db seed
-```
-````
+- **URL.createObjectURL()**
+
+  > URL.createObjectURL()은 파일이나 데이터(blob)를 브라우저에서 임시 URL로 만들어 주는 함수.
+
+  - **동작 방식**
+    > 1. 파일을 선택하거나 데이터(blob)를 생성하면, 그 데이터를 직접 다루기 어려움
+    >
+    > 2. URL.createObjectURL(파일 또는 blob)을 사용하면, 그 데이터를 가리키는 가짜 URL이 생성
+    >
+    > 3. 이 URL은 , 같은 태그에서 사용하여 파일을 미리 보거나 다운로드할 수 있음
+    >
+    > 4. 브라우저를 닫거나 새로고침하면 URL이 자동으로 사라짐
