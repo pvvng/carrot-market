@@ -1,30 +1,11 @@
 "use server";
 
-import { z } from "zod";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { redirect } from "next/navigation";
+import { productSchema } from "./schema";
 
-const productSchema = z.object({
-  photo: z.string({
-    required_error: "사진 항목은 필수입니다.",
-    invalid_type_error: "잘못된 타입입니다.",
-  }),
-  title: z.string({
-    required_error: "제목 항목은 필수입니다.",
-    invalid_type_error: "잘못된 타입입니다.",
-  }),
-  description: z.string({
-    required_error: "설명 항목은 필수입니다.",
-    invalid_type_error: "잘못된 타입입니다.",
-  }),
-  price: z.coerce.number({
-    required_error: "가격 항목은 필수입니다.",
-    invalid_type_error: "잘못된 타입입니다.",
-  }),
-});
-
-export async function uploadProduct(_: any, formData: FormData) {
+export async function uploadProduct(formData: FormData) {
   const data = {
     photo: formData.get("photo"),
     title: formData.get("title"),
