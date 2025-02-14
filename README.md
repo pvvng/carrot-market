@@ -481,65 +481,66 @@
     })();
     ```
 
-  > /prisma/seed.js
+  - /prisma/seed.js
 
-  ```js
-  (async () => {
-    for (let i = 0; i < 100; i++) {
-      const randomPrice = Math.floor(Math.random() * (99999 - 1000 + 1)) + 1000;
+    ```js
+    (async () => {
+      for (let i = 0; i < 100; i++) {
+        const randomPrice = Math.floor(Math.random() * (99999 - 1000 + 1)) + 1000;
+  
+        await db.product.create({
+          data: {
+            price: randomPrice,
+            description: `자동으로 생성된 세구세구 ${i + 1}번째`,
+            photo: "/gosegu.png",
+            title: `세구 ${i + 1}`,
+            userId: 19,
+          },
+        });
+      }
+  
+      console.log("목업 데이터 삽입 완료!");
+      await db.$disconnect();
+    })();
+    ```
 
-      await db.product.create({
-        data: {
-          price: randomPrice,
-          description: `자동으로 생성된 세구세구 ${i + 1}번째`,
-          photo: "/gosegu.png",
-          title: `세구 ${i + 1}`,
-          userId: 19,
-        },
-      });
-    }
+  - package.json
+    
+    ```json
+      "prisma": {
+        "seed": "node prisma/seed.js"
+      },
+    ```
 
-    console.log("목업 데이터 삽입 완료!");
-    await db.$disconnect();
-  })();
-  ```
+  - run
 
-  > package.json
-
-  ```json
-    "prisma": {
-      "seed": "node prisma/seed.js"
-    },
-  ```
-
-  > run
-
-  ```bash
-    npx prisma db seed
-  ```
+    ```bash
+      npx prisma db seed
+    ```
 
 - **URL.createObjectURL()**
 
   > URL.createObjectURL()은 파일이나 데이터(blob)를 브라우저에서 임시 URL로 만들어 주는 함수.
 
-  - **동작 방식**
-    > 1. 파일을 선택하거나 데이터(blob)를 생성하면, 그 데이터를 직접 다루기 어려움
-    >
-    > 2. URL.createObjectURL(파일 또는 blob)을 사용하면, 그 데이터를 가리키는 가짜 URL이 생성
-    >
-    > 3. 이 URL은 , 같은 태그에서 사용하여 파일을 미리 보거나 다운로드할 수 있음
-    >
-    > 4. 브라우저를 닫거나 새로고침하면 URL이 자동으로 사라짐
+  > **동작 방식**
+  > 
+  > 1. 파일을 선택하거나 데이터(blob)를 생성하면, 그 데이터를 직접 다루기 어려움
+  >
+  > 2. URL.createObjectURL(파일 또는 blob)을 사용하면, 그 데이터를 가리키는 가짜 URL이 생성
+  >
+  > 3. 이 URL은 , 같은 태그에서 사용하여 파일을 미리 보거나 다운로드할 수 있음
+  >
+  > 4. 브라우저를 닫거나 새로고침하면 URL이 자동으로 사라짐
 
 ### 8. CloudFlare
 
-> **사용방법**
->
-> CloudFlare DashBoard > Images > Overview(개요)
->
-> 계정 ID, 계정 해시, API Token
->
-> API 토큰 얻기 > Cloudflare Stream 및 Images 읽기 및 쓰기
+  > **사용방법**
+  >
+  > CloudFlare DashBoard > Images > Overview(개요)
+  >
+  > 계정 ID, 계정 해시, API Token
+  >
+  > API 토큰 얻기 > Cloudflare Stream 및 Images 읽기 및 쓰기
 
 - **일회성 upload url**
 
