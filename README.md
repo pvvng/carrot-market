@@ -531,17 +531,17 @@
     >
     > 4. 브라우저를 닫거나 새로고침하면 URL이 자동으로 사라짐
 
-- **CloudFlare**
+### 8. CloudFlare
 
-  > **사용방법**
-  >
-  > CloudFlare DashBoard > Images > Overview(개요)
-  >
-  > 계정 ID, 계정 해시, API Token
-  >
-  > API 토큰 얻기 > Cloudflare Stream 및 Images 읽기 및 쓰기
+> **사용방법**
+>
+> CloudFlare DashBoard > Images > Overview(개요)
+>
+> 계정 ID, 계정 해시, API Token
+>
+> API 토큰 얻기 > Cloudflare Stream 및 Images 읽기 및 쓰기
 
-  - **일회성 upload url**
+- **일회성 upload url**
 
   ```ts
   // actions.ts
@@ -562,7 +562,7 @@
   }
   ```
 
-  - **이미지 업로드**
+- **이미지 업로드**
 
   ```tsx
   // interceptAction function
@@ -579,13 +579,13 @@
   });
   ```
 
-  - **varient**
-    - imageUrl/<varient name> 이 upload한 이미지의 url
-    - 이미지 변형 탭을 통해 원하는 크기의 이미지 생성 가능
-    - `유연한 변형`을 통해 이미지 url에 쿼리를 넣어 변수 없이도 이미지 변형 가능
-      - [공식문서](https://developers.cloudflare.com/images/manage-images/enable-flexible-variants/)
+- **varient**
+  - imageUrl/<varient name> 이 upload한 이미지의 url
+  - 이미지 변형 탭을 통해 원하는 크기의 이미지 생성 가능
+  - `유연한 변형`을 통해 이미지 url에 쿼리를 넣어 변수 없이도 이미지 변형 가능
+    - [공식문서](https://developers.cloudflare.com/images/manage-images/enable-flexible-variants/)
 
-- **Form Action Intercept**
+### 9. Form Action Intercept
 
   - Action을 인터셉트해서 원하는 형태로 개조 후에 다시 정상적 동작 시키기
 
