@@ -9,17 +9,45 @@ import { getUploadUrl, uploadProduct } from "./actions";
 const MAX_FILE_SIZE_MB = 1;
 
 export default function AddProduct() {
-  const [state, action] = useActionState(uploadProduct, null);
-
   const [uploadUrl, setUploadUrl] = useState("");
   const [preview, setPreview] = useState("");
+  const [imageId, setImageId] = useState("");
+
+  const interceptAction = async (_: any, formData: FormData) => {
+    // upload image
+    const file = formData.get("photo");
+
+    if (!file) {
+      alert("이미지를 확인하지 못했습니다.");
+      return;
+    }
+
+    const cloudflareForm = new FormData();
+    cloudflareForm.append("file", file);
+
+    const response = await fetch(uploadUrl, {
+      method: "post",
+      body: cloudflareForm,
+    });
+
+    if (response.status !== 200) {
+      alert("이미지 업로드에 실패했습니다.");
+      return;
+    }
+
+    // replace photo in formdata
+    const photoUrl = `https://imagedelivery.net/MR01-6_39Z4fkK0Q1BsXww/${imageId}`;
+    formData.set("photo", photoUrl);
+
+    // call uploadProduct Action
+    // await이 아닌 return 사용하기
+    return uploadProduct(_, formData);
+  };
 
   const onImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
 
     if (!files || files.length == 0) {
-      // 이미지 선택을 안한 경우엔 preview 초기화하기
-      setPreview("");
       return;
     }
 
@@ -45,8 +73,19 @@ export default function AddProduct() {
     if (success) {
       const { id, uploadURL } = result;
       setUploadUrl(uploadURL);
+      setImageId(id);
     }
   };
+
+  const [state, action] = useActionState(interceptAction, null);
+
+  useEffect(() => {
+    console.log("ii : ", imageId);
+  }, [imageId]);
+
+  useEffect(() => {
+    console.log("uu : ", uploadUrl);
+  }, [uploadUrl]);
 
   return (
     <div>

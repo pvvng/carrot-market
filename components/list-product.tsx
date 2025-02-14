@@ -21,7 +21,7 @@ export default function ListProduct({
       {/* 부모 div에서 이미지 사이즈 컨트롤 가능 -> 스타일, 반응형 적용이 된다는 의미 */}
       <div className="relative size-28 rounded-md overflow-hidden bg-gray-200">
         <Image
-          src={photo}
+          src={`${photo}/public`}
           alt={title}
           // fill = {boolean}을 주면 style : absolute가 됨
           fill

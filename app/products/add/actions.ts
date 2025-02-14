@@ -5,19 +5,11 @@ import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { redirect } from "next/navigation";
 
-// 1MB
-const MAX_FILE_SIZE = 1 * 1024 * 1024;
-
 const productSchema = z.object({
-  photo: z
-    .string({
-      required_error: "사진 항목은 필수입니다.",
-      invalid_type_error: "잘못된 타입입니다.",
-    })
-    .refine(
-      (photo) => !(photo === undefined || photo == "undefined"),
-      "이미지 확인에 실패했습니다."
-    ),
+  photo: z.string({
+    required_error: "사진 항목은 필수입니다.",
+    invalid_type_error: "잘못된 타입입니다.",
+  }),
   title: z.string({
     required_error: "제목 항목은 필수입니다.",
     invalid_type_error: "잘못된 타입입니다.",
