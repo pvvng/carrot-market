@@ -530,3 +530,97 @@
     > 3. 이 URL은 , 같은 태그에서 사용하여 파일을 미리 보거나 다운로드할 수 있음
     >
     > 4. 브라우저를 닫거나 새로고침하면 URL이 자동으로 사라짐
+
+- **CloudFlare**
+
+  > **사용방법**
+  >
+  > CloudFlare DashBoard > Images > Overview(개요)
+  >
+  > 계정 ID, 계정 해시, API Token
+  >
+  > API 토큰 얻기 > Cloudflare Stream 및 Images 읽기 및 쓰기
+
+  - **일회성 upload url**
+
+  ```ts
+  // actions.ts
+  export async function getUploadUrl() {
+    const response = await fetch(
+      `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v2/direct_upload`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.CLOUDFLARE_API_KEY}`,
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    return data;
+  }
+  ```
+
+  - **이미지 업로드**
+
+  ```tsx
+  // interceptAction function
+
+  // 폼에서 가져온 사진 파일
+  const file = formData.get("photo");
+
+  const cloudflareForm = new FormData();
+  cloudflareForm.append("file", file);
+
+  const response = await fetch(uploadUrl, {
+    method: "post",
+    body: cloudflareForm,
+  });
+  ```
+
+  - **varient**
+    - imageUrl/<varient name> 이 upload한 이미지의 url
+    - 이미지 변형 탭을 통해 원하는 크기의 이미지 생성 가능
+    - `유연한 변형`을 통해 이미지 url에 쿼리를 넣어 변수 없이도 이미지 변형 가능
+      - [공식문서](https://developers.cloudflare.com/images/manage-images/enable-flexible-variants/)
+
+- **Form Action Intercept**
+
+  - Action을 인터셉트해서 원하는 형태로 개조 후에 다시 정상적 동작 시키기
+
+  ```tsx
+  const interceptAction = async (_: any, formData: FormData) => {
+    // upload image
+    const file = formData.get("photo");
+
+    if (!file) {
+      alert("이미지를 확인하지 못했습니다.");
+      return;
+    }
+
+    const cloudflareForm = new FormData();
+    cloudflareForm.append("file", file);
+
+    const response = await fetch(uploadUrl, {
+      method: "post",
+      body: cloudflareForm,
+    });
+
+    if (response.status !== 200) {
+      alert("이미지 업로드에 실패했습니다.");
+      return;
+    }
+
+    // replace photo in formdata
+    const photoUrl = `https://imagedelivery.net/MR01-6_39Z4fkK0Q1BsXww/${imageId}`;
+    formData.set("photo", photoUrl);
+
+    // call uploadProduct Action (정상적인 Action)
+    // await이 아닌 return 사용하기
+    return uploadProduct(_, formData);
+  };
+
+  // intercept Action으로 대체
+  const [state, action] = useActionState(interceptAction, null);
+  ```

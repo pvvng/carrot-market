@@ -79,14 +79,6 @@ export default function AddProduct() {
 
   const [state, action] = useActionState(interceptAction, null);
 
-  useEffect(() => {
-    console.log("ii : ", imageId);
-  }, [imageId]);
-
-  useEffect(() => {
-    console.log("uu : ", uploadUrl);
-  }, [uploadUrl]);
-
   return (
     <div>
       <form action={action} className="flex flex-col gap-5 p-5">
