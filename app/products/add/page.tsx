@@ -48,6 +48,9 @@ export default function AddProduct() {
     const files = e.target.files;
 
     if (!files || files.length == 0) {
+      // 취소버튼 클릭하면 초기화 시켜야함
+      setPreview("");
+      setImageId("");
       return;
     }
 
@@ -70,11 +73,14 @@ export default function AddProduct() {
 
     const { success, result } = await getUploadUrl();
 
-    if (success) {
-      const { id, uploadURL } = result;
-      setUploadUrl(uploadURL);
-      setImageId(id);
+    if (!success) {
+      alert("이미지 업로드에 실패했습니다.");
+      return;
     }
+
+    const { id, uploadURL } = result;
+    setUploadUrl(uploadURL);
+    setImageId(id);
   };
 
   const [state, action] = useActionState(interceptAction, null);

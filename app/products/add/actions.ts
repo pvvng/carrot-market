@@ -24,7 +24,7 @@ const productSchema = z.object({
   }),
 });
 
-export async function uploadProduct(prevState: any, formData: FormData) {
+export async function uploadProduct(_: any, formData: FormData) {
   const data = {
     photo: formData.get("photo"),
     title: formData.get("title"),
