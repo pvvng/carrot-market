@@ -657,3 +657,39 @@ const [state, action] = useActionState(interceptAction, null);
   > 슬롯은 @폴더명 형식으로 정의되며, 특정 영역에서 다른 페이지를 동시에 렌더링할 수 있도록 한다.
   >
   > https://nextjs.org/docs/app/building-your-application/routing/parallel-routes
+
+- **url을 변경시키며 모달을 보여주는 방법**
+
+  1. <Link /> 태그를 사용하여 `특정 루트` 로 이동을 지시하도록 한다.
+
+     > <Link href="/any-route"></Link>
+
+  2. `특정 루트` 에 대한 Intercepting Route를 같은 세그먼트에서 작성한다
+
+     > /(특정 루트에 맞는 syntax)/any-route/page.tsx
+
+  3. Parallel Route를 사용하여 작성한 Intercepting Route를 `@pararllelName` 에 집어넣는다
+
+     > /@pararllelName/(특정 루트에 맞는 syntax)/any-route/page.tsx
+
+  4. 인터셉트 전에 404 에러를 처리하기 위해 default를 작성한다
+
+     > /@pararllelName/default.tsx
+
+  5. 해당 세그먼트에 대한 layout.tsx를 작성한다
+     ```tsx
+     export default function HomeLayout({
+       children,
+       pararllelName,
+     }: {
+       children: React.ReactNode;
+       pararllelName: React.ReactNode;
+     }) {
+       return (
+         <>
+           {children}
+           {pararllelName}
+         </>
+       );
+     }
+     ```
