@@ -660,7 +660,7 @@ const [state, action] = useActionState(interceptAction, null);
 
 - **url을 변경시키며 모달을 보여주는 방법**
 
-  1. <Link /> 태그를 사용하여 `특정 루트` 로 이동을 지시하도록 한다.
+  1. Link 태그를 사용하여 `특정 루트` 로 이동을 지시하도록 한다.
 
      > <Link href="/any-route"></Link>
 
