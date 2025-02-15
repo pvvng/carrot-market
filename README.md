@@ -640,12 +640,10 @@ const [state, action] = useActionState(interceptAction, null);
   >
   > [공식문서](https://nextjs.org/docs/app/building-your-application/routing/intercepting-routes)
 
-  > (.) to match segments on the same level
-  >
-  > (..) to match segments one level above
-  >
-  > (..)(..) to match segments two levels above
-  >
-  > (...) to match segments from the root app directory
-  >
-  > [공식문서](https://nextjs.org/docs/app/building-your-application/routing/intercepting-routes#convention)
+  - Intercepting Routes는 (..) 규칙으로 정의할 수 있음. 이는 상대 경로 규칙인 ../와 유사하다. (세그먼트: app 폴더 안의 각 폴더가 하나의 세그먼트)
+
+    - (.): 같은 레벨의 세그먼트와 일치시키기
+    - (..): 한 레벨 위의 세그먼트와 일치시키기
+    - (..)(..): 두 레벨 위의 세그먼트와 일치시키기
+    - (...): 루트 앱 디렉토리의 세그먼트와 일치시키기
+    - [공식문서](https://nextjs.org/docs/app/building-your-application/routing/intercepting-routes#convention)
