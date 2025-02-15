@@ -647,3 +647,13 @@ const [state, action] = useActionState(interceptAction, null);
     - (..)(..): 두 레벨 위의 세그먼트와 일치시키기
     - (...): 루트 앱 디렉토리의 세그먼트와 일치시키기
     - [공식문서](https://nextjs.org/docs/app/building-your-application/routing/intercepting-routes#convention)
+
+- **Parallel Routes**
+
+  > Parallel Routes는 동시에 여러 페이지를 렌더링하거나 특정 조건에 따라 다르게 렌더링할 수 있도록 하는 기능
+  >
+  > 병렬 라우트는 슬롯(Slots) 을 사용하여 구현됨
+  >
+  > 슬롯은 @폴더명 형식으로 정의되며, 특정 영역에서 다른 페이지를 동시에 렌더링할 수 있도록 한다.
+  >
+  > https://nextjs.org/docs/app/building-your-application/routing/parallel-routes
