@@ -1,4 +1,3 @@
-import ProductDeleteButton from "@/components/product-delete-button";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { formatToWon } from "@/lib/utils";
@@ -91,7 +90,12 @@ export default async function ProductDetail({
         </span>
         <div className="flex justify-center items-center gap-2">
           {isOwner && (
-            <ProductDeleteButton title={product.title} id={product.id} />
+            <Link
+              href={`/products/${id}/delete`}
+              className="bg-red-500 p-5 rounded-md text-white font-semibold cursor-pointer"
+            >
+              삭제하기
+            </Link>
           )}
           <Link
             className="bg-orange-500 p-5 rounded-md text-white font-semibold"

@@ -475,6 +475,7 @@
 - **즉시 실행 함수로 목업 데이터 심기**
 
   - 즉시 실행 함수(IIFE)
+
     ```js
     (async () => {
       console.log("Hello");
@@ -486,8 +487,9 @@
     ```js
     (async () => {
       for (let i = 0; i < 100; i++) {
-        const randomPrice = Math.floor(Math.random() * (99999 - 1000 + 1)) + 1000;
-  
+        const randomPrice =
+          Math.floor(Math.random() * (99999 - 1000 + 1)) + 1000;
+
         await db.product.create({
           data: {
             price: randomPrice,
@@ -498,14 +500,14 @@
           },
         });
       }
-  
+
       console.log("목업 데이터 삽입 완료!");
       await db.$disconnect();
     })();
     ```
 
   - package.json
-    
+
     ```json
       "prisma": {
         "seed": "node prisma/seed.js"
@@ -523,7 +525,7 @@
   > URL.createObjectURL()은 파일이나 데이터(blob)를 브라우저에서 임시 URL로 만들어 주는 함수.
 
   > **동작 방식**
-  > 
+  >
   > 1. 파일을 선택하거나 데이터(blob)를 생성하면, 그 데이터를 직접 다루기 어려움
   >
   > 2. URL.createObjectURL(파일 또는 blob)을 사용하면, 그 데이터를 가리키는 가짜 URL이 생성
@@ -534,13 +536,13 @@
 
 ### 8. CloudFlare
 
-  > **사용방법**
-  >
-  > CloudFlare DashBoard > Images > Overview(개요)
-  >
-  > 계정 ID, 계정 해시, API Token
-  >
-  > API 토큰 얻기 > Cloudflare Stream 및 Images 읽기 및 쓰기
+> **사용방법**
+>
+> CloudFlare DashBoard > Images > Overview(개요)
+>
+> 계정 ID, 계정 해시, API Token
+>
+> API 토큰 얻기 > Cloudflare Stream 및 Images 읽기 및 쓰기
 
 - **일회성 upload url**
 
@@ -588,40 +590,106 @@
 
 ### 9. Form Action Intercept
 
-  - Action을 인터셉트해서 원하는 형태로 개조 후에 다시 정상적 동작 시키기
+- Action을 인터셉트해서 원하는 형태로 개조 후에 다시 정상적 동작 시키기
 
-  ```tsx
-  const interceptAction = async (_: any, formData: FormData) => {
-    // upload image
-    const file = formData.get("photo");
+```tsx
+const interceptAction = async (_: any, formData: FormData) => {
+  // upload image
+  const file = formData.get("photo");
 
-    if (!file) {
-      alert("이미지를 확인하지 못했습니다.");
-      return;
-    }
+  if (!file) {
+    alert("이미지를 확인하지 못했습니다.");
+    return;
+  }
 
-    const cloudflareForm = new FormData();
-    cloudflareForm.append("file", file);
+  const cloudflareForm = new FormData();
+  cloudflareForm.append("file", file);
 
-    const response = await fetch(uploadUrl, {
-      method: "post",
-      body: cloudflareForm,
-    });
+  const response = await fetch(uploadUrl, {
+    method: "post",
+    body: cloudflareForm,
+  });
 
-    if (response.status !== 200) {
-      alert("이미지 업로드에 실패했습니다.");
-      return;
-    }
+  if (response.status !== 200) {
+    alert("이미지 업로드에 실패했습니다.");
+    return;
+  }
 
-    // replace photo in formdata
-    const photoUrl = `https://imagedelivery.net/MR01-6_39Z4fkK0Q1BsXww/${imageId}`;
-    formData.set("photo", photoUrl);
+  // replace photo in formdata
+  const photoUrl = `https://imagedelivery.net/MR01-6_39Z4fkK0Q1BsXww/${imageId}`;
+  formData.set("photo", photoUrl);
 
-    // call uploadProduct Action (정상적인 Action)
-    // await이 아닌 return 사용하기
-    return uploadProduct(_, formData);
-  };
+  // call uploadProduct Action (정상적인 Action)
+  // await이 아닌 return 사용하기
+  return uploadProduct(_, formData);
+};
 
-  // intercept Action으로 대체
-  const [state, action] = useActionState(interceptAction, null);
-  ```
+// intercept Action으로 대체
+const [state, action] = useActionState(interceptAction, null);
+```
+
+### 10. Modal
+
+- **Intercepting Routes**
+
+  > Intercepting Routes는 특정 경로의 콘텐츠를 현재의 레이아웃 안에서 불러오는 기능을 의미임.
+  >
+  > 보통 사용자가 특정 링크를 클릭하면 완전히 새로운 페이지로 이동하지만, Intercepting Routes를 사용하면 실제로는 다른 경로의 콘텐츠를 현재 페이지 내에서 표시할 수 있음.
+  >
+  > 이렇게 하면 사용자는 기존 컨텍스트를 유지한 채로 새로운 정보를 볼 수 있게 됨.
+  >
+  > [공식문서](https://nextjs.org/docs/app/building-your-application/routing/intercepting-routes)
+
+  - Intercepting Routes는 (..) 규칙으로 정의할 수 있음. 이는 상대 경로 규칙인 ../와 유사하다. (세그먼트: app 폴더 안의 각 폴더가 하나의 세그먼트)
+
+    - (.): 같은 레벨의 세그먼트와 일치시키기
+    - (..): 한 레벨 위의 세그먼트와 일치시키기
+    - (..)(..): 두 레벨 위의 세그먼트와 일치시키기
+    - (...): 루트 앱 디렉토리의 세그먼트와 일치시키기
+    - [공식문서](https://nextjs.org/docs/app/building-your-application/routing/intercepting-routes#convention)
+
+- **Parallel Routes**
+
+  > Parallel Routes는 동시에 여러 페이지를 렌더링하거나 특정 조건에 따라 다르게 렌더링할 수 있도록 하는 기능
+  >
+  > 병렬 라우트는 슬롯(Slots) 을 사용하여 구현됨
+  >
+  > 슬롯은 @폴더명 형식으로 정의되며, 특정 영역에서 다른 페이지를 동시에 렌더링할 수 있도록 한다.
+  >
+  > https://nextjs.org/docs/app/building-your-application/routing/parallel-routes
+
+- **url을 변경시키며 모달을 보여주는 방법**
+
+  1. Link 태그를 사용하여 `특정 루트` 로 이동을 지시하도록 한다.
+
+     > <Link href="/any-route"></Link>
+
+  2. `특정 루트` 에 대한 Intercepting Route를 같은 세그먼트에서 작성한다
+
+     > /(특정 루트에 맞는 syntax)/any-route/page.tsx
+
+  3. Parallel Route를 사용하여 작성한 Intercepting Route를 `@pararllelName` 에 집어넣는다
+
+     > /@pararllelName/(특정 루트에 맞는 syntax)/any-route/page.tsx
+
+  4. 인터셉트 전에 404 에러를 처리하기 위해 default를 작성한다
+
+     > /@pararllelName/default.tsx
+
+  5. 해당 세그먼트에 대한 layout.tsx를 작성한다
+     ```tsx
+     export default function HomeLayout({
+       children,
+       pararllelName,
+     }: {
+       children: React.ReactNode;
+       pararllelName: React.ReactNode;
+     }) {
+       return (
+         <>
+           {children}
+           {pararllelName}
+         </>
+       );
+     }
+     ```
