@@ -37,13 +37,13 @@ export default async function Products() {
   return (
     <div>
       <ProductList initialProducts={initialProducts} />
-      <Link
+      <a
         href="/products/add"
         className="bg-orange-500 text-white flex items-center justify-center rounded-full size-16 
         fixed bottom-24 right-8 transition-colors hover:bg-orange-400"
       >
         <PlusIcon className="size-10" />
-      </Link>
+      </a>
     </div>
   );
 }
