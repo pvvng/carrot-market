@@ -31,7 +31,7 @@ export default async function DeleteProduct({ params }: ProductDeleteProps) {
   }
 
   return (
-    <div className="absolute w-full h-full left-0 top-0 z-50 flex justify-center items-center">
+    <div className="fixed w-full h-full left-0 top-0 z-50 flex justify-center items-center">
       <CloseButton />
       <ModalBackground />
       <ProductModal title={product.title} id={product.id} />
