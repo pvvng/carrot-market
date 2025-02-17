@@ -3,18 +3,16 @@ import { PAGE_DATA_COUNT } from "@/lib/constants";
 import db from "@/lib/db";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { Prisma } from "@prisma/client";
-import { unstable_cache as nextCache } from "next/cache";
+import { unstable_cache as nextCache, revalidatePath } from "next/cache";
 
 export const metadata = {
   title: "home",
 };
 
-const getCachedProducts = nextCache(getInitialProducts, ["home-products"], {
-  // 60초가 지난후 새로운 요청이 있다면 캐시 데이터 갱신
-  revalidate: 60,
-});
+const getCachedProducts = nextCache(getInitialProducts, ["home-products"]);
 
 async function getInitialProducts() {
+  console.log("hit");
   const products = await db.product.findMany({
     select: {
       title: true,
@@ -42,10 +40,17 @@ export type initialProducts = Prisma.PromiseReturnType<
 // 페이지 실행시에는 최초 제품 페이지만 불러오기
 export default async function Products() {
   const initialProducts = await getCachedProducts();
+  const revalidate = async () => {
+    "use server";
+    revalidatePath("/home");
+  };
 
   return (
     <div>
       <ProductList initialProducts={initialProducts} />
+      <form action={revalidate}>
+        <button>revalidate</button>
+      </form>
       <a
         href="/products/add"
         className="bg-orange-500 text-white flex items-center justify-center rounded-full size-16 

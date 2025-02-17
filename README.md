@@ -713,6 +713,8 @@ const [state, action] = useActionState(interceptAction, null);
   - **revalidate time**
 
     > revalidate는 Next.js에서 데이터 캐싱을 얼마나 자주 갱신할지 설정하는 옵션. 즉, 정적인 데이터를 일정 시간이 지나면 자동으로 갱신하도록 설정할 수 있다
+    >
+    > 특정 사용자(클라이언트)를 추적하는 것이 아니라, 서버에서 캐시된 데이터의 만료 주기를 설정하는 역할
 
     ```tsx
     const getCachedProducts = nextCache(getInitialProducts, ["home-products"], {
@@ -720,3 +722,21 @@ const [state, action] = useActionState(interceptAction, null);
       revalidate: 60,
     });
     ```
+
+- **revalidatePath**
+
+> 지정한 경로에 캐시된 `모든` 데이터를 무효화(재검증)
+
+```tsx
+// 버튼 클릭하면 캐시된 데이터가 리프레시됨
+const revalidate = async () => {
+  "use server";
+  revalidatePath("/home");
+};
+
+return (
+  <form action={revalidate}>
+    <button>revalidate</button>
+  </form>
+);
+```
