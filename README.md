@@ -775,6 +775,7 @@ const [state, action] = useActionState(interceptAction, null);
   3. server action에 있는 fetch request
 
 - **예시**
+
   ```tsx
   export default async function RootLayout() {
     const a = await fetch("https://..."); // 캐시되지 않음
@@ -789,3 +790,22 @@ const [state, action] = useActionState(interceptAction, null);
     });
   }
   ```
+
+- **Static, Dynamic 페이지**
+
+  > ○ (Static) → 정적인 페이지로 미리 렌더링되어 배포됨 (빌드 시 HTML 생성)
+  >
+  > ƒ (Dynamic) → 동적인 페이지로 요청 시 서버에서 렌더링됨 (요청 시 서버에서 렌더링됨)
+  >
+  > 모든 사용자에게 동일한 내용이 제공되는 페이지면: Static
+  >
+  > 사용자에 따라 다른 내용이 제공될 수 있는 페이지면: Dynamic
+
+- **unstable-cache를 사용하는 이유**
+  > Production Mode에서 static page는 빌드 타임에 정적인 html로 변환된다. 즉, Static Page는 빌드 타임에 캐싱된 데이터를 사용한다.
+  >
+  > 또한 fetch 요청은 "force-cache"를 통해 캐시가 가능하다.
+  >
+  > Q. 그럼 unstable-cache를 이용해야할 필요가 있는가?
+  >
+  > A. 서버 내부에서 fetch가 아닌 DB 쿼리, 계산 로직 등을 캐싱해야 하는 경우에 필요하다.
