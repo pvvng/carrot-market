@@ -698,11 +698,25 @@ const [state, action] = useActionState(interceptAction, null);
 
 - **unstable_cache**
 
-> Next팀이 14버전에서 공개한 캐싱함수 아직은 불안정할 수있으므로, 이름이 저모양이다. 추후 이름이 바뀔수도있음
+  > Next팀이 14버전에서 공개한 캐싱함수 아직은 불안정할 수있으므로, 이름이 저모양이다. 추후 이름이 바뀔수도있음
+  >
+  > [공식문서(한글판)](https://nextjs-ko.org/docs/app/api-reference/functions/unstable_cache)
 
-- **사용방법**
-  > 첫 번째 매개변수: action 함수 삽입 (db 통신, 데이터를 반환하는 함수)
-  >
-  > 두번째 매개변수: 캐시키 배열 (프로젝트 내부에서 하나의 action에대해 unique해야함. 다른 action함수에 같은값을 사용하면 안됨)
-  >
-  > 이렇게 세팅한 unstable_cache를 기존의 action대신 호출해주면 됨.
+  - **사용방법**
+
+    > 첫 번째 매개변수: action 함수 삽입 (db 통신, 데이터를 반환하는 함수)
+    >
+    > 두번째 매개변수: 캐시키 배열 (프로젝트 내부에서 하나의 action에대해 unique해야함. 다른 action함수에 같은값을 사용하면 안됨)
+    >
+    > 이렇게 세팅한 unstable_cache를 기존의 action대신 호출해주면 됨.
+
+  - **revalidate time**
+
+    > revalidate는 Next.js에서 데이터 캐싱을 얼마나 자주 갱신할지 설정하는 옵션. 즉, 정적인 데이터를 일정 시간이 지나면 자동으로 갱신하도록 설정할 수 있다
+
+    ```tsx
+    const getCachedProducts = nextCache(getInitialProducts, ["home-products"], {
+      // 60초가 지난후 새로운 요청이 있다면 캐시 데이터 갱신
+      revalidate: 60,
+    });
+    ```

@@ -9,7 +9,10 @@ export const metadata = {
   title: "home",
 };
 
-const getCachedProducts = nextCache(getInitialProducts, ["home-products"]);
+const getCachedProducts = nextCache(getInitialProducts, ["home-products"], {
+  // 60초가 지난후 새로운 요청이 있다면 캐시 데이터 갱신
+  revalidate: 60,
+});
 
 async function getInitialProducts() {
   const products = await db.product.findMany({
