@@ -797,11 +797,12 @@ const [state, action] = useActionState(interceptAction, null);
   >
   > ƒ (Dynamic) → 동적인 페이지로 요청 시 서버에서 렌더링됨 (요청 시 서버에서 렌더링됨)
   >
-  > 모든 사용자에게 동일한 내용이 제공되는 페이지면: Static
+  > 모든 사용자에게 동일한 내용이 제공되는 페이지면: Static (빌드 타임에서 캐싱)
   >
   > 사용자에 따라 다른 내용이 제공될 수 있는 페이지면: Dynamic
 
 - **unstable-cache를 사용하는 이유**
+
   > Production Mode에서 static page는 빌드 타임에 정적인 html로 변환된다. 즉, Static Page는 빌드 타임에 캐싱된 데이터를 사용한다.
   >
   > 또한 fetch 요청은 "force-cache"를 통해 캐시가 가능하다.
@@ -809,3 +810,23 @@ const [state, action] = useActionState(interceptAction, null);
   > Q. 그럼 unstable-cache를 이용해야할 필요가 있는가?
   >
   > A. 서버 내부에서 fetch가 아닌 DB 쿼리, 계산 로직 등을 캐싱해야 하는 경우에 필요하다.
+
+- **Route Segment Config**
+
+> Next.js에서 페이지(Page), 레이아웃(Layout), 라우트 핸들러(Route Handler) 의 동작을 설정할 수 있는 기능
+>
+> 즉, 특정 페이지나 라우트에서 “이건 이렇게 동작해야 해!” 라고 설정할 수 있는 옵션
+>
+> [공식문서](https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config)
+
+```tsx
+export const dynamic = "force-dynamic"; // 이 페이지를 "완전히 동적 페이지"로 설정
+export const revalidate = 60; // 60초마다 새로운 데이터를 가져오도록 설정
+
+// force-dynamic은 unstable-cache와 함께 사용하면 좋을 것 같다. 페이지를 동적으로 가져오되, 데이터를 캐싱하여 db 부하를 줄이는 방법으로 개발하기
+```
+
+- 추가 내용 (dynamicIO)
+  Next.js에서는 새로운 기능인 dynamicIO 플래그가 등장하면서 Route Segment Config는 앞으로 지원이 중단될 예정(Deprecated)
+
+[공식문서](https://nextjs.org/docs/app/api-reference/config/next-config-js/dynamicIO)

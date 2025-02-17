@@ -5,6 +5,18 @@ import { PlusIcon } from "@heroicons/react/24/solid";
 import { Prisma } from "@prisma/client";
 import { unstable_cache as nextCache, revalidatePath } from "next/cache";
 
+/** 강제로 Dynamic-Rendering(사용자가 방문할 때마다 새롭게 html generate) 시키기
+ *
+ * static -> dynamic page로 변경
+ */
+// export const dynamic = "force-dynamic";
+
+/** Cache의 revalidate와 유사한 기능
+ *
+ * 이전 요청으로부터 60초가 지난 다음에 페이지를 새롭게 리렌더링한다
+ */
+export const revalidate = 60;
+
 export const metadata = {
   title: "home",
 };
