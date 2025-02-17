@@ -740,3 +740,24 @@ return (
   </form>
 );
 ```
+
+- **revalidateTag**
+
+> revalidateTag는 특정 캐시 태그에 대해 저장된 데이터를 즉시 무효화 기능 제공
+
+```tsx
+const getCachedProductTitle = nextCache(getProductTitle, ["product-title"], {
+  tags: ["#product-title", "#product"],
+});
+
+const revalidate = async () => {
+  "use server";
+  revalidatePath("/home");
+};
+
+return (
+  <form action={revalidate}>
+    <button>revalidate</button>
+  </form>
+);
+```
