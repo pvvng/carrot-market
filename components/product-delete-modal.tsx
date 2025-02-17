@@ -1,6 +1,6 @@
 "use client";
 
-import { deleteProduct } from "@/app/products/[id]/actions";
+import { deleteProduct } from "@/app/products/[id]/delete/actions";
 import { redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 

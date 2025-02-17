@@ -693,3 +693,16 @@ const [state, action] = useActionState(interceptAction, null);
        );
      }
      ```
+
+### 11. Cache
+
+- **unstable_cache**
+
+> Next팀이 14버전에서 공개한 캐싱함수 아직은 불안정할 수있으므로, 이름이 저모양이다. 추후 이름이 바뀔수도있음
+
+- **사용방법**
+  > 첫 번째 매개변수: action 함수 삽입 (db 통신, 데이터를 반환하는 함수)
+  >
+  > 두번째 매개변수: 캐시키 배열 (프로젝트 내부에서 하나의 action에대해 unique해야함. 다른 action함수에 같은값을 사용하면 안됨)
+  >
+  > 이렇게 세팅한 unstable_cache를 기존의 action대신 호출해주면 됨.

@@ -4,7 +4,13 @@ import { formatToWon } from "@/lib/utils";
 import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+
+export async function generateMetadata() {
+  return {
+    title: "",
+  };
+}
 
 async function getProduct(id: number) {
   // await new Promise((res) => setTimeout(res, 10000));

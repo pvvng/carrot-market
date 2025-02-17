@@ -70,11 +70,11 @@ export default function ProductList({ initialProducts }: ProductListProps) {
       {products.map((product) => (
         <ListProduct key={product.id} {...product} />
       ))}
-      {!isLastPage && (
+      {/* {!isLastPage && (
         <span ref={trigger} className="text-white mx-auto">
           {isLoading ? "로딩 중.." : "더 불러오기"}
         </span>
-      )}
+      )} */}
     </div>
   );
 }
