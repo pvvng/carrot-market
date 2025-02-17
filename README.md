@@ -723,41 +723,69 @@ const [state, action] = useActionState(interceptAction, null);
     });
     ```
 
-- **revalidatePath**
+  - **revalidatePath**
 
-> 지정한 경로에 캐시된 `모든` 데이터를 무효화(재검증)
+  > 지정한 경로에 캐시된 `모든` 데이터를 무효화(재검증)
 
-```tsx
-// 버튼 클릭하면 캐시된 데이터가 리프레시됨
-const revalidate = async () => {
-  "use server";
-  revalidatePath("/home");
-};
+  ```tsx
+  // 버튼 클릭하면 캐시된 데이터가 리프레시됨
+  const revalidate = async () => {
+    "use server";
+    revalidatePath("/home");
+  };
 
-return (
-  <form action={revalidate}>
-    <button>revalidate</button>
-  </form>
-);
-```
+  return (
+    <form action={revalidate}>
+      <button>revalidate</button>
+    </form>
+  );
+  ```
 
-- **revalidateTag**
+  - **revalidateTag**
 
-> revalidateTag는 특정 캐시 태그에 대해 저장된 데이터를 즉시 무효화 기능 제공
+  > revalidateTag는 특정 캐시 태그에 대해 저장된 데이터를 즉시 무효화 기능 제공
 
-```tsx
-const getCachedProductTitle = nextCache(getProductTitle, ["product-title"], {
-  tags: ["#product-title", "#product"],
-});
+  ```tsx
+  const getCachedProductTitle = nextCache(getProductTitle, ["product-title"], {
+    tags: ["#product-title", "#product"],
+  });
 
-const revalidate = async () => {
-  "use server";
-  revalidatePath("/home");
-};
+  const revalidate = async () => {
+    "use server";
+    revalidatePath("/home");
+  };
 
-return (
-  <form action={revalidate}>
-    <button>revalidate</button>
-  </form>
-);
-```
+  return (
+    <form action={revalidate}>
+      <button>revalidate</button>
+    </form>
+  );
+  ```
+
+- **fetch cache**
+
+> Next.js 15 버전부터는 fetch 요청은 기본적으로 더 이상 캐시되지 않는다. 특정 fetch 요청을 캐시에 포함시키려면 cache: 'force-cache' 옵션을 사용해야 함.
+>
+> unstable-cache와 마찬가지로 revalidate, tags를 사용할 수 있다. -> 캐시 갱신도 마찬가지로 revalidatePath, revalidateTag 쓰면 된다.
+
+- **캐싱이 안되는 요청들**
+
+  1. post request
+  2. cookies, headers 사용
+  3. server action에 있는 fetch request
+
+- **예시**
+  ```tsx
+  export default async function RootLayout() {
+    const a = await fetch("https://..."); // 캐시되지 않음
+    const b = await fetch("https://...", { cache: "force-cache" }); // 캐시됨
+    // 캐시됨, revalidate, tags 설정
+    const c = await fetch("https://...", {
+      cache: "force-cache",
+      next: {
+        revalidate: 60,
+        tags: ["hello"],
+      },
+    });
+  }
+  ```
