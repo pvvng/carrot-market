@@ -3,11 +3,12 @@
 import Button from "@/components/button";
 import Input from "@/components/input";
 import { PhotoIcon } from "@heroicons/react/24/solid";
-import { useActionState, useEffect, useState } from "react";
+import { useState } from "react";
 import { getUploadUrl, uploadProduct } from "./actions";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProductFormType, productSchema } from "./schema";
+import { revalidateTag } from "next/cache";
 
 const MAX_FILE_SIZE_MB = 1;
 
@@ -116,8 +117,6 @@ export default function AddProduct() {
   const onValid = async () => {
     await onSubmit();
   };
-
-  console.log(errors);
 
   return (
     <div>

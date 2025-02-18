@@ -4,6 +4,7 @@ import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { redirect } from "next/navigation";
 import { productSchema } from "./schema";
+import { revalidateTag } from "next/cache";
 
 export async function uploadProduct(formData: FormData) {
   const data = {
@@ -42,6 +43,9 @@ export async function uploadProduct(formData: FormData) {
     },
     select: { id: true },
   });
+
+  // revalidateTag는 서버에서만 동작함
+  revalidateTag("home-products");
 
   return redirect(`/products/${product.id}`);
 }

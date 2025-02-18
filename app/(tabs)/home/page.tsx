@@ -5,27 +5,21 @@ import { PlusIcon } from "@heroicons/react/24/solid";
 import { Prisma } from "@prisma/client";
 import { unstable_cache as nextCache, revalidatePath } from "next/cache";
 
-/** 강제로 Dynamic-Rendering(사용자가 방문할 때마다 새롭게 html generate) 시키기
- *
- * static -> dynamic page로 변경
- */
-// export const dynamic = "force-dynamic";
+// Code challenge
+// 1. 캐싱 전략을 짜고 상품 업로드, 수정, 삭제할 때마다 revalidate하기
+// 2. 상품 수정 페이지 만들기
 
-/** Cache의 revalidate와 유사한 기능
- *
- * 이전 요청으로부터 60초가 지난 다음에 페이지를 새롭게 리렌더링한다
- */
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "home",
 };
 
-const getCachedProducts = nextCache(getInitialProducts, ["home-products"]);
+const getCachedProducts = nextCache(getInitialProducts, ["home-products"], {
+  tags: ["home-products", "products"],
+});
 
 async function getInitialProducts() {
-  // Next 기준으로는 쿠키, 쿼리 파라미터 안쓰는 static 함수처럼 느껴짐
-  // 그래서 빌드 타임에 한번 실행하고 그걸로 html 생성하는 것
   console.log("hit");
   const products = await db.product.findMany({
     select: {
@@ -36,7 +30,7 @@ async function getInitialProducts() {
       id: true,
     },
     // 가져올 페이지/상품 개수
-    // take: PAGE_DATA_COUNT,
+    take: PAGE_DATA_COUNT,
     // 최신순 정렬(내림차순)
     orderBy: {
       created_at: "desc",
@@ -53,18 +47,11 @@ export type initialProducts = Prisma.PromiseReturnType<
 
 // 페이지 실행시에는 최초 제품 페이지만 불러오기
 export default async function Products() {
-  const initialProducts = await getInitialProducts();
-  const revalidate = async () => {
-    "use server";
-    revalidatePath("/home");
-  };
-
+  const initialProducts = await getCachedProducts();
+  console.log(initialProducts);
   return (
     <div>
       <ProductList initialProducts={initialProducts} />
-      <form action={revalidate}>
-        <button>revalidate</button>
-      </form>
       <a
         href="/products/add"
         className="bg-orange-500 text-white flex items-center justify-center rounded-full size-16 

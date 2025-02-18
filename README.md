@@ -744,6 +744,8 @@ const [state, action] = useActionState(interceptAction, null);
   - **revalidateTag**
 
   > revalidateTag는 특정 캐시 태그에 대해 저장된 데이터를 즉시 무효화 기능 제공
+  >
+  > 서버에서만 정상 동작함.
 
   ```tsx
   const getCachedProductTitle = nextCache(getProductTitle, ["product-title"], {
@@ -752,7 +754,7 @@ const [state, action] = useActionState(interceptAction, null);
 
   const revalidate = async () => {
     "use server";
-    revalidatePath("/home");
+    revalidatePath("#product");
   };
 
   return (
@@ -864,3 +866,13 @@ export async function generateStaticParams() {
 - dynamicParams: false
   generateStaticParams에서 반환되지 않은 동적 세그먼트는 404 페이지를 반환.
   즉, 정적으로 미리 생성된 페이지 외에는 접근할 수 없음.
+
+- **Code challenge**
+  1. 캐싱 전략을 짜고 상품 업로드, 수정, 삭제할 때마다 revalidate하기
+  - `/home` 페이지
+    -> static으로 빌드하고 revalidatePath 하는게 가장 효율적이어 보인다.
+    -> 다만, `unstable-cache` 써보고 싶기 때문에 `force-dynamic` + `unstable-cache`를 함께 사용하여 캐싱후 태그로 revalidate 하는 방식으로 선택
+  - `products/add` 페이지
+    -> 일단 이건 페이지 이동이 필요함. 지금 intercept route에서 에러가 발생해서 페이지를 다른 URL로 변경하는게 시급.
+    -> 새 상품이 업로드 될때마다 `#home` 태그 revalidate 하면 될 것 같음.
+  2. 상품 수정 페이지 만들기
