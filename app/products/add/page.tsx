@@ -8,7 +8,6 @@ import { getUploadUrl, uploadProduct } from "./actions";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProductFormType, productSchema } from "./schema";
-import { revalidateTag } from "next/cache";
 
 const MAX_FILE_SIZE_MB = 1;
 

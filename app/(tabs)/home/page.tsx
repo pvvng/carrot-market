@@ -16,7 +16,7 @@ export const metadata = {
 };
 
 const getCachedProducts = nextCache(getInitialProducts, ["home-products"], {
-  tags: ["home-products", "products"],
+  tags: ["#home", "#products"],
 });
 
 async function getInitialProducts() {
