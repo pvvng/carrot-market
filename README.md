@@ -849,4 +849,18 @@ export async function generateStaticParams() {
 - SSG로 생성된 상품 static page를 revalidate하려면 (ISR) `revalidatePath("/products/[변경할 상품 Id]")` 하면 된다.
 
 - Q. production mode에서 아예 새로운 상품이 추가되었을때는 static page 생성이 가능할까? 예를 들어 `revalidatePath("/products/[id]")` 등의 방식으로
+
   - A. 새로운 상품이 추가된 후 최초로 해당 페이지를 방문하는 사용자는 db에서 데이터를 받아 올 것이다. 그리고 정적 html이 생성된다. 이후에 해당 페이지에 방문하는 사용자는 static page를 보게 될것이다. 이는 기본 동작이다.
+
+- **dynamicParams**
+
+> dynamicParams는 generateStaticParams와 함께 사용되며, 특정 동적 경로가 미리 생성되지 않은 경우 어떻게 처리할지를 제어
+>
+> [공식문서](https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#dynamicparams)
+
+- dynamicParams: true (기본값)
+  generateStaticParams에서 제공하지 않은 동적 세그먼트도 요청 시(on-demand) 자동 생성. 즉, 사용자가 해당 URL에 접근하면 서버에서 동적으로 렌더링하여 페이지를 제공할 수 있음. (Streaming Server Rendering 사용)
+
+- dynamicParams: false
+  generateStaticParams에서 반환되지 않은 동적 세그먼트는 404 페이지를 반환.
+  즉, 정적으로 미리 생성된 페이지 외에는 접근할 수 없음.

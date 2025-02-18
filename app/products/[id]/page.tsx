@@ -154,6 +154,11 @@ export default async function ProductDetail({
   );
 }
 
+// 미리 생성되지 않은 html은 dynamic page로 간주된다 (default true)
+// false로 설정시 빌드할때 미리 생성한 페이지만 찾을 수 있다. 이외에는 notFound
+// 결론 : pre generate 되지 않은 페이지는 dynamic page로 간주된다 -> db에서 데이터를 불러온다 -> 페이지가 저장된다. == static page로 간주된다.
+export const dynamicParams = true;
+
 // dynamic page의 일부를 static하게 변경
 // 반환하는 배열은 이 페이지가 사용할 가능성이 있는 params id 값
 // product, product title 함수를 빌드타임에서 hit 하고 미리 렌더링
