@@ -868,7 +868,9 @@ export async function generateStaticParams() {
   즉, 정적으로 미리 생성된 페이지 외에는 접근할 수 없음.
 
 - **Code challenge**
+
   1. 캐싱 전략을 짜고 상품 업로드, 수정, 삭제할 때마다 revalidate하기
+
   - `/home` 페이지
     -> static으로 빌드하고 revalidatePath 하는게 가장 효율적이어 보인다.
     -> 다만, `unstable-cache` 써보고 싶기 때문에 `force-dynamic` + `unstable-cache`를 함께 사용하여 캐싱후 태그로 revalidate 하는 방식으로 선택
@@ -876,4 +878,11 @@ export async function generateStaticParams() {
     -> 일단 이건 페이지 이동이 필요함. 지금 intercept route에서 에러가 발생해서 페이지를 다른 URL로 변경하는게 시급.
     -> 새 상품이 업로드 될때마다 `#home` 태그 revalidate 하면 될 것 같음.
     -> `products/[id]`를 `/products/p/[id]` 로 옮기는게 좋다함 (GPT 센세 피셜)
+  - `/products/p/[id]` 페이지
+    -> 상품의 id를 특정할 수 없으므로 `revalidatePath`로 해당 페이지 전체를 revalidate 하는게 좋을 것 같음.
+    -> 상품 수정 페이지와 연동해서 revalidate 하기
+
   2. 상품 수정 페이지 만들기
+
+  - `/products/p/[id]/edit` 페이지
+    -> 상품 수정 페이지. 상품 등록한 사람만 접근 가능하도록 하고 상품 기본값들 불러와서 defaultValue로 넣어놓고 수정후 submit하는 액션 구현 필요

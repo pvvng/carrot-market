@@ -1,6 +1,7 @@
 import CloseButton from "@/components/close-button";
 import ModalBackground from "@/components/modal-background";
 import ModalScrollBreak from "@/components/product-modal";
+import { getCachedProduct } from "@/lib/data/product";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { PhotoIcon } from "@heroicons/react/16/solid";
@@ -20,10 +21,7 @@ export default async function Modal({ params }: ProductDetailModalProps) {
     return notFound();
   }
 
-  const product = await db.product.findUnique({
-    where: { id: Number(id) },
-    include: { user: true },
-  });
+  const product = await getCachedProduct(Number(id));
 
   // 잘못된 제품 id 검색시
   if (!product) {
@@ -67,7 +65,15 @@ export default async function Modal({ params }: ProductDetailModalProps) {
               <h3>{product.user.username}</h3>
             </div>
             {session.id === product.userId ? (
-              <Link href={`/products/p/${id}/delete`}>삭제하기</Link>
+              <div className="flex gap-2">
+                <Link href={`/products/p/${id}/edit`}>편집하기</Link>
+                <Link
+                  className="text-red-500"
+                  href={`/products/p/${id}/delete`}
+                >
+                  삭제하기
+                </Link>
+              </div>
             ) : (
               <Link href={``}>채팅하기</Link>
             )}

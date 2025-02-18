@@ -2,7 +2,7 @@ import CloseButton from "@/components/close-button";
 import ModalBackground from "@/components/modal-background";
 import DeleteModal from "@/components/product-delete-modal";
 import ModalScrollBreak from "@/components/product-modal";
-import db from "@/lib/db";
+import { getCachedProduct } from "@/lib/data/product";
 import getSession from "@/lib/session";
 import { notFound } from "next/navigation";
 
@@ -18,10 +18,7 @@ export default async function DeleteProduct({ params }: ProductDeleteProps) {
     return notFound();
   }
 
-  const product = await db.product.findUnique({
-    where: { id: Number(id) },
-    select: { title: true, id: true, userId: true },
-  });
+  const product = await getCachedProduct(Number(id));
 
   if (!product) {
     return notFound();

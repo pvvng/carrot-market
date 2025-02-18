@@ -1,3 +1,5 @@
+import { getCachedProduct } from "@/lib/data/product";
+import { getCachedProductTitle } from "@/lib/data/product-title";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { formatToWon } from "@/lib/utils";
@@ -5,11 +7,6 @@ import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  unstable_cache as nextCache,
-  revalidatePath,
-  revalidateTag,
-} from "next/cache";
 
 interface ProductDetailPageProps {
   params: Promise<{ id: string }>;
@@ -25,44 +22,10 @@ async function getIsOwner(userId: number) {
   return false;
 }
 
-async function getProduct(id: number) {
-  console.log("product");
-  const product = await db.product.findUnique({
-    where: { id },
-    // 제품 등록한 사용자 정보 일부도 가져오기
-    include: { user: { select: { username: true, avatar: true } } },
-  });
-
-  return product;
-}
-
-const getCachedProduct = nextCache(
-  getProduct,
-  // unique key
-  ["product-detail"],
-  {
-    // 굳이 unique하지 않아도 됨
-    tags: ["product-detail", "#product"],
-  }
-);
-
-async function getProductTitle(id: number) {
-  console.log("title");
-  const product = await db.product.findUnique({
-    where: { id },
-    select: { title: true },
-  });
-
-  return product;
-}
-
-const getCachedProductTitle = nextCache(getProductTitle, ["product-title"], {
-  tags: ["product-title", "#product"],
-});
-
 export async function generateMetadata({ params }: ProductDetailPageProps) {
   const id = Number((await params).id);
   const product = await getCachedProductTitle(id);
+
   return {
     title: product?.title,
   };
@@ -71,8 +34,6 @@ export async function generateMetadata({ params }: ProductDetailPageProps) {
 export default async function ProductDetail({
   params,
 }: ProductDetailPageProps) {
-  // 올바르지 않은 상품 번호(문자열 등) 거르기 위해 Number 사용
-  // Number는 문자형태 숫자는 숫자로 바꾸지만 그냥 문자열은 NaN 반환함
   const id = Number((await params).id);
 
   if (isNaN(id)) {
@@ -87,11 +48,6 @@ export default async function ProductDetail({
   }
 
   const isOwner = await getIsOwner(product.userId);
-
-  const revalidate = async () => {
-    "use server";
-    revalidateTag("#product");
-  };
 
   return (
     <div>
@@ -121,9 +77,6 @@ export default async function ProductDetail({
       <div className="p-5 h-80">
         <h1 className="text-2xl font-semibold">{product.title}</h1>
         <p>{product.description}</p>
-        <form action={revalidate}>
-          <button>revalidate</button>
-        </form>
       </div>
       <div
         className="w-full max-w-screen-sm fixed bottom-0 p-5 bg-neutral-800 
@@ -134,20 +87,30 @@ export default async function ProductDetail({
           {formatToWon(product.price)}원
         </span>
         <div className="flex justify-center items-center gap-2">
-          {isOwner && (
+          {isOwner ? (
+            <>
+              <Link
+                className="bg-orange-500 p-5 rounded-md text-white font-semibold"
+                href={`/products/p/${id}/edit`}
+              >
+                편집하기
+              </Link>
+              <Link
+                href={`/products/p/${id}/delete`}
+                scroll={false}
+                className="bg-red-500 p-5 rounded-md text-white font-semibold cursor-pointer"
+              >
+                삭제하기
+              </Link>
+            </>
+          ) : (
             <Link
-              href={`/products/p/${id}/delete`}
-              className="bg-red-500 p-5 rounded-md text-white font-semibold cursor-pointer"
+              className="bg-orange-500 p-5 rounded-md text-white font-semibold"
+              href={``}
             >
-              삭제하기
+              채팅하기
             </Link>
           )}
-          <Link
-            className="bg-orange-500 p-5 rounded-md text-white font-semibold"
-            href={``}
-          >
-            채팅하기
-          </Link>
         </div>
       </div>
     </div>
