@@ -24,6 +24,8 @@ export const metadata = {
 const getCachedProducts = nextCache(getInitialProducts, ["home-products"]);
 
 async function getInitialProducts() {
+  // Next 기준으로는 쿠키, 쿼리 파라미터 안쓰는 static 함수처럼 느껴짐
+  // 그래서 빌드 타임에 한번 실행하고 그걸로 html 생성하는 것
   console.log("hit");
   const products = await db.product.findMany({
     select: {
