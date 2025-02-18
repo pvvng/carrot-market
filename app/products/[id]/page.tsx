@@ -5,18 +5,22 @@ import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { unstable_cache as nextCache, revalidateTag } from "next/cache";
+import {
+  unstable_cache as nextCache,
+  revalidatePath,
+  revalidateTag,
+} from "next/cache";
 
 interface ProductDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
 async function getIsOwner(userId: number) {
-  const session = await getSession();
+  // const session = await getSession();
 
-  if (session.id) {
-    return session.id == userId;
-  }
+  // if (session.id) {
+  //   return session.id == userId;
+  // }
 
   return false;
 }
@@ -89,6 +93,11 @@ export default async function ProductDetail({
     revalidateTag("#product");
   };
 
+  const test = async () => {
+    "use server";
+    revalidatePath("/products/[id]");
+  };
+
   return (
     <div>
       <div className="relative aspect-square">
@@ -120,6 +129,9 @@ export default async function ProductDetail({
         <form action={revalidate}>
           <button>revalidate</button>
         </form>
+        <form action={test}>
+          <button>revalidate this page</button>
+        </form>
       </div>
       <div
         className="w-full max-w-screen-sm fixed bottom-0 p-5 bg-neutral-800 
@@ -148,4 +160,16 @@ export default async function ProductDetail({
       </div>
     </div>
   );
+}
+
+// dynamic page의 일부를 static하게 변경
+// 반환하는 배열은 이 페이지가 사용할 가능성이 있는 params id 값
+// product, product title 함수를 빌드타임에서 hit 하고 미리 렌더링
+// 상품 업로드나 상품 업데이트 시에 위 페이지 revalidate하면 html 변경될거임
+// ● (SSG) prerendered as static HTML (uses generateStaticParams)
+export async function generateStaticParams() {
+  const products = await db.product.findMany({ select: { id: true } });
+  return products.map((product) => ({
+    id: product.id + "",
+  }));
 }

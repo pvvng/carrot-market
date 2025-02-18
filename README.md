@@ -830,3 +830,25 @@ export const revalidate = 60; // 60초마다 새로운 데이터를 가져오도
   Next.js에서는 새로운 기능인 dynamicIO 플래그가 등장하면서 Route Segment Config는 앞으로 지원이 중단될 예정(Deprecated)
 
 [공식문서](https://nextjs.org/docs/app/api-reference/config/next-config-js/dynamicIO)
+
+- **generateStaticParams**
+
+> `/products/[id]` 와 같이 params를 사용하는 dynamic 페이지의 일부를 static하게 변경한다. 빌드 타임에서 미리 params를 받아 static page로 생성하기 때문에 가능한 일.
+>
+> ● (SSG) prerendered as static HTML (uses generateStaticParams)
+
+```jsx
+export async function generateStaticParams() {
+  const products = await db.product.findMany({ select: { id: true } });
+  return products.map((product) => ({
+    id: product.id + "",
+  }));
+}
+```
+
+- SSG로 생성된 상품 static page를 revalidate하려면 (ISR) `revalidatePath("/products/[변경할 상품 Id]")` 하면 된다.
+
+- Q. production mode에서 아예 새로운 상품이 추가되었을때는 static page 생성이 가능할까? 예를 들어 `revalidatePath("/products/[id]")` 등의 방식으로
+  - A. 불가능하다.
+  - generateStaticParams는 빌드 타임에 한 번만 실행된다
+  - revalidatePath("/products/[id]")는 해당 상품의 static 페이지를 다시 생성하는 역할을 하지만, 새로운 상품의 id를 추가로 가져오지는 않는다.
