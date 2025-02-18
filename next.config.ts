@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
       { hostname: "imagedelivery.net" },
     ],
   },
+  // 빌드 시 ESLint 오류 무시
+  // eslint: {
+  //   ignoreDuringBuilds: true,
+  // },
 };
 
 export default nextConfig;

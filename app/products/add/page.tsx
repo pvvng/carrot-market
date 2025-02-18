@@ -3,7 +3,7 @@
 import Button from "@/components/button";
 import Input from "@/components/input";
 import { PhotoIcon } from "@heroicons/react/24/solid";
-import { useActionState, useEffect, useState } from "react";
+import { useState } from "react";
 import { getUploadUrl, uploadProduct } from "./actions";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -116,8 +116,6 @@ export default function AddProduct() {
   const onValid = async () => {
     await onSubmit();
   };
-
-  console.log(errors);
 
   return (
     <div>

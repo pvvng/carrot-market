@@ -1,20 +1,15 @@
+import { getCachedProduct } from "@/lib/data/product";
+import { getCachedProductTitle } from "@/lib/data/product-title";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { formatToWon } from "@/lib/utils";
 import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
-async function getProduct(id: number) {
-  // await new Promise((res) => setTimeout(res, 10000));
-  const product = await db.product.findUnique({
-    where: { id },
-    // 제품 등록한 사용자 정보 일부도 가져오기
-    include: { user: { select: { username: true, avatar: true } } },
-  });
-
-  return product;
+interface ProductDetailPageProps {
+  params: Promise<{ id: string }>;
 }
 
 async function getIsOwner(userId: number) {
@@ -27,22 +22,25 @@ async function getIsOwner(userId: number) {
   return false;
 }
 
-interface ProductDetailPageProps {
-  params: Promise<{ id: string }>;
+export async function generateMetadata({ params }: ProductDetailPageProps) {
+  const id = Number((await params).id);
+  const product = await getCachedProductTitle(id);
+
+  return {
+    title: product?.title,
+  };
 }
 
 export default async function ProductDetail({
   params,
 }: ProductDetailPageProps) {
-  // 올바르지 않은 상품 번호(문자열 등) 거르기 위해 Number 사용
-  // Number는 문자형태 숫자는 숫자로 바꾸지만 그냥 문자열은 NaN 반환함
   const id = Number((await params).id);
 
   if (isNaN(id)) {
     return notFound();
   }
 
-  const product = await getProduct(id);
+  const product = await getCachedProduct(id);
 
   // 잘못된 제품 id 검색시
   if (!product) {
@@ -89,22 +87,41 @@ export default async function ProductDetail({
           {formatToWon(product.price)}원
         </span>
         <div className="flex justify-center items-center gap-2">
-          {isOwner && (
+          {isOwner ? (
+            <>
+              <Link
+                className="bg-orange-500 p-5 rounded-md text-white font-semibold"
+                href={`/products/p/${id}/edit`}
+              >
+                편집하기
+              </Link>
+              <Link
+                href={`/products/p/${id}/delete`}
+                scroll={false}
+                className="bg-red-500 p-5 rounded-md text-white font-semibold cursor-pointer"
+              >
+                삭제하기
+              </Link>
+            </>
+          ) : (
             <Link
-              href={`/products/${id}/delete`}
-              className="bg-red-500 p-5 rounded-md text-white font-semibold cursor-pointer"
+              className="bg-orange-500 p-5 rounded-md text-white font-semibold"
+              href={``}
             >
-              삭제하기
+              채팅하기
             </Link>
           )}
-          <Link
-            className="bg-orange-500 p-5 rounded-md text-white font-semibold"
-            href={``}
-          >
-            채팅하기
-          </Link>
         </div>
       </div>
     </div>
   );
+}
+
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const products = await db.product.findMany({ select: { id: true } });
+  return products.map((product) => ({
+    id: product.id + "",
+  }));
 }

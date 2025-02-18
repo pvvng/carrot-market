@@ -693,3 +693,196 @@ const [state, action] = useActionState(interceptAction, null);
        );
      }
      ```
+
+### 11. Cache
+
+- **unstable_cache**
+
+  > Next팀이 14버전에서 공개한 캐싱함수 아직은 불안정할 수있으므로, 이름이 저모양이다. 추후 이름이 바뀔수도있음
+  >
+  > [공식문서(한글판)](https://nextjs-ko.org/docs/app/api-reference/functions/unstable_cache)
+
+  - **사용방법**
+
+    > 첫 번째 매개변수: action 함수 삽입 (db 통신, 데이터를 반환하는 함수)
+    >
+    > 두번째 매개변수: 캐시키 배열 (프로젝트 내부에서 하나의 action에대해 unique해야함. 다른 action함수에 같은값을 사용하면 안됨)
+    >
+    > 이렇게 세팅한 unstable_cache를 기존의 action대신 호출해주면 됨.
+
+  - **revalidate time**
+
+    > revalidate는 Next.js에서 데이터 캐싱을 얼마나 자주 갱신할지 설정하는 옵션. 즉, 정적인 데이터를 일정 시간이 지나면 자동으로 갱신하도록 설정할 수 있다
+    >
+    > 특정 사용자(클라이언트)를 추적하는 것이 아니라, 서버에서 캐시된 데이터의 만료 주기를 설정하는 역할
+
+    ```tsx
+    const getCachedProducts = nextCache(getInitialProducts, ["home-products"], {
+      // 60초가 지난후 새로운 요청이 있다면 캐시 데이터 갱신
+      revalidate: 60,
+    });
+    ```
+
+  - **revalidatePath**
+
+  > 지정한 경로에 캐시된 `모든` 데이터를 무효화(재검증)
+
+  ```tsx
+  // 버튼 클릭하면 캐시된 데이터가 리프레시됨
+  const revalidate = async () => {
+    "use server";
+    revalidatePath("/home");
+  };
+
+  return (
+    <form action={revalidate}>
+      <button>revalidate</button>
+    </form>
+  );
+  ```
+
+  - **revalidateTag**
+
+  > revalidateTag는 특정 캐시 태그에 대해 저장된 데이터를 즉시 무효화 기능 제공
+  >
+  > 서버에서만 정상 동작함.
+
+  ```tsx
+  const getCachedProductTitle = nextCache(getProductTitle, ["product-title"], {
+    tags: ["#product-title", "#product"],
+  });
+
+  const revalidate = async () => {
+    "use server";
+    revalidatePath("#product");
+  };
+
+  return (
+    <form action={revalidate}>
+      <button>revalidate</button>
+    </form>
+  );
+  ```
+
+- **fetch cache**
+
+> Next.js 15 버전부터는 fetch 요청은 기본적으로 더 이상 캐시되지 않는다. 특정 fetch 요청을 캐시에 포함시키려면 cache: 'force-cache' 옵션을 사용해야 함.
+>
+> unstable-cache와 마찬가지로 revalidate, tags를 사용할 수 있다. -> 캐시 갱신도 마찬가지로 revalidatePath, revalidateTag 쓰면 된다.
+
+- **캐싱이 안되는 요청들**
+
+  1. post request
+  2. cookies, headers 사용
+  3. server action에 있는 fetch request
+
+- **예시**
+
+  ```tsx
+  export default async function RootLayout() {
+    const a = await fetch("https://..."); // 캐시되지 않음
+    const b = await fetch("https://...", { cache: "force-cache" }); // 캐시됨
+    // 캐시됨, revalidate, tags 설정
+    const c = await fetch("https://...", {
+      cache: "force-cache",
+      next: {
+        revalidate: 60,
+        tags: ["hello"],
+      },
+    });
+  }
+  ```
+
+- **Static, Dynamic 페이지**
+
+  > ○ (Static) → 정적인 페이지로 미리 렌더링되어 배포됨 (빌드 시 HTML 생성)
+  >
+  > ƒ (Dynamic) → 동적인 페이지로 요청 시 서버에서 렌더링됨 (요청 시 서버에서 렌더링됨)
+  >
+  > 모든 사용자에게 동일한 내용이 제공되는 페이지면: Static (빌드 타임에서 캐싱)
+  >
+  > 사용자에 따라 다른 내용이 제공될 수 있는 페이지면: Dynamic
+
+- **unstable-cache를 사용하는 이유**
+
+  > Production Mode에서 static page는 빌드 타임에 정적인 html로 변환된다. 즉, Static Page는 빌드 타임에 캐싱된 데이터를 사용한다.
+  >
+  > 또한 fetch 요청은 "force-cache"를 통해 캐시가 가능하다.
+  >
+  > Q. 그럼 unstable-cache를 이용해야할 필요가 있는가?
+  >
+  > A. 서버 내부에서 fetch가 아닌 DB 쿼리, 계산 로직 등을 캐싱해야 하는 경우에 필요하다.
+
+- **Route Segment Config**
+
+> Next.js에서 페이지(Page), 레이아웃(Layout), 라우트 핸들러(Route Handler) 의 동작을 설정할 수 있는 기능
+>
+> 즉, 특정 페이지나 라우트에서 “이건 이렇게 동작해야 해!” 라고 설정할 수 있는 옵션
+>
+> [공식문서](https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config)
+
+```tsx
+export const dynamic = "force-dynamic"; // 이 페이지를 "완전히 동적 페이지"로 설정
+export const revalidate = 60; // 60초마다 새로운 데이터를 가져오도록 설정
+
+// force-dynamic은 unstable-cache와 함께 사용하면 좋을 것 같다. 페이지를 동적으로 가져오되, 데이터를 캐싱하여 db 부하를 줄이는 방법으로 개발하기
+```
+
+- 추가 내용 (dynamicIO)
+  Next.js에서는 새로운 기능인 dynamicIO 플래그가 등장하면서 Route Segment Config는 앞으로 지원이 중단될 예정(Deprecated)
+
+[공식문서](https://nextjs.org/docs/app/api-reference/config/next-config-js/dynamicIO)
+
+- **generateStaticParams**
+
+> `/products/[id]` 와 같이 params를 사용하는 dynamic 페이지의 일부를 static하게 변경한다. 빌드 타임에서 미리 params를 받아 static page로 생성하기 때문에 가능한 일.
+>
+> ● (SSG) prerendered as static HTML (uses generateStaticParams)
+
+```jsx
+export async function generateStaticParams() {
+  const products = await db.product.findMany({ select: { id: true } });
+  return products.map((product) => ({
+    id: product.id + "",
+  }));
+}
+```
+
+- SSG로 생성된 상품 static page를 revalidate하려면 (ISR) `revalidatePath("/products/[변경할 상품 Id]")` 하면 된다.
+
+- Q. production mode에서 아예 새로운 상품이 추가되었을때는 static page 생성이 가능할까? 예를 들어 `revalidatePath("/products/[id]")` 등의 방식으로
+
+  - A. 새로운 상품이 추가된 후 최초로 해당 페이지를 방문하는 사용자는 db에서 데이터를 받아 올 것이다. 그리고 정적 html이 생성된다. 이후에 해당 페이지에 방문하는 사용자는 static page를 보게 될것이다. 이는 기본 동작이다.
+
+- **dynamicParams**
+
+> dynamicParams는 generateStaticParams와 함께 사용되며, 특정 동적 경로가 미리 생성되지 않은 경우 어떻게 처리할지를 제어
+>
+> [공식문서](https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#dynamicparams)
+
+- dynamicParams: true (기본값)
+  generateStaticParams에서 제공하지 않은 동적 세그먼트도 요청 시(on-demand) 자동 생성. 즉, 사용자가 해당 URL에 접근하면 서버에서 동적으로 렌더링하여 페이지를 제공할 수 있음. (Streaming Server Rendering 사용)
+
+- dynamicParams: false
+  generateStaticParams에서 반환되지 않은 동적 세그먼트는 404 페이지를 반환.
+  즉, 정적으로 미리 생성된 페이지 외에는 접근할 수 없음.
+
+- **Code challenge**
+
+  1. 캐싱 전략을 짜고 상품 업로드, 수정, 삭제할 때마다 revalidate하기
+
+  - `/home` 페이지
+    -> static으로 빌드하고 revalidatePath 하는게 가장 효율적이어 보인다.
+    -> 다만, `unstable-cache` 써보고 싶기 때문에 `force-dynamic` + `unstable-cache`를 함께 사용하여 캐싱후 태그로 revalidate 하는 방식으로 선택
+  - `products/add` 페이지
+    -> 일단 이건 페이지 이동이 필요함. 지금 intercept route에서 에러가 발생해서 페이지를 다른 URL로 변경하는게 시급.
+    -> 새 상품이 업로드 될때마다 `#home` 태그 revalidate 하면 될 것 같음.
+    -> `products/[id]`를 `/products/p/[id]` 로 옮기는게 좋다함 (GPT 센세 피셜)
+  - `/products/p/[id]` 페이지
+    -> 상품의 id를 특정할 수 없으므로 `revalidatePath`로 해당 페이지 전체를 revalidate 하는게 좋을 것 같음.
+    -> 상품 수정 페이지와 연동해서 revalidate 하기
+
+  2. 상품 수정 페이지 만들기
+
+  - `/products/p/[id]/edit` 페이지
+    -> 상품 수정 페이지. 상품 등록한 사람만 접근 가능하도록 하고 상품 기본값들 불러와서 defaultValue로 넣어놓고 수정후 submit하는 액션 구현 필요
