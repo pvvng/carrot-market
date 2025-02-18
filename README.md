@@ -875,4 +875,5 @@ export async function generateStaticParams() {
   - `products/add` 페이지
     -> 일단 이건 페이지 이동이 필요함. 지금 intercept route에서 에러가 발생해서 페이지를 다른 URL로 변경하는게 시급.
     -> 새 상품이 업로드 될때마다 `#home` 태그 revalidate 하면 될 것 같음.
+    -> `products/[id]`를 `/products/p/[id]` 로 옮기는게 좋다함 (GPT 센세 피셜)
   2. 상품 수정 페이지 만들기

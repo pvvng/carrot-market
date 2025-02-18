@@ -48,7 +48,6 @@ export type initialProducts = Prisma.PromiseReturnType<
 // 페이지 실행시에는 최초 제품 페이지만 불러오기
 export default async function Products() {
   const initialProducts = await getCachedProducts();
-  console.log(initialProducts);
   return (
     <div>
       <ProductList initialProducts={initialProducts} />

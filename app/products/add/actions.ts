@@ -47,7 +47,7 @@ export async function uploadProduct(formData: FormData) {
   // revalidateTag는 서버에서만 동작함
   revalidateTag("#home");
 
-  return redirect(`/products/${product.id}`);
+  return redirect(`/products/p/${product.id}`);
 }
 
 /** cloudflare에서 1회용 upload url 받는 action */

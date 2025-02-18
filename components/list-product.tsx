@@ -17,7 +17,12 @@ export default function ListProduct({
   id,
 }: ListProductProps) {
   return (
-    <Link href={`/products/${id}`} className="flex gap-5">
+    <Link
+      href={`/products/p/${id}`}
+      // modal 창 떴을때 상단 스크롤 안되도록 scroll false
+      scroll={false}
+      className="flex gap-5"
+    >
       {/* 부모 div에서 이미지 사이즈 컨트롤 가능 -> 스타일, 반응형 적용이 된다는 의미 */}
       <div className="relative size-28 rounded-md overflow-hidden bg-gray-200">
         <Image

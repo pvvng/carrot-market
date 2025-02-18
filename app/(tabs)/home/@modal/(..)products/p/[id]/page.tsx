@@ -1,5 +1,6 @@
 import CloseButton from "@/components/close-button";
 import ModalBackground from "@/components/modal-background";
+import ModalScrollBreak from "@/components/product-modal";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { PhotoIcon } from "@heroicons/react/16/solid";
@@ -32,10 +33,11 @@ export default async function Modal({ params }: ProductDetailModalProps) {
   const session = await getSession();
 
   return (
-    <div className="absolute w-full h-full left-0 top-0 z-50 flex justify-center items-center">
+    <div className="fixed w-full h-full left-0 top-0 z-50 flex justify-center items-center overflow-hidden">
+      <ModalScrollBreak />
       <ModalBackground />
       <CloseButton />
-      <div className="bg-neutral-900 aspect-square w-full max-w-screen-sm rounded-md overflow-scroll p-5 *:text-white">
+      <div className="bg-neutral-900 aspect-square w-full max-w-screen-sm rounded-md overflow-auto p-5 *:text-white">
         <div className="aspect-square relative overflow-hidden">
           <Image
             src={`${product.photo}/public`}

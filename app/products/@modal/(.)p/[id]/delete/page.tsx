@@ -1,6 +1,7 @@
 import CloseButton from "@/components/close-button";
 import ModalBackground from "@/components/modal-background";
-import ProductModal from "@/components/product-delete-modal";
+import DeleteModal from "@/components/product-delete-modal";
+import ModalScrollBreak from "@/components/product-modal";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { notFound } from "next/navigation";
@@ -32,9 +33,10 @@ export default async function DeleteProduct({ params }: ProductDeleteProps) {
 
   return (
     <div className="fixed w-full h-full left-0 top-0 z-50 flex justify-center items-center">
+      <ModalScrollBreak />
       <CloseButton />
       <ModalBackground />
-      <ProductModal title={product.title} id={product.id} />
+      <DeleteModal title={product.title} id={product.id} />
     </div>
   );
 }

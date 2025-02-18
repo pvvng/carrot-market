@@ -1,10 +1,10 @@
 "use client";
 
-import { deleteProduct } from "@/app/products/[id]/delete/actions";
+import { deleteProduct } from "@/app/products/p/[id]/delete/actions";
 import { redirect, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-export default function ProductModal({
+export default function DeleteModal({
   title,
   id,
 }: {
@@ -25,14 +25,6 @@ export default function ProductModal({
     alert(`${title} 제품을 삭제했습니다.`);
     redirect("/home");
   };
-
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, []);
 
   return (
     <div className="text-center bg-white rounded-md p-5 *:text-black">

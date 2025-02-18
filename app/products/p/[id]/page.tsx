@@ -16,11 +16,11 @@ interface ProductDetailPageProps {
 }
 
 async function getIsOwner(userId: number) {
-  // const session = await getSession();
+  const session = await getSession();
 
-  // if (session.id) {
-  //   return session.id == userId;
-  // }
+  if (session.id) {
+    return session.id == userId;
+  }
 
   return false;
 }
@@ -136,7 +136,7 @@ export default async function ProductDetail({
         <div className="flex justify-center items-center gap-2">
           {isOwner && (
             <Link
-              href={`/products/${id}/delete`}
+              href={`/products/p/${id}/delete`}
               className="bg-red-500 p-5 rounded-md text-white font-semibold cursor-pointer"
             >
               삭제하기
@@ -154,16 +154,8 @@ export default async function ProductDetail({
   );
 }
 
-// 미리 생성되지 않은 html은 dynamic page로 간주된다 (default true)
-// false로 설정시 빌드할때 미리 생성한 페이지만 찾을 수 있다. 이외에는 notFound
-// 결론 : pre generate 되지 않은 페이지는 dynamic page로 간주된다 -> db에서 데이터를 불러온다 -> 페이지가 저장된다. == static page로 간주된다.
 export const dynamicParams = true;
 
-// dynamic page의 일부를 static하게 변경
-// 반환하는 배열은 이 페이지가 사용할 가능성이 있는 params id 값
-// product, product title 함수를 빌드타임에서 hit 하고 미리 렌더링
-// 상품 업로드나 상품 업데이트 시에 위 페이지 revalidate하면 html 변경될거임
-// ● (SSG) prerendered as static HTML (uses generateStaticParams)
 export async function generateStaticParams() {
   const products = await db.product.findMany({ select: { id: true } });
   return products.map((product) => ({
