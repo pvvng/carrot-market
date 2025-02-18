@@ -67,7 +67,7 @@ export default async function Modal({ params }: ProductDetailModalProps) {
               <h3>{product.user.username}</h3>
             </div>
             {session.id === product.userId ? (
-              <Link href={`/products/${id}/delete`}>삭제하기</Link>
+              <Link href={`/products/p/${id}/delete`}>삭제하기</Link>
             ) : (
               <Link href={``}>채팅하기</Link>
             )}
