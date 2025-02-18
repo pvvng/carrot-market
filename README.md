@@ -849,6 +849,4 @@ export async function generateStaticParams() {
 - SSG로 생성된 상품 static page를 revalidate하려면 (ISR) `revalidatePath("/products/[변경할 상품 Id]")` 하면 된다.
 
 - Q. production mode에서 아예 새로운 상품이 추가되었을때는 static page 생성이 가능할까? 예를 들어 `revalidatePath("/products/[id]")` 등의 방식으로
-  - A. 불가능하다.
-  - generateStaticParams는 빌드 타임에 한 번만 실행된다
-  - revalidatePath("/products/[id]")는 해당 상품의 static 페이지를 다시 생성하는 역할을 하지만, 새로운 상품의 id를 추가로 가져오지는 않는다.
+  - A. 새로운 상품이 추가된 후 최초로 해당 페이지를 방문하는 사용자는 db에서 데이터를 받아 올 것이다. 그리고 정적 html이 생성된다. 이후에 해당 페이지에 방문하는 사용자는 static page를 보게 될것이다. 이는 기본 동작이다.

@@ -93,11 +93,6 @@ export default async function ProductDetail({
     revalidateTag("#product");
   };
 
-  const test = async () => {
-    "use server";
-    revalidatePath("/products/[id]");
-  };
-
   return (
     <div>
       <div className="relative aspect-square">
@@ -128,9 +123,6 @@ export default async function ProductDetail({
         <p>{product.description}</p>
         <form action={revalidate}>
           <button>revalidate</button>
-        </form>
-        <form action={test}>
-          <button>revalidate this page</button>
         </form>
       </div>
       <div
