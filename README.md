@@ -926,3 +926,26 @@ const usersWithCount = await prisma.user.findMany({
   },
 });
 ```
+
+- **숫자 필드 업데이트**
+
+> Prisma에서 숫자 필드를 업데이트할 때는 원자적 연산(atomic operations)을 사용할 수 있다. 이 방법은 현재 값에 기반하여 숫자 필드를 더하기, 빼기, 곱하기 등의 연산을 수행할 수 있게 해줌. 주어진 예시처럼, increment를 사용하여 views와 likes를 1만큼 증가시킬 수 있다.
+>
+> [공식문서](https://www.prisma.io/docs/orm/prisma-client/queries/crud#update-a-number-field)
+
+```tsx
+const updatePosts = await prisma.post.updateMany({
+  data: {
+    views: {
+      increment: 1, // views를 1 증가
+    },
+    likes: {
+      increment: 1, // likes를 1 증가
+    },
+  },
+});
+```
+
+- **views는 model Post의 필드로, Like는 다른 모델을 생성한 이유**
+
+> 왜냐하면, 한 게시물에 대해 한명의 유저는 한개의 Like만 가질수 있음. 즉 Like는, 그 Like를 누른사람 및 게시글을 식별할 수 있어야하므로, 조회수랑 다르게, 따로 분리된 모델로 만듦.
