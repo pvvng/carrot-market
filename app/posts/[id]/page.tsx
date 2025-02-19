@@ -1,8 +1,12 @@
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { formatToTimeAgo } from "@/lib/utils";
-import { EyeIcon, HandThumbUpIcon } from "@heroicons/react/24/outline";
-import { revalidatePath } from "next/cache";
+import {
+  EyeIcon,
+  HandThumbUpIcon as OutlineHandThumbUpIcon,
+} from "@heroicons/react/24/outline";
+import { HandThumbUpIcon as SolidHandThumbUpIcon } from "@heroicons/react/24/solid";
+import { unstable_cache as nextCache, revalidateTag } from "next/cache";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
@@ -10,14 +14,10 @@ interface PostDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-async function getIsLiked(postId: number) {
-  const session = await getSession();
-  const like = await db.like.findUnique({
-    where: { id: { postId, userId: session.id! } },
-  });
-
-  return Boolean(like);
-}
+const getCachedPost = nextCache(getPost, ["post-detatil"], {
+  tags: ["#post"],
+  revalidate: 60,
+});
 
 async function getPost(id: number) {
   try {
@@ -32,7 +32,7 @@ async function getPost(id: number) {
           select: { username: true, avatar: true },
         },
         _count: {
-          select: { comments: true, likes: true },
+          select: { comments: true },
         },
       },
     });
@@ -43,6 +43,26 @@ async function getPost(id: number) {
   }
 }
 
+// 전체 like-status의 revalidation을 막기 위해 태그에 postId 추가
+function getCachedLikeStatus(userId: number, postId: number) {
+  const cachedOperation = nextCache(getLikeStatus, ["post-liketSatus"], {
+    tags: [`#post-like-status-${postId}`],
+  });
+
+  return cachedOperation(userId, postId);
+}
+
+async function getLikeStatus(userId: number, postId: number) {
+  const isLiked = await db.like.findUnique({
+    where: { id: { postId, userId } },
+  });
+
+  // 이 post id에 대한 좋아요 개수 세기
+  const likeCount = await db.like.count({ where: { postId } });
+
+  return { isLiked: Boolean(isLiked), likeCount };
+}
+
 export default async function PostDetail({ params }: PostDetailPageProps) {
   const id = Number((await params).id);
 
@@ -50,17 +70,22 @@ export default async function PostDetail({ params }: PostDetailPageProps) {
     return notFound();
   }
 
-  const post = await getPost(id);
+  const post = await getCachedPost(id);
 
   if (!post) {
     return notFound();
   }
 
+  const session = await getSession();
+
+  if (!session.id) {
+    return notFound();
+  }
+
   const likePost = async () => {
     "use server";
+    await new Promise((res) => setTimeout(res, 5000));
     try {
-      const session = await getSession();
-
       // composite id 때문에 중복 좋아요는 불가능함
       await db.like.create({
         data: {
@@ -70,15 +95,13 @@ export default async function PostDetail({ params }: PostDetailPageProps) {
         },
       });
 
-      revalidatePath(`/posts/${id}`);
+      revalidateTag(`#post-like-status-${id}`);
     } catch (e) {}
   };
 
   const dislikePost = async () => {
     "use server";
     try {
-      const session = await getSession();
-
       await db.like.delete({
         where: {
           id: {
@@ -88,11 +111,11 @@ export default async function PostDetail({ params }: PostDetailPageProps) {
         },
       });
 
-      revalidatePath(`/posts/${id}`);
+      revalidateTag(`#post-like-status-${id}`);
     } catch (e) {}
   };
 
-  const isLiked = await getIsLiked(id);
+  const { isLiked, likeCount } = await getCachedLikeStatus(session.id, id);
 
   return (
     <div className="p-5 text-white">
@@ -120,10 +143,23 @@ export default async function PostDetail({ params }: PostDetailPageProps) {
         </div>
         <form action={isLiked ? dislikePost : likePost}>
           <button
-            className={`flex items-center gap-2 text-neutral-400 text-sm border border-neutral-400 rounded-full p-2 hover:bg-neutral-800 transition-colors`}
+            className={`flex items-center gap-2 text-sm border border-neutral-400 rounded-full p-2 transition-colors 
+              ${
+                isLiked
+                  ? "bg-orange-500 text-white border-orange-500 hover:border-orange-400 hover:bg-orange-400"
+                  : "text-neutral-400 hover:bg-neutral-800 hover:border-neutral-400"
+              }`}
           >
-            <HandThumbUpIcon className="size-5" />
-            <span>공감하기 ({post._count.likes})</span>
+            {isLiked ? (
+              <SolidHandThumbUpIcon className="size-5" />
+            ) : (
+              <OutlineHandThumbUpIcon className="size-5" />
+            )}
+            {isLiked ? (
+              <span>{likeCount}</span>
+            ) : (
+              <span>공감하기 ({likeCount})</span>
+            )}
           </button>
         </form>
       </div>
