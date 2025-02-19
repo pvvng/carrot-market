@@ -76,7 +76,7 @@ export default async function PostDetail({ params }: PostDetailPageProps) {
     return notFound();
   }
 
-  const post = await getCachedPost(postId);
+  const post = await getPost(postId);
 
   if (!post) {
     return notFound();
