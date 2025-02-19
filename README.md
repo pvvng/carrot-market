@@ -995,3 +995,58 @@ const updatePosts = await prisma.post.updateMany({
     }
   };
   ```
+
+- **왜 useState 냅두고 useOptimistic을 쓸까?**
+
+1. startTransition을 활용한 UI 렌더링 최적화
+
+   - setState를 사용하면 상태가 바뀔 때마다 동기적으로 렌더링이 발생함.
+   - 반면, useOptimistic을 startTransition과 함께 사용하면 UI가 `부드럽게 동작`하고, 백그라운드에서 상태 변경을 처리할 수 있다.
+
+2. 서버 응답에 따라 최종적인 상태를 동기화할 때
+   - useOptimistic의 payload를 사용하면, 낙관적 업데이트 후 서버 응답에 따라 최종 상태를 업데이트하는 방식도 가능.
+   - 예를 들어, 서버에서 예상치 못한 에러가 발생하면 상태를 원래대로 되돌릴 수도 있음.
+   - 근데 이건 state도 되긴 함.
+
+- **startTransition**
+
+  - startTransition은 낮은 우선순위의 상태 업데이트를 백그라운드에서 실행하여 (= 실행을 나중에 한다는 의미) UI 버벅임을 방지하는 기능.
+  - 특히 낙관적 UI 업데이트 (useOptimistic)와 함께 사용하면 더 부드러운 경험을 제공.
+  - 하지만 단순한 상태 변경에는 불필요하므로, 무거운 렌더링이 예상될 때만 사용하는 것이 좋음.
+
+  ```tsx
+  function Example() {
+    const [count, setCount] = useState(0);
+    const [list, setList] = useState<number[]>([]);
+
+    const handleClick = () => {
+      // ✅ 즉각적인 업데이트 (높은 우선순위)
+      setCount((prev) => prev + 1);
+
+      // ✅ 낮은 우선순위로 실행됨 (백그라운드)
+      startTransition(() => {
+        setList(Array(20000).fill(count)); // 무거운 업데이트
+      });
+    };
+
+    return (
+      <div>
+        <button onClick={handleClick}>증가</button>
+        <p>Count: {count}</p>
+        <ul>
+          {list.map((item, index) => (
+            <li key={index}>{item}</li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+  ```
+
+  > **실행흐름**
+  >
+  > 1. 버튼을 클릭하면 setCount((prev) => prev + 1)이 즉시 실행되어 카운터 값이 먼저 증가.
+  >
+  > 2. startTransition(() => setList(...))는 백그라운드에서 실행되므로, React가 여유가 있을 때 실행됨.
+  >
+  > 3. 결과적으로 UI가 끊기지 않고 부드럽게 동작.
