@@ -886,3 +886,167 @@ export async function generateStaticParams() {
 
   - `/products/p/[id]/edit` 페이지
     -> 상품 수정 페이지. 상품 등록한 사람만 접근 가능하도록 하고 상품 기본값들 불러와서 defaultValue로 넣어놓고 수정후 submit하는 액션 구현 필요
+
+### 12. Optimistic Updates
+
+- **복합 ID 및 고유 제약 조건 사용**
+
+> @@id는 Prisma 스키마에서 복합 기본 키를 정의할 때 사용하는 속성이ㅁ.
+>
+> 기본적으로 기본 키(Primary Key) 는 각 레코드를 고유하게 식별할 수 있는 열(Column)임. 단일 열을 기본 키로 설정할 수도 있지만, 두 개 이상의 열을 조합하여 고유한 식별자로 사용할 수도 있음. 이를 복합 기본 키(Composite Primary Key) 라고 함.
+>
+> 한 사용자가 같은 게시물(Post)에 좋아요를 여러 번 누를 수 없도록 제한하기 위해서 복합 기본 키를 사용할 수 있음.
+>
+> [공식문서](https://www.prisma.io/docs/orm/prisma-client/special-fields-and-types/working-with-composite-ids-and-constraints)
+
+```prisma
+  model Like {
+    postId Int
+    userId Int
+    User User @relation(fields: [userId], references: [id])
+    Post Post @relation(fields: [postId], references: [id])
+
+    @@id(name: "likeId", [postId, userId])
+  }
+```
+
+- **`_count`**
+
+> `_count`는 Prisma에서 집계(Aggregation) 작업을 수행할 때 사용하는 특수한 필드로, 연관된 데이터의 개수를 구할 수 있다.
+>
+> [공식문서](https://www.prisma.io/docs/orm/prisma-client/queries/aggregation-grouping-summarizing#count)
+
+```tsx
+const usersWithCount = await prisma.user.findMany({
+  include: {
+    _count: {
+      // 사용자가 작성한 게시물 수를 세기
+      select: { posts: true },
+    },
+  },
+});
+```
+
+- **숫자 필드 업데이트**
+
+> Prisma에서 숫자 필드를 업데이트할 때는 원자적 연산(atomic operations)을 사용할 수 있다. 이 방법은 현재 값에 기반하여 숫자 필드를 더하기, 빼기, 곱하기 등의 연산을 수행할 수 있게 해줌. 주어진 예시처럼, increment를 사용하여 views와 likes를 1만큼 증가시킬 수 있다.
+>
+> [공식문서](https://www.prisma.io/docs/orm/prisma-client/queries/crud#update-a-number-field)
+
+```tsx
+const updatePosts = await prisma.post.updateMany({
+  data: {
+    views: {
+      increment: 1, // views를 1 증가
+    },
+    likes: {
+      increment: 1, // likes를 1 증가
+    },
+  },
+});
+```
+
+- **views는 model Post의 필드로, Like는 다른 모델을 생성한 이유**
+
+> 왜냐하면, 한 게시물에 대해 한명의 유저는 한개의 Like만 가질수 있음. 즉 Like는, 그 Like를 누른사람 및 게시글을 식별할 수 있어야하므로, 조회수랑 다르게, 따로 분리된 모델로 만듦.
+
+- **Optimistic Update: 낙관적 업데이트.**
+
+> 서버 호출이 성공했을 경우에 업데이트될 화면의 모습을 성공 여부와 관계 없이 즉각적으로 보여주기
+>
+> 기본적으로는 mutation이 발생하면, 서버의 데이터가 업데이트되고, 그 업데이트 결과를 받아서 화면에 표시한다. optimistic update를 활용하면, 서버의 응답을 기다리지 않고 클라이언트에서 그냥 화면을 업데이트할 수 있다.
+
+- **useOptimistic**
+
+  > [공식문서](https://react.dev/reference/react/useOptimistic)
+
+  ```tsx
+  /**
+   * 첫번째 인자 - mutation이 발생하기 전 initial data
+   * 두번째 인자 - 이전 상태를 조작할 콜백 함수
+   *             -> prevstate (이전 상태)
+   *             -> payload (추가적인 데이터)
+   */
+  const [state, reducerFn] = useOptimistic(
+    { isLiked, likeCount },
+    (
+      prevState,
+      payload // unused
+    ) => ({
+      isLiked: !prevState.isLiked,
+      likeCount: prevState.isLiked
+        ? prevState.likeCount - 1
+        : prevState.likeCount + 1,
+    })
+  );
+
+  const onClick = async () => {
+    // useOptimistic을 통해 서버의 결과가 결정되기 전 먼저 결과를 ui에 보여준다
+    // reducerFn는 startTransition으로 감싼 후에 사용해야 한다.
+    startTransition(() => {
+      reducerFn(null);
+    });
+
+    // 먼저 결과를 보여준 후 실제 서버가 동작한다.
+    if (isLiked) {
+      await dislikePost(postId);
+    } else {
+      await likePost(postId);
+    }
+  };
+  ```
+
+- **왜 useState 냅두고 useOptimistic을 쓸까?**
+
+1. startTransition을 활용한 UI 렌더링 최적화
+
+   - setState를 사용하면 상태가 바뀔 때마다 동기적으로 렌더링이 발생함.
+   - 반면, useOptimistic을 startTransition과 함께 사용하면 UI가 `부드럽게 동작`하고, 백그라운드에서 상태 변경을 처리할 수 있다.
+
+2. 서버 응답에 따라 최종적인 상태를 동기화할 때
+   - useOptimistic의 payload를 사용하면, 낙관적 업데이트 후 서버 응답에 따라 최종 상태를 업데이트하는 방식도 가능.
+   - 예를 들어, 서버에서 예상치 못한 에러가 발생하면 상태를 원래대로 되돌릴 수도 있음.
+   - 근데 이건 state도 되긴 함.
+
+- **startTransition**
+
+  - startTransition은 낮은 우선순위의 상태 업데이트를 백그라운드에서 실행하여 (= 실행을 나중에 한다는 의미) UI 버벅임을 방지하는 기능.
+  - 특히 낙관적 UI 업데이트 (useOptimistic)와 함께 사용하면 더 부드러운 경험을 제공.
+  - 하지만 단순한 상태 변경에는 불필요하므로, 무거운 렌더링이 예상될 때만 사용하는 것이 좋음.
+
+  ```tsx
+  function Example() {
+    const [count, setCount] = useState(0);
+    const [list, setList] = useState<number[]>([]);
+
+    const handleClick = () => {
+      // ✅ 즉각적인 업데이트 (높은 우선순위)
+      setCount((prev) => prev + 1);
+
+      // ✅ 낮은 우선순위로 실행됨 (백그라운드)
+      startTransition(() => {
+        setList(Array(20000).fill(count)); // 무거운 업데이트
+      });
+    };
+
+    return (
+      <div>
+        <button onClick={handleClick}>증가</button>
+        <p>Count: {count}</p>
+        <ul>
+          {list.map((item, index) => (
+            <li key={index}>{item}</li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+  ```
+
+  > **실행흐름**
+  >
+  > 1. 버튼을 클릭하면 setCount((prev) => prev + 1)이 즉시 실행되어 카운터 값이 먼저 증가.
+  >
+  > 2. startTransition(() => setList(...))는 백그라운드에서 실행되므로, React가 여유가 있을 때 실행됨.
+  >
+  > 3. 결과적으로 UI가 끊기지 않고 부드럽게 동작.
