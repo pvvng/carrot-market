@@ -886,3 +886,26 @@ export async function generateStaticParams() {
 
   - `/products/p/[id]/edit` 페이지
     -> 상품 수정 페이지. 상품 등록한 사람만 접근 가능하도록 하고 상품 기본값들 불러와서 defaultValue로 넣어놓고 수정후 submit하는 액션 구현 필요
+
+### 12. Optimistic Updates
+
+- **복합 ID 및 고유 제약 조건 사용**
+
+> @@id는 Prisma 스키마에서 복합 기본 키를 정의할 때 사용하는 속성이ㅁ.
+>
+> 기본적으로 기본 키(Primary Key) 는 각 레코드를 고유하게 식별할 수 있는 열(Column)임. 단일 열을 기본 키로 설정할 수도 있지만, 두 개 이상의 열을 조합하여 고유한 식별자로 사용할 수도 있음. 이를 복합 기본 키(Composite Primary Key) 라고 함.
+>
+> 한 사용자가 같은 게시물(Post)에 좋아요를 여러 번 누를 수 없도록 제한하기 위해서 복합 기본 키를 사용할 수 있음.
+>
+> [공식문서](https://www.prisma.io/docs/orm/prisma-client/special-fields-and-types/working-with-composite-ids-and-constraints)
+
+```prisma
+  model Like {
+    postId Int
+    userId Int
+    User User @relation(fields: [userId], references: [id])
+    Post Post @relation(fields: [postId], references: [id])
+
+    @@id(name: "likeId", [postId, userId])
+  }
+```
