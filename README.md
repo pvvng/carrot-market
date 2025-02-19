@@ -909,3 +909,20 @@ export async function generateStaticParams() {
     @@id(name: "likeId", [postId, userId])
   }
 ```
+
+- **`_count`**
+
+> `_count`는 Prisma에서 집계(Aggregation) 작업을 수행할 때 사용하는 특수한 필드로, 연관된 데이터의 개수를 구할 수 있다.
+>
+> [공식문서](https://www.prisma.io/docs/orm/prisma-client/queries/aggregation-grouping-summarizing#count)
+
+```tsx
+const usersWithCount = await prisma.user.findMany({
+  include: {
+    _count: {
+      // 사용자가 작성한 게시물 수를 세기
+      select: { posts: true },
+    },
+  },
+});
+```
