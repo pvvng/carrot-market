@@ -1,4 +1,4 @@
-import AddComment from "@/components/add-comment";
+import CommentForm from "@/components/comment-form";
 import LikeButton from "@/components/like-button";
 import { getCachedcomments } from "@/lib/data/post-comments";
 import db from "@/lib/db";
@@ -119,7 +119,7 @@ export default async function PostDetail({ params }: PostDetailPageProps) {
         <LikeButton isLiked={isLiked} likeCount={likeCount} postId={postId} />
       </div>
       <hr className="my-5" />
-      <AddComment comments={comments} user={user!} postId={postId} />
+      <CommentForm comments={comments} user={user!} postId={postId} />
     </div>
   );
 }

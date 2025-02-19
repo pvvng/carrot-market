@@ -1,17 +1,11 @@
 "use client";
 
-import { addComment } from "@/app/posts/[id]/actions";
+import { addComment, deleteComment } from "@/app/posts/[id]/actions";
 import { Comments } from "@/lib/data/post-comments";
 import { formatToTimeAgo } from "@/lib/utils";
 import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
-import {
-  startTransition,
-  useEffect,
-  useOptimistic,
-  useRef,
-  useState,
-} from "react";
+import { startTransition, useOptimistic, useRef, useState } from "react";
 
 interface AddCommentProps {
   comments: Comments[];
@@ -23,7 +17,7 @@ interface AddCommentProps {
   postId: number;
 }
 
-export default function AddComment({
+export default function CommentForm({
   comments,
   user,
   postId,
@@ -76,6 +70,16 @@ export default function AddComment({
     }
   };
 
+  const onDelete = async (id: number) => {
+    const { success } = await deleteComment(id, postId);
+
+    if (success) {
+      alert("댓글을 성공적으로 삭제했습니다.");
+    } else {
+      alert("댓글을 삭제하는데 실패했습니다.");
+    }
+  };
+
   return (
     <div className="flex flex-col">
       {state.map((comment) => (
@@ -83,30 +87,38 @@ export default function AddComment({
           key={comment.id + comment.payload}
           className="flex flex-col gap-2 border-b border-neutral-200 py-5 first:pt-0 last:border-b-0"
         >
-          <div className="flex items-center gap-2">
-            {comment.user.avatar ? (
-              <Image
-                src={comment.user.avatar}
-                alt={comment.user.username}
-                width={28}
-                height={28}
-                className="size-7 rounded-full bg-white"
-              />
-            ) : (
-              <UserIcon className="size-7 rounded-full bg-white text-black" />
-            )}
-            <div>
-              <span className="text-sm font-semibold">
-                {comment.user.username}
-              </span>
-              <div className="text-xs">
-                <span>{formatToTimeAgo(comment.created_at.toString())}</span>
+          <div className="flex justify-between items-center gap-2">
+            <div className="flex items-center gap-2">
+              {comment.user.avatar ? (
+                <Image
+                  src={comment.user.avatar}
+                  alt={comment.user.username}
+                  width={28}
+                  height={28}
+                  className="size-7 rounded-full bg-white"
+                />
+              ) : (
+                <UserIcon className="size-7 rounded-full bg-white text-black" />
+              )}
+              <div>
+                <span className="text-sm font-semibold">
+                  {comment.user.username}
+                </span>
+                <div className="text-xs">
+                  <span>{formatToTimeAgo(comment.created_at.toString())}</span>
+                </div>
               </div>
             </div>
+            {comment.userId == user.id && (
+              <form action={() => onDelete(comment.id)} className="text-sm">
+                <button className="text-orange-500">삭제하기</button>
+              </form>
+            )}
           </div>
           <p>{comment.payload}</p>
         </div>
       ))}
+
       <div className="flex gap-3 items-center pt-5">
         <input
           ref={inputRef}

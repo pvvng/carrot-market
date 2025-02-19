@@ -76,3 +76,17 @@ export const addComment = async (postId: number, payload: string) => {
 
   revalidateTag(`#post-comments-${postId}`);
 };
+
+export const deleteComment = async (id: number, postId: number) => {
+  try {
+    await db.comment.delete({
+      where: { id },
+    });
+
+    revalidateTag(`#post-comments-${postId}`);
+    return { success: true };
+  } catch (e) {
+    revalidateTag(`#post-comments-${postId}`);
+    return { success: false };
+  }
+};
