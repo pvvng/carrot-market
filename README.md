@@ -949,3 +949,49 @@ const updatePosts = await prisma.post.updateMany({
 - **views는 model Post의 필드로, Like는 다른 모델을 생성한 이유**
 
 > 왜냐하면, 한 게시물에 대해 한명의 유저는 한개의 Like만 가질수 있음. 즉 Like는, 그 Like를 누른사람 및 게시글을 식별할 수 있어야하므로, 조회수랑 다르게, 따로 분리된 모델로 만듦.
+
+- **Optimistic Update: 낙관적 업데이트.**
+
+> 서버 호출이 성공했을 경우에 업데이트될 화면의 모습을 성공 여부와 관계 없이 즉각적으로 보여주기
+>
+> 기본적으로는 mutation이 발생하면, 서버의 데이터가 업데이트되고, 그 업데이트 결과를 받아서 화면에 표시한다. optimistic update를 활용하면, 서버의 응답을 기다리지 않고 클라이언트에서 그냥 화면을 업데이트할 수 있다.
+
+- **useOptimistic**
+
+  > [공식문서](https://react.dev/reference/react/useOptimistic)
+
+  ```tsx
+  /**
+   * 첫번째 인자 - mutation이 발생하기 전 initial data
+   * 두번째 인자 - 이전 상태를 조작할 콜백 함수
+   *             -> prevstate (이전 상태)
+   *             -> payload (추가적인 데이터)
+   */
+  const [state, reducerFn] = useOptimistic(
+    { isLiked, likeCount },
+    (
+      prevState,
+      payload // unused
+    ) => ({
+      isLiked: !prevState.isLiked,
+      likeCount: prevState.isLiked
+        ? prevState.likeCount - 1
+        : prevState.likeCount + 1,
+    })
+  );
+
+  const onClick = async () => {
+    // useOptimistic을 통해 서버의 결과가 결정되기 전 먼저 결과를 ui에 보여준다
+    // reducerFn는 startTransition으로 감싼 후에 사용해야 한다.
+    startTransition(() => {
+      reducerFn(null);
+    });
+
+    // 먼저 결과를 보여준 후 실제 서버가 동작한다.
+    if (isLiked) {
+      await dislikePost(postId);
+    } else {
+      await likePost(postId);
+    }
+  };
+  ```
