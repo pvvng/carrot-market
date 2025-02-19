@@ -1,4 +1,6 @@
+import AddComment from "@/components/add-comment";
 import LikeButton from "@/components/like-button";
+import { getCachedcomments } from "@/lib/data/post-comments";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { formatToTimeAgo } from "@/lib/utils";
@@ -20,17 +22,11 @@ async function getPost(id: number) {
   try {
     const post = db.post.update({
       where: { id },
-      data: {
-        //  조회수 1 증가
-        views: { increment: 1 },
-      },
+      // 조회수 1 증가
+      data: { views: { increment: 1 } },
       include: {
-        user: {
-          select: { username: true, avatar: true },
-        },
-        _count: {
-          select: { comments: true },
-        },
+        user: { select: { username: true, avatar: true } },
+        _count: { select: { comments: true } },
       },
     });
 
@@ -60,6 +56,19 @@ async function getLikeStatus(userId: number, postId: number) {
   return { isLiked: Boolean(isLiked), likeCount };
 }
 
+const getCachedUser = nextCache(getUser, ["user"], {
+  tags: ["#user"],
+});
+
+async function getUser(userId: number) {
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { avatar: true, username: true, id: true },
+  });
+
+  return user;
+}
+
 export default async function PostDetail({ params }: PostDetailPageProps) {
   const postId = Number((await params).id);
 
@@ -79,7 +88,9 @@ export default async function PostDetail({ params }: PostDetailPageProps) {
     return notFound();
   }
 
+  const user = await getCachedUser(session.id);
   const { isLiked, likeCount } = await getCachedLikeStatus(session.id, postId);
+  const comments = await getCachedcomments(postId);
 
   return (
     <div className="p-5 text-white">
@@ -107,6 +118,8 @@ export default async function PostDetail({ params }: PostDetailPageProps) {
         </div>
         <LikeButton isLiked={isLiked} likeCount={likeCount} postId={postId} />
       </div>
+      <hr className="my-5" />
+      <AddComment comments={comments} user={user!} postId={postId} />
     </div>
   );
 }

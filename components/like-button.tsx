@@ -10,6 +10,7 @@ interface LikeButtonProps {
   likeCount: number;
   postId: number;
 }
+
 export default function LikeButton({
   isLiked,
   likeCount,
