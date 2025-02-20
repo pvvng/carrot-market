@@ -3,9 +3,9 @@
 import { InitialChatMessages } from "@/app/chats/[id]/page";
 import { formatToTimeAgo } from "@/lib/utils";
 import { ArrowUpCircleIcon, UserIcon } from "@heroicons/react/24/solid";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, RealtimeChannel } from "@supabase/supabase-js";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ChatMessageListProps {
   initialMessages: InitialChatMessages;
@@ -20,6 +20,7 @@ export default function ChatMessagesList({
 }: ChatMessageListProps) {
   const [messages, setMessages] = useState(initialMessages);
   const [message, setMessage] = useState("");
+  const channel = useRef<RealtimeChannel>(undefined);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);
@@ -27,6 +28,8 @@ export default function ChatMessagesList({
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 가짜 메시지 추가하기
     const newMessage = {
       id: Date.now(),
       payload: message,
@@ -38,6 +41,15 @@ export default function ChatMessagesList({
       },
     };
     setMessages((prev) => [...prev, newMessage]);
+
+    // channel에 실제 메시지 보내기
+    channel.current?.send({
+      type: "broadcast",
+      // client 연결할때 사용한 event 이름이랑 같아야함
+      event: "message",
+      payload: { message },
+    });
+
     setMessage("");
   };
 
@@ -50,11 +62,18 @@ export default function ChatMessagesList({
 
     // supabase channel(room) 생성하기
     // 채널 생성 시 고유한 아이디 필요 -> prisma chatRoom model id
-    const channel = client.channel(`room-${chatRoomId}`);
+    channel.current = client.channel(`room-${chatRoomId}`);
+    // 이벤트 이름으로 필터링
+    channel.current
+      .on("broadcast", { event: "message" }, (payload) => {
+        console.log(payload);
+      })
+      .subscribe();
 
-    channel.on("broadcast", { event: "messgae" }, (payload) => {
-      console.log(payload);
-    });
+    // clean up
+    return () => {
+      channel.current?.unsubscribe();
+    };
   }, []);
 
   return (
