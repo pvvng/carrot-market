@@ -1,4 +1,5 @@
 import ChatMessagesList from "@/components/chat-messages-list";
+import { getCachedUser } from "@/lib/data/user";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { Prisma } from "@prisma/client";
@@ -53,12 +54,19 @@ export default async function ChatRoom({ params }: ChatRoomProps) {
     return notFound();
   }
 
+  const user = await getCachedUser(session.id!);
+
+  if (!user) {
+    return notFound();
+  }
+
   const initialMessages = await getMessages(id);
 
   return (
     <ChatMessagesList
       initialMessages={initialMessages}
       userId={session.id!}
+      user={user}
       chatRoomId={id}
     />
   );

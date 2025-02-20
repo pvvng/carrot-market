@@ -2,6 +2,7 @@
 
 import { addComment, deleteComment } from "@/app/posts/[id]/actions";
 import { Comments } from "@/lib/data/post-comments";
+import { UserType } from "@/lib/data/user";
 import { formatToTimeAgo } from "@/lib/utils";
 import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
@@ -9,11 +10,7 @@ import { startTransition, useOptimistic, useRef, useState } from "react";
 
 interface AddCommentProps {
   comments: Comments[];
-  user: {
-    id: number;
-    username: string;
-    avatar: string | null;
-  };
+  user: UserType;
   postId: number;
 }
 

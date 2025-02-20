@@ -1,6 +1,7 @@
 "use client";
 
 import { InitialChatMessages } from "@/app/chats/[id]/page";
+import { UserType } from "@/lib/data/user";
 import { formatToTimeAgo } from "@/lib/utils";
 import { ArrowUpCircleIcon, UserIcon } from "@heroicons/react/24/solid";
 import { createClient, RealtimeChannel } from "@supabase/supabase-js";
@@ -10,12 +11,14 @@ import { useEffect, useRef, useState } from "react";
 interface ChatMessageListProps {
   initialMessages: InitialChatMessages;
   userId: number;
+  user: UserType;
   chatRoomId: string;
 }
 
 export default function ChatMessagesList({
   initialMessages,
   userId,
+  user,
   chatRoomId,
 }: ChatMessageListProps) {
   const [messages, setMessages] = useState(initialMessages);
@@ -36,18 +39,18 @@ export default function ChatMessagesList({
       created_at: new Date(),
       userId,
       user: {
-        username: "string",
-        avatar: "string",
+        username: user.username,
+        avatar: user.avatar,
       },
     };
+
     setMessages((prev) => [...prev, newMessage]);
 
     // channel에 실제 메시지 보내기
     channel.current?.send({
       type: "broadcast",
-      // client 연결할때 사용한 event 이름이랑 같아야함
       event: "message",
-      payload: { message },
+      payload: { ...newMessage },
     });
 
     setMessage("");
@@ -66,7 +69,7 @@ export default function ChatMessagesList({
     // 이벤트 이름으로 필터링
     channel.current
       .on("broadcast", { event: "message" }, (payload) => {
-        console.log(payload);
+        setMessages((prev) => [...prev, payload.payload]);
       })
       .subscribe();
 
@@ -124,6 +127,7 @@ export default function ChatMessagesList({
           value={message}
           onChange={onChange}
           placeholder="Write a message..."
+          autoComplete="off"
         />
         <button className="absolute right-0">
           <ArrowUpCircleIcon className="size-10 text-orange-500 transition-colors hover:text-orange-300" />
