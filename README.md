@@ -1050,3 +1050,9 @@ const updatePosts = await prisma.post.updateMany({
   > 2. startTransition(() => setList(...))는 백그라운드에서 실행되므로, React가 여유가 있을 때 실행됨.
   >
   > 3. 결과적으로 UI가 끊기지 않고 부드럽게 동작.
+
+### 13. Prisma getter 함수 반환 타입 알아내기
+
+```tsx
+export type InitialChatMessages = Prisma.PromiseReturnType<typeof getMessages>;
+```
