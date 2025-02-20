@@ -1,5 +1,6 @@
 "use client";
 
+import { saveMessage } from "@/app/chats/[id]/actions";
 import { InitialChatMessages } from "@/app/chats/[id]/page";
 import { UserType } from "@/lib/data/user";
 import { formatToTimeAgo } from "@/lib/utils";
@@ -29,7 +30,7 @@ export default function ChatMessagesList({
     setMessage(e.target.value);
   };
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // 가짜 메시지 추가하기
@@ -52,6 +53,9 @@ export default function ChatMessagesList({
       event: "message",
       payload: { ...newMessage },
     });
+
+    // message db에 저장하기
+    await saveMessage(message, chatRoomId);
 
     setMessage("");
   };
