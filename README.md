@@ -1056,3 +1056,15 @@ const updatePosts = await prisma.post.updateMany({
 ```tsx
 export type InitialChatMessages = Prisma.PromiseReturnType<typeof getMessages>;
 ```
+
+### Real Time Chat with Supabase
+
+- **Supabase**
+
+> dasthboard -> api key copy -> projects setting -> data api -> url copy
+>
+> [채널 연결하기](https://supabase.com/docs/guides/realtime/broadcast)
+
+```bash
+npm i @supabase/supabase-js
+```

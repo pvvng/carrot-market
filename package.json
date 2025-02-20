@@ -15,6 +15,7 @@
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^4.0.0",
     "@prisma/client": "^6.3.1",
+    "@supabase/supabase-js": "^2.48.1",
     "@tailwindcss/forms": "^0.5.10",
     "@types/bcrypt": "^5.0.2",
     "@vonage/server-sdk": "^3.19.4",
