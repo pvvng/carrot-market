@@ -1171,3 +1171,13 @@ export default {
 > Private 폴더는 폴더 앞에 밑줄(\_folderName)을 붙여 생성할 수 있다.
 >
 > [공식문서](https://nextjs.org/docs/app/building-your-application/routing/colocation#private-folders)
+
+### 17. Catch-all Segments
+
+> 대괄호 [...folderName] 안에 줄임표를 추가하면 동적 세그먼트를 모든 후속 세그먼트로 확장할 수 있다.
+>
+> [공식문서](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes#catch-all-segments)
+
+### 18. Optinal Segements
+
+> route/[[id]] 는 id params가 작성되지 않아도 동작 가능하다.
