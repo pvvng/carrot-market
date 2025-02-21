@@ -1,46 +1,29 @@
-import { revalidatePath } from "next/cache";
-import Hacked from "./hacked-component";
-import {
-  experimental_taintObjectReference,
-  experimental_taintUniqueValue,
-} from "react";
+import Image from "next/image";
+import Sango from "@/public/sango.png";
+import Segu from "@/public/gosegu.webp";
 
 interface Props {
   params: Promise<{ id: string[] }>;
 }
 
-function getData() {
-  const secret = {
-    api_key: "1234",
-    secret_key: "secret",
-  };
-
-  // prevent licking
-  // experimental_taintObjectReference("secret key 유출시 1억", secret);
-
-  // 특정 key만 유출 방지
-  // experimental_taintUniqueValue("1억끼얏호우", secret, secret.secret_key);
-
-  //   ⨯ Error: api key 유출시 1억
-  //   at stringify (<anonymous>) {
-  // digest: '847966630'
-  // }
-
-  // 중요 키 누출
-  return secret;
-}
-
 export default async function CatchAllSegment({ params }: Props) {
   const ids = (await params).id;
 
-  const data = getData();
-
   return (
     <div>
-      <h1 className="text-4xl font-sigmar">Sigmar</h1>
-      <p className="text-4xl font-roboto">roboto</p>
-      <p className="text-4xl font-metalica">metalica</p>
-      <Hacked data={data} />
+      {/* 로컬 이미지는 placholer로 blur 주는거 추천 */}
+      <Image src={Sango} alt="이미지" placeholder="blur" />
+      {/* 외부 이미지인 경우엔 placholder로 base64 인코딩된 이미지 넣으면 됨 */}
+      <Image
+        src={Segu}
+        alt="이미지"
+        // placehlder image blur 처리
+        placeholder="blur"
+        // placeholder 이미지
+        blurDataURL="base24IncodedImage"
+      />
+      {/* 이미지 base 64 인코딩하는 곳 */}
+      <a>https://www.base64-image.de</a>
     </div>
   );
 }
