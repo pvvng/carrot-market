@@ -21,25 +21,6 @@ async function getRoom(id: string) {
 export type InitialChatMessages = Prisma.PromiseReturnType<typeof getMessages>;
 
 async function getMessages(chatRoomId: string, userId: number) {
-  const unreadMessages = await db.message.findMany({
-    where: {
-      chatRoomId,
-      NOT: {
-        read: { some: { userId } },
-      },
-    },
-    select: { id: true },
-  });
-
-  if (unreadMessages.length > 0) {
-    await db.messageRead.createMany({
-      data: unreadMessages.map((msg) => ({
-        messageId: msg.id,
-        userId,
-      })),
-    });
-  }
-
   const messages = await db.message.findMany({
     where: { chatRoomId },
     select: {
@@ -47,7 +28,6 @@ async function getMessages(chatRoomId: string, userId: number) {
       payload: true,
       created_at: true,
       userId: true,
-      read: { select: { userId: true } },
       user: { select: { avatar: true, username: true } },
     },
   });

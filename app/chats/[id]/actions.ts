@@ -11,11 +11,6 @@ export async function saveMessage(payload: string, chatRoomId: string) {
       payload,
       chatRoomId,
       userId: session.id!,
-      read: {
-        create: {
-          userId: session.id!,
-        },
-      },
     },
     select: { id: true },
   });

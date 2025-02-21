@@ -15,7 +15,7 @@ async function getChats(userId: number) {
     where: { users: { some: { id: userId } } },
     include: {
       users: { select: { avatar: true, username: true, id: true } },
-      messages: { include: { read: true } },
+      messages: true,
     },
   });
 

@@ -43,7 +43,6 @@ export default function ChatMessagesList({
         username: user.username,
         avatar: user.avatar,
       },
-      read: [{ userId }],
     };
 
     setMessages((prev) => [...prev, newMessage]);
