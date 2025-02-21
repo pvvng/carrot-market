@@ -1,9 +1,11 @@
 import ChatMessagesList from "@/components/chat-messages-list";
+import { getUnReadMessage } from "@/lib/data/un-read-messages";
 import { getCachedUser } from "@/lib/data/user";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
-import { Prisma } from "@prisma/client";
 import { notFound } from "next/navigation";
+import { markAsReadMessages } from "./actions";
+import { getMessages } from "@/lib/data/messages";
 
 interface ChatRoomProps {
   params: Promise<{ id: string }>;
@@ -16,25 +18,6 @@ async function getRoom(id: string) {
   });
 
   return room;
-}
-
-export type InitialChatMessages = Prisma.PromiseReturnType<typeof getMessages>;
-
-async function getMessages(chatRoomId: string, userId: number) {
-  const messages = await db.message.findMany({
-    where: { chatRoomId },
-    select: {
-      id: true,
-      payload: true,
-      created_at: true,
-      userId: true,
-      user: {
-        select: { avatar: true, username: true },
-      },
-    },
-  });
-
-  return messages;
 }
 
 export default async function ChatRoom({ params }: ChatRoomProps) {
@@ -58,13 +41,20 @@ export default async function ChatRoom({ params }: ChatRoomProps) {
     return notFound();
   }
 
-  const initialMessages = await getMessages(id, session.id!);
+  // 안읽은 메시지 불러오기
+  const unReadMessages = await getUnReadMessage(id, session.id!);
+  // 안읽은 메시지 읽음 처리
+  if (unReadMessages.length > 0) {
+    await markAsReadMessages(unReadMessages, session.id!);
+  }
+
+  // 메시지 초깃값 불러오기
+  const initialMessages = await getMessages(id);
 
   return (
     <ChatMessagesList
       initialMessages={initialMessages}
       userId={session.id!}
-      user={user}
       chatRoomId={id}
     />
   );

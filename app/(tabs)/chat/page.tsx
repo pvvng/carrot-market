@@ -2,13 +2,8 @@ import ChatsList from "@/components/chats-list";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { Prisma } from "@prisma/client";
-import { unstable_cache as nextCache } from "next/cache";
 
 export const dynamic = "force-dynamic";
-
-// const getCachedChats = nextCache(getChats, ["chats-list"], {
-//   tags: ["#chats-list"],
-// });
 
 async function getChats(userId: number) {
   const chats = await db.chatRoom.findMany({
