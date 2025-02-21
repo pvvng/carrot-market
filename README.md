@@ -1057,7 +1057,7 @@ const updatePosts = await prisma.post.updateMany({
 export type InitialChatMessages = Prisma.PromiseReturnType<typeof getMessages>;
 ```
 
-### Real Time Chat with Supabase
+### 14. Real Time Chat with Supabase
 
 - **Supabase**
 
@@ -1103,3 +1103,137 @@ function sendMessage() {
   });
 }
 ```
+
+### 15. Next Font
+
+```tsx
+// layout.tsx
+import { Sigmar } from "next/font/google";
+import localFont from "next/font/local";
+
+// google font 사용하기
+const sigmar = Sigmar({
+  weight: "400",
+  style: "normal",
+  subsets: ["latin"],
+  // class 이름 설정
+  variable: "--sigmar-boy",
+});
+
+// local font 사용하기
+const metalica = localFont({
+  src: "./metalica.ttf",
+  variable: "--metalica-text",
+});
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body
+        // 폰트 변수명 등록하기
+        className={`${sigmar.variable} ${metalica.variable} antialiased`}
+      >
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+```ts
+import type { Config } from "tailwindcss";
+
+export default {
+  content: [
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      // font 확장
+      fontFamily: {
+        sigmar: "var(--sigmar-boy)",
+        metalica: "var(--metalica-text)",
+      },
+    },
+  },
+  plugins: [require("@tailwindcss/forms")],
+} satisfies Config;
+```
+
+### 16. Private Folders
+
+> Private 폴더는 폴더 앞에 밑줄(\_folderName)을 붙여 생성할 수 있다.
+>
+> [공식문서](https://nextjs.org/docs/app/building-your-application/routing/colocation#private-folders)
+
+### 17. Catch-all Segments
+
+> 대괄호 [...folderName] 안에 줄임표를 추가하면 동적 세그먼트를 모든 후속 세그먼트로 확장할 수 있다.
+>
+> [공식문서](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes#catch-all-segments)
+
+### 18. Optinal Segements
+
+> route/[[id]] 는 id params가 작성되지 않아도 동작 가능하다.
+
+### 19. Security
+
+```ts
+// next.config.ts
+const nextConfig: NextConfig = {
+  /* config options here */
+  experimental: {
+    taint: true,
+  },
+};
+```
+
+```tsx
+const secret = {
+  api_key: "1234",
+  secret_key: "secret",
+};
+
+experimental_taintObjectReference("secret key 유출시 1억", secret);
+// 특정 key만 유출 방지
+experimental_taintUniqueValue("1억끼얏호우", secret, secret.secret_key);
+```
+
+> **클라이언트에서 사용시 에러 발생**
+>
+> ⨯ Error: api key 유출시 1억
+> at stringify (<anonymous>) {
+> digest: '847966630'
+> }
+
+```bash
+npm i server-only
+```
+
+> 서버 컴포넌트에서만 사용 가능한 파일 만들기
+
+### 20. Image Placeholder
+
+```tsx
+  //로컬 이미지는 placholer로 blur 주는거 추천
+  <Image src={Sango} alt="이미지" placeholder="blur" />
+  //외부 이미지인 경우엔 placholder로 base64 인코딩된 이미지 넣으면 됨
+  <Image
+    src={Segu}
+    alt="이미지"
+    // placehlder image blur 처리
+    placeholder="blur"
+    // placeholder 이미지
+    blurDataURL="base24IncodedImage"
+  />
+```
+
+> 이미지 base 64 인코딩하는 곳
+>
+> https://www.base64-image.de
