@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  experimental: {
+    taint: true,
+  },
   images: {
     remotePatterns: [
       { hostname: "avatars.githubusercontent.com" },

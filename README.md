@@ -1181,3 +1181,39 @@ export default {
 ### 18. Optinal Segements
 
 > route/[[id]] 는 id params가 작성되지 않아도 동작 가능하다.
+
+### 19. Security
+
+```ts
+// next.config.ts
+const nextConfig: NextConfig = {
+  /* config options here */
+  experimental: {
+    taint: true,
+  },
+};
+```
+
+```tsx
+const secret = {
+  api_key: "1234",
+  secret_key: "secret",
+};
+
+experimental_taintObjectReference("secret key 유출시 1억", secret);
+// 특정 key만 유출 방지
+experimental_taintUniqueValue("1억끼얏호우", secret, secret.secret_key);
+```
+
+> **클라이언트에서 사용시 에러 발생**
+>
+> ⨯ Error: api key 유출시 1억
+> at stringify (<anonymous>) {
+> digest: '847966630'
+> }
+
+```bash
+npm i server-only
+```
+
+> 서버 컴포넌트에서만 사용 가능한 파일 만들기
