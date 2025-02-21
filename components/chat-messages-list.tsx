@@ -39,11 +39,11 @@ export default function ChatMessagesList({
       payload: message,
       created_at: new Date(),
       userId,
-      read: false,
       user: {
         username: user.username,
         avatar: user.avatar,
       },
+      read: [{ userId }],
     };
 
     setMessages((prev) => [...prev, newMessage]);
@@ -120,7 +120,6 @@ export default function ChatMessagesList({
               <span className="text-sm">
                 {formatToTimeAgo(msg.created_at.toString())}
               </span>
-              <span className="text-sm">{!msg.read ? "안 " : ""}읽음</span>
             </div>
           </div>
         </div>

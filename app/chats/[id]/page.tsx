@@ -12,11 +12,7 @@ interface ChatRoomProps {
 async function getRoom(id: string) {
   const room = await db.chatRoom.findUnique({
     where: { id },
-    include: {
-      users: {
-        select: { id: true },
-      },
-    },
+    include: { users: { select: { id: true } } },
   });
 
   return room;
@@ -24,7 +20,26 @@ async function getRoom(id: string) {
 
 export type InitialChatMessages = Prisma.PromiseReturnType<typeof getMessages>;
 
-async function getMessages(chatRoomId: string) {
+async function getMessages(chatRoomId: string, userId: number) {
+  const unreadMessages = await db.message.findMany({
+    where: {
+      chatRoomId,
+      NOT: {
+        read: { some: { userId } },
+      },
+    },
+    select: { id: true },
+  });
+
+  if (unreadMessages.length > 0) {
+    await db.messageRead.createMany({
+      data: unreadMessages.map((msg) => ({
+        messageId: msg.id,
+        userId,
+      })),
+    });
+  }
+
   const messages = await db.message.findMany({
     where: { chatRoomId },
     select: {
@@ -32,7 +47,7 @@ async function getMessages(chatRoomId: string) {
       payload: true,
       created_at: true,
       userId: true,
-      read: true,
+      read: { select: { userId: true } },
       user: { select: { avatar: true, username: true } },
     },
   });
@@ -61,7 +76,7 @@ export default async function ChatRoom({ params }: ChatRoomProps) {
     return notFound();
   }
 
-  const initialMessages = await getMessages(id);
+  const initialMessages = await getMessages(id, session.id!);
 
   return (
     <ChatMessagesList

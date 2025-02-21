@@ -21,25 +21,26 @@ datasource db {
 model User {
   // @default(autoincrement()) -> 사용자 id 자동으로 증가시키기
   // 최초 사용자 id = 1
-  id         Int        @id @default(autoincrement())
-  username   String     @unique
+  id          Int           @id @default(autoincrement())
+  username    String        @unique
   // 전화번호, 소셜 로그인 한 유저의 경우에는 email, pw가 정의되지 않을 수 있으므로 ? 사용
-  email      String?    @unique
-  password   String?
-  phone      String?    @unique
-  github_id  String?    @unique
-  avatar     String?
+  email       String?       @unique
+  password    String?
+  phone       String?       @unique
+  github_id   String?       @unique
+  avatar      String?
   // now() -> 사용자가 생성되는 시간 반환 함수
-  created_at DateTime   @default(now())
+  created_at  DateTime      @default(now())
   // 사용자 레코드가 수정된 시간을 속성에 넣기
-  updated_at DateTime   @updatedAt
-  tokens     SMSToken[]
-  products   Product[]
-  posts      Post[]
-  comments   Comment[]
-  likes      Like[]
-  chat_rooms ChatRoom[]
-  messages   Message[]
+  updated_at  DateTime      @updatedAt
+  tokens      SMSToken[]
+  products    Product[]
+  posts       Post[]
+  comments    Comment[]
+  likes       Like[]
+  chat_rooms  ChatRoom[]
+  messages    Message[]
+  MessageRead MessageRead[]
 }
 
 model SMSToken {
@@ -115,13 +116,22 @@ model ChatRoom {
 }
 
 model Message {
-  id         Int      @id @default(autoincrement())
+  id         Int           @id @default(autoincrement())
   payload    String
-  read       Boolean  @default(false)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  room       ChatRoom @relation(fields: [chatRoomId], references: [id])
-  user       User     @relation(fields: [userId], references: [id])
+  created_at DateTime      @default(now())
+  updated_at DateTime      @updatedAt
+  room       ChatRoom      @relation(fields: [chatRoomId], references: [id])
+  user       User          @relation(fields: [userId], references: [id])
   chatRoomId String
   userId     Int
+  read       MessageRead[]
+}
+
+model MessageRead {
+  id        Int      @id @default(autoincrement())
+  read_at   DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  message   Message  @relation(fields: [messageId], references: [id])
+  messageId Int
+  userId    Int
 }
