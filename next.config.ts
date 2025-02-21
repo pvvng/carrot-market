@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
       { hostname: "imagedelivery.net" },
     ],
   },
+  // 외부 api 호출시 logging 실시
+  logging: {
+    fetches: { fullUrl: true },
+  },
   // 빌드 시 ESLint 오류 무시
   // eslint: {
   //   ignoreDuringBuilds: true,
