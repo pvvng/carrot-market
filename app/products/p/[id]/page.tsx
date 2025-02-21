@@ -6,7 +6,7 @@ import { formatToWon } from "@/lib/utils";
 import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 interface ProductDetailPageProps {
   params: Promise<{ id: string }>;
@@ -48,6 +48,26 @@ export default async function ProductDetail({
   }
 
   const isOwner = await getIsOwner(product.userId);
+
+  const createChatRoom = async () => {
+    "use server";
+    const session = await getSession();
+    const room = await db.chatRoom.create({
+      data: {
+        users: {
+          connect: [
+            // seller id
+            { id: product.userId },
+            // buyer id
+            { id: session.id! },
+          ],
+        },
+      },
+      select: { id: true },
+    });
+
+    redirect(`/chats/${room.id}`);
+  };
 
   return (
     <div>
@@ -104,12 +124,11 @@ export default async function ProductDetail({
               </Link>
             </>
           ) : (
-            <Link
-              className="bg-orange-500 p-5 rounded-md text-white font-semibold"
-              href={``}
-            >
-              채팅하기
-            </Link>
+            <form action={createChatRoom}>
+              <button className="bg-orange-500 p-5 rounded-md text-white font-semibold">
+                채팅하기
+              </button>
+            </form>
           )}
         </div>
       </div>

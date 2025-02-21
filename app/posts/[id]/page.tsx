@@ -1,6 +1,7 @@
 import CommentForm from "@/components/comment-form";
 import LikeButton from "@/components/like-button";
 import { getCachedcomments } from "@/lib/data/post-comments";
+import { getCachedUser } from "@/lib/data/user";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { formatToTimeAgo } from "@/lib/utils";
@@ -56,19 +57,6 @@ async function getLikeStatus(userId: number, postId: number) {
   return { isLiked: Boolean(isLiked), likeCount };
 }
 
-const getCachedUser = nextCache(getUser, ["user"], {
-  tags: ["#user"],
-});
-
-async function getUser(userId: number) {
-  const user = await db.user.findUnique({
-    where: { id: userId },
-    select: { avatar: true, username: true, id: true },
-  });
-
-  return user;
-}
-
 export default async function PostDetail({ params }: PostDetailPageProps) {
   const postId = Number((await params).id);
 
@@ -89,6 +77,11 @@ export default async function PostDetail({ params }: PostDetailPageProps) {
   }
 
   const user = await getCachedUser(session.id);
+
+  if (!user) {
+    return notFound();
+  }
+
   const { isLiked, likeCount } = await getCachedLikeStatus(session.id, postId);
   const comments = await getCachedcomments(postId);
 
@@ -119,7 +112,7 @@ export default async function PostDetail({ params }: PostDetailPageProps) {
         <LikeButton isLiked={isLiked} likeCount={likeCount} postId={postId} />
       </div>
       <hr className="my-5" />
-      <CommentForm comments={comments} user={user!} postId={postId} />
+      <CommentForm comments={comments} user={user} postId={postId} />
     </div>
   );
 }

@@ -1050,3 +1050,56 @@ const updatePosts = await prisma.post.updateMany({
   > 2. startTransition(() => setList(...))는 백그라운드에서 실행되므로, React가 여유가 있을 때 실행됨.
   >
   > 3. 결과적으로 UI가 끊기지 않고 부드럽게 동작.
+
+### 13. Prisma getter 함수 반환 타입 알아내기
+
+```tsx
+export type InitialChatMessages = Prisma.PromiseReturnType<typeof getMessages>;
+```
+
+### Real Time Chat with Supabase
+
+- **Supabase**
+
+> dasthboard -> api key copy -> projects setting -> data api -> url copy
+>
+> [채널 연결하기](https://supabase.com/docs/guides/realtime/broadcast)
+
+```bash
+npm i @supabase/supabase-js
+```
+
+```tsx
+useEffect(() => {
+  // supabase 클라이언트 생성하기
+  const client = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_API_KEY!
+  );
+
+  // supabase channel(room) 생성하기
+  // 채널 생성 시 고유한 아이디 필요 -> prisma chatRoom model id
+  channel.current = client.channel(`room-${chatRoomId}`);
+  // 이벤트 이름으로 필터링
+  channel.current
+    .on("broadcast", { event: "test" }, (payload) => {
+      console.log(payload);
+    })
+    .subscribe();
+
+  // clean up
+  return () => {
+    channel.current?.unsubscribe();
+  };
+}, []);
+
+function sendMessage() {
+  // channel에 실제 메시지 보내기
+  channel.current?.send({
+    type: "broadcast",
+    // client 연결할때 사용한 event 이름이랑 같아야함
+    event: "test",
+    payload: { message },
+  });
+}
+```
