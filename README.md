@@ -1103,3 +1103,65 @@ function sendMessage() {
   });
 }
 ```
+
+### 14. Next Font
+
+```tsx
+// layout.tsx
+import { Sigmar } from "next/font/google";
+import localFont from "next/font/local";
+
+// google font 사용하기
+const sigmar = Sigmar({
+  weight: "400",
+  style: "normal",
+  subsets: ["latin"],
+  // class 이름 설정
+  variable: "--sigmar-boy",
+});
+
+// local font 사용하기
+const metalica = localFont({
+  src: "./metalica.ttf",
+  variable: "--metalica-text",
+});
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body
+        // 폰트 변수명 등록하기
+        className={`${sigmar.variable} ${metalica.variable} antialiased`}
+      >
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+```ts
+import type { Config } from "tailwindcss";
+
+export default {
+  content: [
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      // font 확장
+      fontFamily: {
+        sigmar: "var(--sigmar-boy)",
+        metalica: "var(--metalica-text)",
+      },
+    },
+  },
+  plugins: [require("@tailwindcss/forms")],
+} satisfies Config;
+```

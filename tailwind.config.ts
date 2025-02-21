@@ -6,6 +6,15 @@ export default {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  theme: {},
+  theme: {
+    extend: {
+      // font 확장
+      fontFamily: {
+        roboto: "var(--roboto-text)",
+        sigmar: "var(--sigmar-boy)",
+        metalica: "var(--metalica-text)",
+      },
+    },
+  },
   plugins: [require("@tailwindcss/forms")],
 } satisfies Config;
