@@ -6,16 +6,26 @@ import { unstable_cache as nextCache } from "next/cache";
 
 export const dynamic = "force-dynamic";
 
-const getCachedChats = nextCache(getChats, ["chats-list"], {
-  tags: ["#chats-list"],
-});
+// const getCachedChats = nextCache(getChats, ["chats-list"], {
+//   tags: ["#chats-list"],
+// });
 
 async function getChats(userId: number) {
   const chats = await db.chatRoom.findMany({
     where: { users: { some: { id: userId } } },
-    include: {
-      users: { select: { avatar: true, username: true, id: true } },
-      messages: true,
+    select: {
+      id: true,
+      users: {
+        select: { avatar: true, username: true, id: true },
+      },
+      messages: {
+        select: {
+          id: true,
+          payload: true,
+          created_at: true,
+          userId: true,
+        },
+      },
     },
   });
 
@@ -26,7 +36,7 @@ export type ChatsType = Prisma.PromiseReturnType<typeof getChats>;
 
 export default async function Chat() {
   const session = await getSession();
-  const initialChats = await getCachedChats(session.id!);
+  const initialChats = await getChats(session.id!);
 
   return (
     <div className="p-5">
