@@ -111,12 +111,13 @@ model ChatRoom {
   users      User[]
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
-  Message    Message[]
+  messages   Message[]
 }
 
 model Message {
   id         Int      @id @default(autoincrement())
   payload    String
+  read       Boolean  @default(false)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   room       ChatRoom @relation(fields: [chatRoomId], references: [id])

@@ -8,7 +8,7 @@ import { PhotoIcon } from "@heroicons/react/16/solid";
 import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 interface ProductDetailModalProps {
   params: Promise<{ id: string }>;
@@ -29,6 +29,26 @@ export default async function Modal({ params }: ProductDetailModalProps) {
   }
 
   const session = await getSession();
+
+  const createChatRoom = async () => {
+    "use server";
+    const session = await getSession();
+    const room = await db.chatRoom.create({
+      data: {
+        users: {
+          connect: [
+            // seller id
+            { id: product.userId },
+            // buyer id
+            { id: session.id! },
+          ],
+        },
+      },
+      select: { id: true },
+    });
+
+    redirect(`/chats/${room.id}`);
+  };
 
   return (
     <div className="fixed w-full h-full left-0 top-0 z-50 flex justify-center items-center overflow-hidden">
@@ -75,7 +95,9 @@ export default async function Modal({ params }: ProductDetailModalProps) {
                 </Link>
               </div>
             ) : (
-              <Link href={``}>채팅하기</Link>
+              <form action={createChatRoom}>
+                <button className="text-orange-500">채팅하기</button>
+              </form>
             )}
           </div>
         </div>

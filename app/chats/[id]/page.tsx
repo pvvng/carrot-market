@@ -32,6 +32,7 @@ async function getMessages(chatRoomId: string) {
       payload: true,
       created_at: true,
       userId: true,
+      read: true,
       user: { select: { avatar: true, username: true } },
     },
   });

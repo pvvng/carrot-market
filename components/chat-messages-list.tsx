@@ -39,6 +39,7 @@ export default function ChatMessagesList({
       payload: message,
       created_at: new Date(),
       userId,
+      read: false,
       user: {
         username: user.username,
         avatar: user.avatar,
@@ -51,7 +52,7 @@ export default function ChatMessagesList({
     channel.current?.send({
       type: "broadcast",
       event: "message",
-      payload: { ...newMessage },
+      payload: { ...newMessage, chatRoomId },
     });
 
     // message db에 저장하기
@@ -105,19 +106,22 @@ export default function ChatMessagesList({
           )}
           <div
             className={`flex flex-col gap-1 ${
-              msg.userId === userId && "items-end"
+              msg.userId === userId ? "items-end" : "items-start"
             }`}
           >
-            <span
+            <div
               className={`${
                 msg.userId === userId ? "bg-neutral-500" : "bg-orange-500"
-              } p-2.5 rounded-md`}
+              } p-2.5 max-w-72 rounded-md break-words inline-block`}
             >
               {msg.payload}
-            </span>
-            <span className="text-sm">
-              {formatToTimeAgo(msg.created_at.toString())}
-            </span>
+            </div>
+            <div className="flex justify-between gap-2 items-center">
+              <span className="text-sm">
+                {formatToTimeAgo(msg.created_at.toString())}
+              </span>
+              <span className="text-sm">{!msg.read ? "안 " : ""}읽음</span>
+            </div>
           </div>
         </div>
       ))}
