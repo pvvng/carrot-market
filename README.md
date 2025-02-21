@@ -1057,7 +1057,7 @@ const updatePosts = await prisma.post.updateMany({
 export type InitialChatMessages = Prisma.PromiseReturnType<typeof getMessages>;
 ```
 
-### Real Time Chat with Supabase
+### 14. Real Time Chat with Supabase
 
 - **Supabase**
 
@@ -1104,7 +1104,7 @@ function sendMessage() {
 }
 ```
 
-### 14. Next Font
+### 15. Next Font
 
 ```tsx
 // layout.tsx
@@ -1165,3 +1165,9 @@ export default {
   plugins: [require("@tailwindcss/forms")],
 } satisfies Config;
 ```
+
+### 16. Private Folders
+
+> Private 폴더는 폴더 앞에 밑줄(\_folderName)을 붙여 생성할 수 있다.
+>
+> [공식문서](https://nextjs.org/docs/app/building-your-application/routing/colocation#private-folders)
