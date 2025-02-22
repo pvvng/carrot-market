@@ -30,7 +30,7 @@ export default function ChatsList({ initialChats, userId }: ChatsListProps) {
       channel
         .on("broadcast", { event: "message" }, (payload) => {
           const { user, chatRoomId, ...newMessage } = payload.payload;
-          // 새 메시지 집어넣기
+          // 채팅방에 새 메시지 집어넣기
           setChats((prevChats) =>
             prevChats.map((room) =>
               room.id === payload.payload.chatRoomId
@@ -49,12 +49,19 @@ export default function ChatsList({ initialChats, userId }: ChatsListProps) {
   }, []);
 
   return chats.map((room) => {
+    // 대화중인 사용자
     const talkingUser = room.users.filter((user) => user.id !== userId)[0];
+    // 마지막 메시지
     const lastMsg = room.messages[room.messages.length - 1];
+    const messages = room.messages;
+    const unReadMessages = messages.filter(
+      (msg) => !msg.read.some((user) => user.userId === userId)
+    ).length;
+    console.log(unReadMessages);
 
     return (
       <Link key={room.id} href={`/chats/${room.id}`} className="*:text-white">
-        <div className="p-5 border-b border-neutral-200 flex gap-5 items-center">
+        <div className="p-5 border-b border-neutral-200 flex justify-between items-center gap-5">
           <div className="flex gap-2 items-center">
             <div className="*:bg-white">
               {talkingUser.avatar ? (
@@ -78,6 +85,13 @@ export default function ChatsList({ initialChats, userId }: ChatsListProps) {
             </div>
             <p className="truncate">{lastMsg.payload}</p>
           </div>
+          {unReadMessages > 0 ? (
+            <div className="size-5 bg-red-500 rounded-full flex justify-center items-center text-sm font-semibold">
+              {unReadMessages}
+            </div>
+          ) : (
+            <div className="size-5" />
+          )}
         </div>
       </Link>
     );

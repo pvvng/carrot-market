@@ -1,4 +1,5 @@
 import ChatsList from "@/components/chats-list";
+import { getUnReadMessage } from "@/lib/data/un-read-messages";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { Prisma } from "@prisma/client";
@@ -19,6 +20,7 @@ async function getChats(userId: number) {
           payload: true,
           created_at: true,
           userId: true,
+          read: { select: { userId: true } },
         },
       },
     },

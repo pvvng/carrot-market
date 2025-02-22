@@ -16,15 +16,7 @@ export async function saveMessage(payload: string, chatRoomId: string) {
       // 메시지를 보낸 사용자는 메시지 읽음 처리하기
       read: { create: { userId: session.id! } },
     },
-    select: {
-      id: true,
-      payload: true,
-      created_at: true,
-      userId: true,
-      user: { select: { avatar: true, username: true } },
-      read: { select: { userId: true } },
-    },
-    // select: { id: true },
+    select: { id: true },
   });
 
   return message;
