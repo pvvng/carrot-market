@@ -1110,8 +1110,74 @@ function sendMessage() {
 2. 메시지 읽음/읽지 않음 상태를 실시간으로 변동 가능하도록 구현하자
 
 - Q. 메시지를 읽는 사용자는 어떤 상황인가?
+
   - A. 메시지를 보내는 사용자
   - A. 다른 사용자가 보낸 메시지가 존재하는 채팅방에 사용자가 입장
+
+- **presense**
+
+  > Presence는 실시간 사용자의 상태(state)를 추적하는 기능을 제공하는 Supabase의 Realtime API 중 하나
+  >
+  > 실시간 메시지 읽음/안읽음 상태 변경을 위해 사용
+
+  ```tsx
+  channel.current = client.channel(`room-${chatRoomId}`, {
+    // presense key를 userId로 설정하기
+    config: {
+      presence: {
+        key: String(userId),
+      },
+    },
+  });
+
+  // 유저 상태
+  const userStatus = {
+    user: userId,
+    online_at: new Date().toISOString(),
+  };
+
+  channel.current
+    // 접속자 공동 관리
+    .on("presence", { event: "sync" }, () => {
+      // online인 사용자의 정보 (userStatus) 담는 객체
+      const newState = channel.current?.presenceState();
+      // 접속중인 userId 배열
+      const onlineUser = Object.keys(newState!);
+    })
+    .on("presence", { event: "join" }, ({ key, newPresences }) => {
+      // 사용자가 채팅방에 들어왔을 때 실행되는 콜백
+    })
+    .on("presence", { event: "leave" }, ({ key, leftPresences }) => {
+      // 사용자가 채팅방에 떠났을 때 실행되는 콜백
+    })
+    .on("broadcast", { event: "message" }, async (payload) => {
+      // 메시지 이벤트 수신 (송신자가 메시지 입력시 수신자 단에서 실행)
+      // 받은 메시지 ui에 추가하기
+      setMessages((prev) => [...prev, payload.payload]);
+    })
+    .subscribe(async (status) => {
+      if (status !== "SUBSCRIBED") {
+        return;
+      }
+      // 사용자 상태 정보 (userStatus) 모든 접속중인 사용자에게 뿌리기
+      await channel.current?.track(userStatus);
+    });
+
+  // clean up
+  return () => {
+    channel.current?.unsubscribe();
+  };
+  ```
+
+- **결론**
+
+  - 핵심 : `presense`를 통해 현재 접속한 사용자가 누구인지 확인한다.
+
+  - 접속한 사용자가 본인 이외에 존재할 떄
+    - case 1) 새로운 메시지를 보낸다.
+      - 임시 메시지에 본인을 포함한 read 객체를 추가하여 접속중인 사용자에 한해 read 상태로 만든다.
+    - case 2) 특정 사용자가 이미 사용자가 입장해 있는 채팅방에 접속한다.
+      - sync 이벤트를 통해 모든 메시지 상태에 대해 새롭게 입장한 사용자에 대한 read 상태를 추가한다.
 
 ### 15. Next Font
 

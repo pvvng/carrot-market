@@ -1,122 +1,150 @@
 "use client";
 
-import {
-  markAsReadOneMessage,
-  MessageType,
-  saveMessage,
-} from "@/app/chats/[id]/actions";
+import { saveMessage } from "@/app/chats/[id]/actions";
 import { InitialChatMessages } from "@/lib/data/messages";
+import { UserType } from "@/lib/data/user";
 import { formatToTimeAgo } from "@/lib/utils";
 import { ArrowUpCircleIcon, UserIcon } from "@heroicons/react/24/solid";
 import { createClient, RealtimeChannel } from "@supabase/supabase-js";
 import Image from "next/image";
-import {
-  startTransition,
-  useEffect,
-  useOptimistic,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ChatMessageListProps {
   initialMessages: InitialChatMessages;
   userId: number;
+  user: UserType;
   chatRoomId: string;
 }
 
 export default function ChatMessagesList({
   initialMessages,
   userId,
+  user,
   chatRoomId,
 }: ChatMessageListProps) {
   const [messages, setMessages] = useState(initialMessages);
-  const [message, setMessage] = useState("");
+  // 메시지 Input ref
+  const messageRef = useRef<HTMLInputElement>(null);
+  // 온라인인 유저 저장하는 ref
+  const onlineUser = useRef([String(userId)]);
+  // 채널 ref
   const channel = useRef<RealtimeChannel>(undefined);
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMessage(e.target.value);
+  const scrollToMessageInput = () => {
+    messageRef.current?.scrollIntoView({ behavior: "auto" });
   };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // message db에 "먼저" 저장하기
-    const newMessage: MessageType = await saveMessage(message, chatRoomId);
+    const message = messageRef.current?.value;
 
-    // **새로운 메시지를 즉시 상태에 반영**
-    setMessages((prev) => [...prev, newMessage]);
+    if (!message) {
+      alert("메시지 확인 실패");
+      return;
+    }
+
+    // ui 표시용 가짜 메시지
+    const tempMessage = {
+      id: Date.now(),
+      payload: message,
+      created_at: new Date(),
+      userId,
+      user: {
+        avatar: user.avatar,
+        username: user.username,
+      },
+      // 현재 보내는 메시지를 읽는 중인 사용자 추가하기
+      read: onlineUser.current.map((id) => ({ userId: Number(id) })),
+    };
+
+    // 새로운 메시지를 즉시 UI에 반영
+    setMessages((prev) => [...prev, tempMessage]);
 
     // channel에 실제 메시지 보내기 (상태 업데이트 후)
     channel.current?.send({
       type: "broadcast",
       event: "message",
-      payload: { ...newMessage, chatRoomId },
+      payload: { ...tempMessage, chatRoomId },
     });
 
-    setMessage("");
+    if (messageRef.current) {
+      messageRef.current.value = "";
+    }
+
+    // db에 저장
+    await saveMessage(message, chatRoomId);
   };
 
   useEffect(() => {
+    // input 위치까지 스크롤
+    scrollToMessageInput();
+
     // supabase 클라이언트 생성하기
     const client = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_API_KEY!
     );
 
-    channel.current = client.channel(`room-${chatRoomId}`);
+    channel.current = client.channel(`room-${chatRoomId}`, {
+      // presense key를 userId로 설정하기
+      config: {
+        presence: {
+          key: String(userId),
+        },
+      },
+    });
+
+    // 유저 상태
+    const userStatus = {
+      user: userId,
+      online_at: new Date().toISOString(),
+    };
+
     channel.current
+      .on("presence", { event: "sync" }, () => {
+        // online인 사용자의 정보 (userStatus) 담는 객체
+        const newState = channel.current?.presenceState();
+        const nowOnlineUser = Object.keys(newState!);
+        // 접속중인 user의 Id 배열 ref에 저장하기
+        onlineUser.current = nowOnlineUser;
+        if (nowOnlineUser.length > 1) {
+          // 이전 메시지들 접속중인 유저에 대해 읽음 처리
+          setMessages((prev) =>
+            prev.map((msg) => {
+              const { read, ...rest } = msg;
+              read.push(
+                ...nowOnlineUser.map((user) => ({ userId: Number(user) }))
+              );
+
+              return { ...rest, read };
+            })
+          );
+        }
+      })
       .on("broadcast", { event: "message" }, async (payload) => {
         // 메시지 이벤트 수신 (송신자가 메시지 입력시 수신자 단에서 실행)
-
         // 받은 메시지 ui에 추가하기
         setMessages((prev) => [...prev, payload.payload]);
-
-        // channel에 읽음 이벤트 보내기
-        channel.current?.send({
-          type: "broadcast",
-          event: "read",
-          payload: { messageId: payload.payload.id, userId },
-        });
       })
-      .on("broadcast", { event: "read" }, async (payload) => {
-        // 읽음 이벤트 수신 (수신자에게 메시지 도착할때 송신자에게서 실행)
-        // 여기서 실행되어야 하는건 읽음 -> 안읽음으로 변경하는거
-        const { messageId, userId } = payload.payload;
-
-        const updateReadStatus = (attempt = 0) => {
-          setMessages((prevMessages) => {
-            const nowMsg = prevMessages.find((msg) => msg.id === messageId);
-
-            // Q. 왜 이지랄 하는가?
-            // setState가 비동기적으로 동작해서 onSubmit에서 newMsg 추가하는것보다 read 이벤트가 도착하는게 더 빨라서 read 객체 추가가 안된다
-            // 그래서 기다림
-            if (!nowMsg && attempt < 5) {
-              // 메시지가 아직 추가되지 않았다면 100ms 후 다시 시도 (최대 5번)
-              setTimeout(() => updateReadStatus(attempt + 1), 100);
-              return prevMessages;
-            }
-
-            // 메시지가 존재하면 read 업데이트
-            return prevMessages.map((msg) =>
-              msg.id === messageId
-                ? { ...msg, read: [...msg.read, { userId }] }
-                : msg
-            );
-          });
-        };
-
-        updateReadStatus();
-
-        // db 변경하기
-        await markAsReadOneMessage(messageId, userId);
-      })
-      .subscribe();
+      .subscribe(async (status) => {
+        if (status !== "SUBSCRIBED") {
+          return;
+        }
+        // 사용자 상태 정보 (userStatus) 모든 접속중인 사용자에게 뿌리기
+        await channel.current?.track(userStatus);
+      });
 
     // clean up
     return () => {
       channel.current?.unsubscribe();
     };
   }, []);
+
+  // 메시지 변경될때마다 input까지 스크롤
+  useEffect(() => {
+    scrollToMessageInput();
+  }, [messages]);
 
   return (
     <div className="p-5 flex flex-col gap-5 min-h-screen justify-end">
@@ -166,13 +194,12 @@ export default function ChatMessagesList({
       ))}
       <form className="flex relative" onSubmit={onSubmit}>
         <input
+          ref={messageRef}
           required
           className="bg-transparent rounded-full w-full h-10 focus:outline-none px-5 
           ring-2 focus:ring-4 transition ring-neutral-200 focus:ring-neutral-50 border-none placeholder:text-neutral-400"
           type="text"
           name="message"
-          value={message}
-          onChange={onChange}
           placeholder="Write a message..."
           autoComplete="off"
         />

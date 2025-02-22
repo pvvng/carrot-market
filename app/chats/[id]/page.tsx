@@ -55,6 +55,7 @@ export default async function ChatRoom({ params }: ChatRoomProps) {
     <ChatMessagesList
       initialMessages={initialMessages}
       userId={session.id!}
+      user={user}
       chatRoomId={id}
     />
   );
