@@ -1317,7 +1317,9 @@ npm i server-only
 
 ### 21. Live Streaming with CloudFlare
 
-> [공식 문서](https://developers.cloudflare.com/stream/get-started/#step-1-create-a-live-input)
+- **Create Live Input(get Stream Id, Stream Key)**
+
+> [공식문서](https://developers.cloudflare.com/stream/get-started/#step-1-create-a-live-input)
 
 ```curl
 curl -X POST \
@@ -1378,4 +1380,18 @@ const stream = await db.liveStream.create({
     userId: session.id!,
   },
 });
+```
+
+- **Play Live Streaming**
+
+> [공식문서](https://developers.cloudflare.com/stream/get-started/#step-3-play-the-live-stream-in-your-website-or-app)
+
+```jsx
+<iframe
+  src="https://customer-<CODE>.cloudflarestream.com/<VIDEO_UID>/iframe"
+  title="Example Stream video"
+  frameBorder="0"
+  allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+></iframe>
 ```
