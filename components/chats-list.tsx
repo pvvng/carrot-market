@@ -29,11 +29,12 @@ export default function ChatsList({ initialChats, userId }: ChatsListProps) {
     channels.forEach((channel) =>
       channel
         .on("broadcast", { event: "message" }, (payload) => {
-          // 새 메시지 집어넣기
+          const { user, chatRoomId, ...newMessage } = payload.payload;
+          // 채팅방에 새 메시지 집어넣기
           setChats((prevChats) =>
             prevChats.map((room) =>
               room.id === payload.payload.chatRoomId
-                ? { ...room, messages: [...room.messages, payload.payload] }
+                ? { ...room, messages: [...room.messages, newMessage] }
                 : room
             )
           );
@@ -48,15 +49,18 @@ export default function ChatsList({ initialChats, userId }: ChatsListProps) {
   }, []);
 
   return chats.map((room) => {
+    // 대화중인 사용자
     const talkingUser = room.users.filter((user) => user.id !== userId)[0];
+    // 마지막 메시지
     const lastMsg = room.messages[room.messages.length - 1];
-    const unReadMsgCount = room.messages
-      .filter((msg) => msg.read.length < 2)
-      .map((v) => v.read[0].userId)
-      .filter((id) => id !== userId).length;
+    const messages = room.messages;
+    const unReadMessages = messages.filter(
+      (msg) => !msg.read.some((user) => user.userId === userId)
+    );
+
     return (
-      <Link key={room.id} href={`/chats/${room.id}`} className="*:text-white">
-        <div className="p-5 border-b border-neutral-200 flex gap-5 items-center">
+      <Link key={room.id} href={`/chat/${room.id}`} className="*:text-white">
+        <div className="border-b p-5 border-neutral-500 flex justify-between items-center gap-5">
           <div className="flex gap-2 items-center">
             <div className="*:bg-white">
               {talkingUser.avatar ? (
@@ -80,10 +84,12 @@ export default function ChatsList({ initialChats, userId }: ChatsListProps) {
             </div>
             <p className="truncate">{lastMsg.payload}</p>
           </div>
-          {unReadMsgCount > 0 && (
-            <span className="bg-red-500 rounded-full size-5 text-sm font-bold flex items-center justify-center">
-              {unReadMsgCount}
-            </span>
+          {unReadMessages.length > 0 ? (
+            <div className="size-5 bg-red-500 rounded-full flex justify-center items-center text-sm font-semibold">
+              {unReadMessages.length}
+            </div>
+          ) : (
+            <div className="size-5" />
           )}
         </div>
       </Link>

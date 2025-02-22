@@ -1,7 +1,7 @@
 "use client";
 
-import { saveMessage } from "@/app/chats/[id]/actions";
-import { InitialChatMessages } from "@/app/chats/[id]/page";
+import { saveMessage } from "@/app/chat/[id]/actions";
+import { InitialChatMessages } from "@/lib/data/messages";
 import { UserType } from "@/lib/data/user";
 import { formatToTimeAgo } from "@/lib/utils";
 import { ArrowUpCircleIcon, UserIcon } from "@heroicons/react/24/solid";
@@ -23,66 +23,128 @@ export default function ChatMessagesList({
   chatRoomId,
 }: ChatMessageListProps) {
   const [messages, setMessages] = useState(initialMessages);
-  const [message, setMessage] = useState("");
+  // 메시지 Input ref
+  const messageRef = useRef<HTMLInputElement>(null);
+  // 온라인인 유저 저장하는 ref
+  const onlineUser = useRef([String(userId)]);
+  // 채널 ref
   const channel = useRef<RealtimeChannel>(undefined);
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMessage(e.target.value);
+  const scrollToMessageInput = () => {
+    messageRef.current?.scrollIntoView({ behavior: "auto" });
   };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 가짜 메시지 추가하기
-    const newMessage = {
+    const message = messageRef.current?.value;
+
+    if (!message) {
+      alert("메시지 확인 실패");
+      return;
+    }
+
+    // ui 표시용 가짜 메시지
+    const tempMessage = {
       id: Date.now(),
       payload: message,
       created_at: new Date(),
       userId,
       user: {
-        username: user.username,
         avatar: user.avatar,
+        username: user.username,
       },
-      read: [{ userId }],
+      // 현재 보내는 메시지를 읽는 중인 사용자 추가하기
+      read: onlineUser.current.map((id) => ({ userId: Number(id) })),
     };
 
-    setMessages((prev) => [...prev, newMessage]);
+    // 새로운 메시지를 즉시 UI에 반영
+    setMessages((prev) => [...prev, tempMessage]);
 
-    // channel에 실제 메시지 보내기
+    // channel에 실제 메시지 보내기 (상태 업데이트 후)
     channel.current?.send({
       type: "broadcast",
       event: "message",
-      payload: { ...newMessage, chatRoomId },
+      payload: { ...tempMessage, chatRoomId },
     });
 
-    // message db에 저장하기
-    await saveMessage(message, chatRoomId);
+    if (messageRef.current) {
+      messageRef.current.value = "";
+    }
 
-    setMessage("");
+    // db에 저장
+    await saveMessage(message, chatRoomId);
   };
 
   useEffect(() => {
+    // input 위치까지 스크롤
+    scrollToMessageInput();
+
     // supabase 클라이언트 생성하기
     const client = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_API_KEY!
     );
 
-    // supabase channel(room) 생성하기
-    // 채널 생성 시 고유한 아이디 필요 -> prisma chatRoom model id
-    channel.current = client.channel(`room-${chatRoomId}`);
-    // 이벤트 이름으로 필터링
+    channel.current = client.channel(`room-${chatRoomId}`, {
+      // presense key를 userId로 설정하기
+      config: {
+        presence: {
+          key: String(userId),
+        },
+      },
+    });
+
+    // 유저 상태
+    const userStatus = {
+      user: userId,
+      online_at: new Date().toISOString(),
+    };
+
     channel.current
-      .on("broadcast", { event: "message" }, (payload) => {
+      .on("presence", { event: "sync" }, () => {
+        // online인 사용자의 정보 (userStatus) 담는 객체
+        const newState = channel.current?.presenceState();
+        const nowOnlineUser = Object.keys(newState!);
+        // 접속중인 user의 Id 배열 ref에 저장하기
+        onlineUser.current = nowOnlineUser;
+        if (nowOnlineUser.length > 1) {
+          // 이전 메시지들 접속중인 유저에 대해 읽음 처리
+          setMessages((prev) =>
+            prev.map((msg) => {
+              const { read, ...rest } = msg;
+              read.push(
+                ...nowOnlineUser.map((user) => ({ userId: Number(user) }))
+              );
+
+              return { ...rest, read };
+            })
+          );
+        }
+      })
+      .on("broadcast", { event: "message" }, async (payload) => {
+        // 메시지 이벤트 수신 (송신자가 메시지 입력시 수신자 단에서 실행)
+        // 받은 메시지 ui에 추가하기
         setMessages((prev) => [...prev, payload.payload]);
       })
-      .subscribe();
+      .subscribe(async (status) => {
+        if (status !== "SUBSCRIBED") {
+          return;
+        }
+        // 사용자 상태 정보 (userStatus) 모든 접속중인 사용자에게 뿌리기
+        await channel.current?.track(userStatus);
+      });
 
     // clean up
     return () => {
       channel.current?.unsubscribe();
     };
   }, []);
+
+  // 메시지 변경될때마다 input까지 스크롤
+  useEffect(() => {
+    scrollToMessageInput();
+  }, [messages]);
 
   return (
     <div className="p-5 flex flex-col gap-5 min-h-screen justify-end">
@@ -116,23 +178,28 @@ export default function ChatMessagesList({
             >
               {msg.payload}
             </div>
-            <div className="flex justify-between gap-2 items-center">
-              <span className="text-sm">
-                {formatToTimeAgo(msg.created_at.toString())}
-              </span>
+            <div className="flex justify-between gap-2 items-center *:text-sm">
+              {msg.userId === userId && (
+                <span>
+                  {msg.read.filter((v) => v.userId !== userId).length === 0
+                    ? "안 "
+                    : ""}
+                  읽음
+                </span>
+              )}
+              <span>{formatToTimeAgo(msg.created_at.toString())}</span>
             </div>
           </div>
         </div>
       ))}
       <form className="flex relative" onSubmit={onSubmit}>
         <input
+          ref={messageRef}
           required
           className="bg-transparent rounded-full w-full h-10 focus:outline-none px-5 
           ring-2 focus:ring-4 transition ring-neutral-200 focus:ring-neutral-50 border-none placeholder:text-neutral-400"
           type="text"
           name="message"
-          value={message}
-          onChange={onChange}
           placeholder="Write a message..."
           autoComplete="off"
         />

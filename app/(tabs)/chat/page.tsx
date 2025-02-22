@@ -6,16 +6,28 @@ import { unstable_cache as nextCache } from "next/cache";
 
 export const dynamic = "force-dynamic";
 
-const getCachedChats = nextCache(getChats, ["chats-list"], {
-  tags: ["#chats-list"],
+const getCachedChats = nextCache(getChats, ["chat-room-list"], {
+  tags: ["chat-room-list"],
+  revalidate: 60,
 });
 
 async function getChats(userId: number) {
   const chats = await db.chatRoom.findMany({
     where: { users: { some: { id: userId } } },
-    include: {
-      users: { select: { avatar: true, username: true, id: true } },
-      messages: { include: { read: true } },
+    select: {
+      id: true,
+      users: {
+        select: { avatar: true, username: true, id: true },
+      },
+      messages: {
+        select: {
+          id: true,
+          payload: true,
+          created_at: true,
+          userId: true,
+          read: { select: { userId: true } },
+        },
+      },
     },
   });
 
@@ -29,7 +41,7 @@ export default async function Chat() {
   const initialChats = await getCachedChats(session.id!);
 
   return (
-    <div className="p-5">
+    <div className="p-5 flex flex-col">
       <ChatsList initialChats={initialChats} userId={session.id!} />
     </div>
   );

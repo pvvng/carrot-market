@@ -47,7 +47,7 @@ export default async function Modal({ params }: ProductDetailModalProps) {
       select: { id: true },
     });
 
-    redirect(`/chats/${room.id}`);
+    redirect(`/chat/${room.id}`);
   };
 
   return (
