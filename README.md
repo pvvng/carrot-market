@@ -1395,3 +1395,9 @@ const stream = await db.liveStream.create({
   allowFullScreen
 ></iframe>
 ```
+
+- **Code Challenge**
+
+1. 스트리밍 종료 처리하기 (종료 / 녹화된 영상 틀어주기)
+2. 실시간 댓글 기능 구현하기
+3. 스트리밍들의 썸네일 받아서 라이브 페이지 완성하기
