@@ -4,6 +4,7 @@ import { unReadMessagesType } from "@/lib/data/un-read-messages";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { Prisma } from "@prisma/client";
+import { revalidateTag } from "next/cache";
 
 /** 메시지 db에 저장하기 */
 export async function saveMessage(payload: string, chatRoomId: string) {
@@ -18,6 +19,8 @@ export async function saveMessage(payload: string, chatRoomId: string) {
     },
     select: { id: true },
   });
+
+  revalidateTag("chat-room-list");
 
   return message;
 }

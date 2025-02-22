@@ -66,7 +66,7 @@ export default async function ProductDetail({
       select: { id: true },
     });
 
-    redirect(`/chats/${room.id}`);
+    redirect(`/chat/${room.id}`);
   };
 
   return (

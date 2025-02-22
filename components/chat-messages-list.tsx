@@ -1,6 +1,6 @@
 "use client";
 
-import { saveMessage } from "@/app/chats/[id]/actions";
+import { saveMessage } from "@/app/chat/[id]/actions";
 import { InitialChatMessages } from "@/lib/data/messages";
 import { UserType } from "@/lib/data/user";
 import { formatToTimeAgo } from "@/lib/utils";

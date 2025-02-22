@@ -56,12 +56,11 @@ export default function ChatsList({ initialChats, userId }: ChatsListProps) {
     const messages = room.messages;
     const unReadMessages = messages.filter(
       (msg) => !msg.read.some((user) => user.userId === userId)
-    ).length;
-    console.log(unReadMessages);
+    );
 
     return (
-      <Link key={room.id} href={`/chats/${room.id}`} className="*:text-white">
-        <div className="p-5 border-b border-neutral-200 flex justify-between items-center gap-5">
+      <Link key={room.id} href={`/chat/${room.id}`} className="*:text-white">
+        <div className="border-b p-5 border-neutral-500 flex justify-between items-center gap-5">
           <div className="flex gap-2 items-center">
             <div className="*:bg-white">
               {talkingUser.avatar ? (
@@ -85,9 +84,9 @@ export default function ChatsList({ initialChats, userId }: ChatsListProps) {
             </div>
             <p className="truncate">{lastMsg.payload}</p>
           </div>
-          {unReadMessages > 0 ? (
+          {unReadMessages.length > 0 ? (
             <div className="size-5 bg-red-500 rounded-full flex justify-center items-center text-sm font-semibold">
-              {unReadMessages}
+              {unReadMessages.length}
             </div>
           ) : (
             <div className="size-5" />
