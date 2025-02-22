@@ -1314,3 +1314,68 @@ npm i server-only
 > 이미지 base 64 인코딩하는 곳
 >
 > https://www.base64-image.de
+
+### 21. Live Streaming with CloudFlare
+
+> [공식 문서](https://developers.cloudflare.com/stream/get-started/#step-1-create-a-live-input)
+
+```curl
+curl -X POST \
+-H "Authorization: Bearer <API_TOKEN>" \
+-D '{"meta": {"name":"test stream"},"recording": { "mode": "automatic" }}' \
+https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/stream/live_inputs
+```
+
+```json
+// response
+{
+  "uid": "f256e6ea9341d51eea64c9454659e576",
+  "rtmps": {
+    "url": "rtmps://live.cloudflare.com:443/live/",
+    "streamKey": "MTQ0MTcjM3MjI1NDE3ODIyNTI1MjYyMjE4NTI2ODI1NDcxMzUyMzcf256e6ea9351d51eea64c9454659e576"
+  },
+  "created": "2021-09-23T05:05:53.451415Z",
+  "modified": "2021-09-23T05:05:53.451415Z",
+  "meta": {
+    "name": "test stream"
+  },
+  "status": null,
+  "recording": {
+    "mode": "automatic",
+    "requireSignedURLs": false,
+    "allowedOrigins": null
+  }
+}
+```
+
+```tsx
+// use in actions
+const response = await fetch(
+  `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/stream/live_inputs`,
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.CLOUDFLARE_API_KEY}`,
+    },
+    body: JSON.stringify({
+      meta: { name: titleResult.data },
+      recording: { mode: "automatic" },
+    }),
+  }
+);
+
+const data = await response.json();
+
+// get userId
+const session = await getSession();
+
+// save stream id, stream key in db
+const stream = await db.liveStream.create({
+  data: {
+    title: titleResult.data,
+    stream_id: data.result.uid,
+    stream_key: data.result.rtmps.streamKey,
+    userId: session.id!,
+  },
+});
+```
