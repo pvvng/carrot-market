@@ -2,14 +2,8 @@ import ChatsList from "@/components/chats-list";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { Prisma } from "@prisma/client";
-import { unstable_cache as nextCache } from "next/cache";
 
 export const dynamic = "force-dynamic";
-
-const getCachedChats = nextCache(getChats, ["chat-room-list"], {
-  tags: ["chat-room-list"],
-  revalidate: 60,
-});
 
 async function getChats(userId: number) {
   const chats = await db.chatRoom.findMany({
@@ -38,7 +32,7 @@ export type ChatsType = Prisma.PromiseReturnType<typeof getChats>;
 
 export default async function Chat() {
   const session = await getSession();
-  const initialChats = await getCachedChats(session.id!);
+  const initialChats = await getChats(session.id!);
 
   return (
     <div className="p-5 flex flex-col">

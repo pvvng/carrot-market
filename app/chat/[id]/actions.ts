@@ -20,8 +20,6 @@ export async function saveMessage(payload: string, chatRoomId: string) {
     select: { id: true },
   });
 
-  revalidateTag("chat-room-list");
-
   return message;
 }
 

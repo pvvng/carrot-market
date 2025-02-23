@@ -59,7 +59,7 @@ export default function ChatsList({ initialChats, userId }: ChatsListProps) {
     );
 
     return (
-      <Link key={room.id} href={`/chat/${room.id}`} className="*:text-white">
+      <a key={room.id} href={`/chat/${room.id}`} className="*:text-white">
         <div className="border-b p-5 border-neutral-500 flex justify-between items-center gap-5">
           <div className="flex gap-2 items-center">
             <div className="*:bg-white">
@@ -92,7 +92,7 @@ export default function ChatsList({ initialChats, userId }: ChatsListProps) {
             <div className="size-5" />
           )}
         </div>
-      </Link>
+      </a>
     );
   });
 }
