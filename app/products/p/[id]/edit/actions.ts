@@ -26,6 +26,14 @@ const productSchema = z.object({
     required_error: "가격 항목은 필수입니다.",
     invalid_type_error: "잘못된 타입입니다.",
   }),
+  sold_out: z
+    .enum(["0", "1"], {
+      errorMap: () => ({
+        message:
+          "판매 상태는 0(판매 중) 또는 1(판매 완료)만 입력할 수 있습니다.",
+      }),
+    })
+    .transform((val) => val === "1"),
 });
 
 export async function editProduct<T>(_: T, formData: FormData) {
@@ -35,6 +43,7 @@ export async function editProduct<T>(_: T, formData: FormData) {
     title: formData.get("title"),
     price: formData.get("price"),
     description: formData.get("description"),
+    sold_out: formData.get("sold_out"),
   };
 
   const result = productSchema.safeParse(data);
@@ -59,6 +68,7 @@ export async function editProduct<T>(_: T, formData: FormData) {
       photo: result.data.photo,
       description: result.data.description,
       price: result.data.price,
+      sold_out: result.data.sold_out,
       user: {
         connect: {
           id: session.id,

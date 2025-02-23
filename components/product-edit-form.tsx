@@ -125,6 +125,7 @@ export default function ProductEditForm(product: Product) {
         placeholder="제목"
         type="text"
         defaultValue={product.title}
+        errors={state?.fieldErrors.title}
       />
       <Input
         name="price"
@@ -132,7 +133,7 @@ export default function ProductEditForm(product: Product) {
         placeholder="가격"
         type="number"
         defaultValue={product.price}
-        errors={[]}
+        errors={state?.fieldErrors.price}
       />
       <Input
         name="description"
@@ -140,7 +141,32 @@ export default function ProductEditForm(product: Product) {
         placeholder="자세한 설명"
         defaultValue={product.description}
         type="text"
+        errors={state?.fieldErrors.description}
       />
+      <div className="flex gap-3 items-center justify-center *:w-full *:p-3 *:text-center *:rounded-md *:font-semibold">
+        <label className="ring-2 ring-white has-[:checked]:ring-orange-500 has-[:checked]:text-orange-500">
+          <input
+            type="radio"
+            name="sold_out"
+            value="0"
+            className="hidden"
+            defaultChecked={!product.sold_out}
+            required
+          />
+          판매 중
+        </label>
+        <label className="ring-2 ring-white has-[:checked]:ring-orange-500 has-[:checked]:text-orange-500">
+          <input
+            type="radio"
+            name="sold_out"
+            value="1"
+            className="hidden"
+            defaultChecked={product.sold_out}
+            required
+          />
+          판매 완료
+        </label>
+      </div>
       <Button text="저장하기" />
     </form>
   );

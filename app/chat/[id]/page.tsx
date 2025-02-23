@@ -14,7 +14,19 @@ interface ChatRoomProps {
 async function getRoom(id: string) {
   const room = await db.chatRoom.findUnique({
     where: { id },
-    include: { users: { select: { id: true } } },
+    include: {
+      users: { select: { id: true } },
+      product: {
+        select: {
+          id: true,
+          photo: true,
+          title: true,
+          price: true,
+          sold_out: true,
+          userId: true,
+        },
+      },
+    },
   });
 
   return room;
@@ -51,8 +63,11 @@ export default async function ChatRoom({ params }: ChatRoomProps) {
   // 메시지 초깃값 불러오기
   const initialMessages = await getMessages(id);
 
+  const product = room.product;
+
   return (
     <ChatMessagesList
+      product={product}
       initialMessages={initialMessages}
       userId={session.id!}
       user={user}

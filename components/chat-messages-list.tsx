@@ -1,15 +1,30 @@
 "use client";
 
-import { saveMessage } from "@/app/chat/[id]/actions";
+import { changeProductState, saveMessage } from "@/app/chat/[id]/actions";
 import { InitialChatMessages } from "@/lib/data/messages";
 import { UserType } from "@/lib/data/user";
-import { formatToTimeAgo } from "@/lib/utils";
-import { ArrowUpCircleIcon, UserIcon } from "@heroicons/react/24/solid";
+import { formatToTimeAgo, formatToWon } from "@/lib/utils";
+import { PlusCircleIcon } from "@heroicons/react/16/solid";
+import {
+  ArrowUpCircleIcon,
+  MinusCircleIcon,
+  UserIcon,
+} from "@heroicons/react/24/solid";
 import { createClient, RealtimeChannel } from "@supabase/supabase-js";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
+interface Product {
+  id: number;
+  userId: number;
+  title: string;
+  price: number;
+  photo: string;
+  sold_out: boolean;
+}
+
 interface ChatMessageListProps {
+  product: Product;
   initialMessages: InitialChatMessages;
   userId: number;
   user: UserType;
@@ -17,12 +32,15 @@ interface ChatMessageListProps {
 }
 
 export default function ChatMessagesList({
+  product,
   initialMessages,
   userId,
   user,
   chatRoomId,
 }: ChatMessageListProps) {
+  // 메시지 state
   const [messages, setMessages] = useState(initialMessages);
+  const [modal, setModal] = useState(false);
   // 메시지 Input ref
   const messageRef = useRef<HTMLInputElement>(null);
   // 온라인인 유저 저장하는 ref
@@ -148,6 +166,32 @@ export default function ChatMessagesList({
 
   return (
     <div className="p-5 flex flex-col gap-5 min-h-screen justify-end">
+      <div className="flex flex-col gap-5">
+        <div className="aspect-square relative rounded-md overflow-hidden">
+          {product.sold_out && (
+            <div className="absolute inset-0 flex justify-center items-center font-semibold text-xl">
+              판매 완료된 상품입니다.
+            </div>
+          )}
+          <Image
+            src={`${product.photo}/public`}
+            alt={product.title}
+            fill
+            priority
+            className={`object-cover ${product.sold_out && "opacity-50"}`}
+          />
+        </div>
+        <div className="flex gap-2 justify-around items-center *:font-semibold pb-5 border-b-2 border-neutral-600">
+          <span>{product.title}</span>
+          <span>{formatToWon(product.price)} 원</span>
+          <span className="text-orange-500">
+            {product.sold_out ? "판매 완료" : "판매 중"}
+          </span>
+        </div>
+      </div>
+      {messages.length === 0 && (
+        <div className="py-8 text-center">채팅을 시작해보세요!</div>
+      )}
       {messages.map((msg) => (
         <div
           key={msg.id}
@@ -179,20 +223,44 @@ export default function ChatMessagesList({
               {msg.payload}
             </div>
             <div className="flex justify-between gap-2 items-center *:text-sm">
-              {msg.userId === userId && (
-                <span>
-                  {msg.read.filter((v) => v.userId !== userId).length === 0
-                    ? "안 "
-                    : ""}
-                  읽음
-                </span>
-              )}
+              {msg.userId === userId &&
+                msg.read.filter((v) => v.userId !== userId).length === 0 && (
+                  <span className="text-orange-500 font-semibold">
+                    읽지 않음
+                  </span>
+                )}
               <span>{formatToTimeAgo(msg.created_at.toString())}</span>
             </div>
           </div>
         </div>
       ))}
-      <form className="flex relative" onSubmit={onSubmit}>
+      {modal && (
+        <div className="bg-neutral-100 p-5 rounded-md flex items-center justify-around">
+          {userId == product.userId && !product.sold_out && (
+            <form action={() => changeProductState(product.id, true)}>
+              <button className="bg-orange-500 hover:bg-orange-300 transition-colors rounded-md font-semibold px-2 p-1">
+                판매완료
+              </button>
+            </form>
+          )}
+          <form>
+            <button className="bg-red-500 hover:bg-red-300 transition-colors rounded-md font-semibold px-2 p-1">
+              상대방 차단하기
+            </button>
+          </form>
+        </div>
+      )}
+      <form className="flex relative items-center gap-2" onSubmit={onSubmit}>
+        <span
+          className="cursor-pointer hover:text-neutral-400 transition-colors"
+          onClick={() => setModal((pre) => !pre)}
+        >
+          {modal ? (
+            <MinusCircleIcon className="size-10" />
+          ) : (
+            <PlusCircleIcon className="size-10" />
+          )}
+        </span>
         <input
           ref={messageRef}
           required
