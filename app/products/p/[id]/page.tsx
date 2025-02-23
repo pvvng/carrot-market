@@ -73,7 +73,19 @@ export default async function ProductDetail({
   return (
     <div>
       <div className="relative aspect-square">
-        <Image src={`${product.photo}/public`} alt={product.title} fill />
+        {product.sold_out && (
+          <div className="absolute inset-0 flex justify-center items-center font-semibold text-2xl text-white">
+            판매 완료
+          </div>
+        )}
+        <Image
+          src={`${product.photo}/public`}
+          alt={product.title}
+          fill
+          className={`object-cover rounded-md ${
+            product.sold_out && "opacity-50"
+          }`}
+        />
       </div>
       <div className="p-5 flex items-center gap-3 border-b border-neutral-700">
         <div className="size-10 rounded-full overflow-hidden bg-white">

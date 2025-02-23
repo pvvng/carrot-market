@@ -58,11 +58,18 @@ export default async function Modal({ params }: ProductDetailModalProps) {
       <CloseButton />
       <div className="bg-neutral-900 aspect-square w-full max-w-screen-sm rounded-md overflow-auto p-5 *:text-white">
         <div className="aspect-square relative overflow-hidden">
+          {product.sold_out && (
+            <div className="absolute inset-0 flex justify-center items-center font-semibold text-2xl text-white">
+              판매 완료
+            </div>
+          )}
           <Image
             src={`${product.photo}/public`}
             alt={product.title}
             fill
-            className="object-cover rounded-md"
+            className={`object-cover rounded-md ${
+              product.sold_out && "opacity-50"
+            }`}
           />
         </div>
         <div className="w-full flex flex-col gap-2 text-center">
@@ -80,7 +87,7 @@ export default async function Modal({ params }: ProductDetailModalProps) {
                     className="object-cover"
                   />
                 ) : (
-                  <UserIcon />
+                  <UserIcon className="text-black" />
                 )}
               </div>
               <h3>{product.user.username}</h3>

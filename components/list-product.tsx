@@ -8,6 +8,8 @@ interface ListProductProps {
   created_at: Date;
   photo: string;
   id: number;
+  sold_out: boolean;
+  hideSoldOutProducts: boolean;
 }
 export default function ListProduct({
   title,
@@ -15,7 +17,13 @@ export default function ListProduct({
   created_at,
   photo,
   id,
+  sold_out,
+  hideSoldOutProducts,
 }: ListProductProps) {
+  if (hideSoldOutProducts && sold_out) {
+    return null;
+  }
+
   return (
     <Link
       href={`/products/p/${id}`}
@@ -25,13 +33,18 @@ export default function ListProduct({
     >
       {/* 부모 div에서 이미지 사이즈 컨트롤 가능 -> 스타일, 반응형 적용이 된다는 의미 */}
       <div className="relative size-28 rounded-md overflow-hidden bg-gray-200">
+        {sold_out && (
+          <div className="absolute inset-0 text-black font-semibold flex justify-center items-center">
+            판매완료
+          </div>
+        )}
         <Image
           src={`${photo}/smaller`}
           alt={title}
           // fill = {boolean}을 주면 style : absolute가 됨
           fill
           sizes="112"
-          className="object-cover"
+          className={`object-cover ${sold_out && "opacity-50"}`}
         />
       </div>
       <div className="flex flex-col gap-2 *:text-white">
