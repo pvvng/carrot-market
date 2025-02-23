@@ -63,31 +63,31 @@ model SMSToken {
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   title       String
   price       Float
   description String
   photo       String
-  sold_out    Boolean  @default(false) // 판매여부
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  Review      Review[]
-}
-
-model Post {
-  id          Int        @id @default(autoincrement())
-  title       String
-  description String?
-  views       Int        @default(0)
+  sold_out    Boolean    @default(false) // 판매여부
   created_at  DateTime   @default(now())
   updated_at  DateTime   @updatedAt
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
+  Review      Review[]
+  ChatRoom    ChatRoom[]
+}
+
+model Post {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  views       Int       @default(0)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
   comments    Comment[]
   likes       Like[]
-  ChatRoom    ChatRoom[]
 }
 
 model Comment {
@@ -119,8 +119,8 @@ model ChatRoom {
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
   messages   Message[]
-  post       Post      @relation(fields: [postId], references: [id])
-  postId     Int
+  product_id Product   @relation(fields: [productId], references: [id])
+  productId  Int
 }
 
 model Message {
