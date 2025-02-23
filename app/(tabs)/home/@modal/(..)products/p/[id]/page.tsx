@@ -43,7 +43,7 @@ export default async function Modal({ params }: ProductDetailModalProps) {
             { id: session.id! },
           ],
         },
-        postId: Number(id),
+        productId: Number(id),
       },
       select: { id: true },
     });

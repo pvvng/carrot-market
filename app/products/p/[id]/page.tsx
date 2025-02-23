@@ -62,7 +62,7 @@ export default async function ProductDetail({
             { id: session.id! },
           ],
         },
-        postId: Number(id),
+        productId: Number(id),
       },
       select: { id: true },
     });
