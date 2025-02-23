@@ -24,6 +24,7 @@ async function getRoom(id: string) {
           price: true,
           sold_out: true,
           userId: true,
+          buyerId: true,
         },
       },
     },
@@ -41,6 +42,7 @@ export default async function ChatRoom({ params }: ChatRoomProps) {
   }
 
   const session = await getSession();
+  const roomUser = room.users;
   const isRoomUser = room.users.find((user) => user.id === session.id);
 
   if (!isRoomUser) {
@@ -68,6 +70,7 @@ export default async function ChatRoom({ params }: ChatRoomProps) {
   return (
     <ChatMessagesList
       product={product}
+      roomUser={roomUser}
       initialMessages={initialMessages}
       userId={session.id!}
       user={user}

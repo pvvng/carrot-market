@@ -34,7 +34,8 @@ model User {
   // 사용자 레코드가 수정된 시간을 속성에 넣기
   updated_at      DateTime      @updatedAt
   tokens          SMSToken[]
-  products        Product[]
+  products        Product[]     @relation("Seller_products") // 판매자의 제품
+  boughtProducts  Product[]     @relation("Buyer_products") // 구매자의 제품
   posts           Post[]
   comments        Comment[]
   likes           Like[]
@@ -71,8 +72,10 @@ model Product {
   sold_out    Boolean    @default(false) // 판매여부
   created_at  DateTime   @default(now())
   updated_at  DateTime   @updatedAt
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User       @relation("Seller_products", fields: [userId], references: [id], onDelete: Cascade)
+  buyerUser   User?      @relation("Buyer_products", fields: [buyerId], references: [id], onDelete: Cascade)
   userId      Int
+  buyerId     Int?
   Review      Review[]
   ChatRoom    ChatRoom[]
 }

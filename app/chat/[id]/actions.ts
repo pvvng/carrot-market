@@ -48,14 +48,18 @@ export async function markAsReadOneMessage(messageId: number, userId: number) {
 }
 
 /** 상품 판매 상태 변경 */
-export async function changeProductState(productId: number, sold_out: boolean) {
+export async function changeProductState(
+  productId: number,
+  buyerId: number,
+  sold_out: boolean
+) {
   if (typeof sold_out !== "boolean") {
     return;
   }
 
   await db.product.update({
     where: { id: productId },
-    data: { sold_out },
+    data: { sold_out, buyerId },
   });
 
   revalidateTag("#home");

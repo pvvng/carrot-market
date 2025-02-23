@@ -1,5 +1,6 @@
 "use client";
 
+import { ProductType } from "@/app/(tabs)/chat/page";
 import { changeProductState, saveMessage } from "@/app/chat/[id]/actions";
 import { InitialChatMessages } from "@/lib/data/messages";
 import { UserType } from "@/lib/data/user";
@@ -14,17 +15,11 @@ import { createClient, RealtimeChannel } from "@supabase/supabase-js";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
-interface Product {
-  id: number;
-  userId: number;
-  title: string;
-  price: number;
-  photo: string;
-  sold_out: boolean;
-}
-
 interface ChatMessageListProps {
-  product: Product;
+  product: ProductType;
+  roomUser: {
+    id: number;
+  }[];
   initialMessages: InitialChatMessages;
   userId: number;
   user: UserType;
@@ -37,6 +32,7 @@ export default function ChatMessagesList({
   userId,
   user,
   chatRoomId,
+  roomUser,
 }: ChatMessageListProps) {
   // 메시지 state
   const [messages, setMessages] = useState(initialMessages);
@@ -57,13 +53,13 @@ export default function ChatMessagesList({
   };
 
   const onPurchase = async () => {
-    const purchase = confirm("정말 구매하시겠습니까?");
+    const purchase = confirm(`${product.title} 제품을 구매하시겠습니까?`);
 
     if (!purchase) {
       return;
     }
 
-    changeProductState(product.id, true);
+    changeProductState(product.id, userId!, true);
 
     await sendMessage(
       `${user.username}님께서 ${product.title} 을 구매하였습니다.`
@@ -256,23 +252,6 @@ export default function ChatMessagesList({
           </div>
         </div>
       ))}
-      {modal && (
-        <div className="relative rounded-md p-3 flex flex-col gap-2 bg-neutral-200">
-          {userId !== product.userId && !product.sold_out && (
-            <form action={onPurchase}>
-              <button className="bg-orange-500 hover:bg-orange-300 transition-colors rounded-md font-semibold px-2 p-1">
-                구매하기
-              </button>
-            </form>
-          )}
-          <form>
-            <button className="bg-red-500 hover:bg-red-300 transition-colors rounded-md font-semibold px-2 p-1">
-              상대방 차단하기
-            </button>
-          </form>
-          <div className="absolute left-5 -bottom-2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-transparent border-t-neutral-200"></div>
-        </div>
-      )}
       <form className="flex relative items-center gap-2" onSubmit={onSubmit}>
         <span
           className="cursor-pointer hover:text-neutral-400 transition-colors"
@@ -298,6 +277,31 @@ export default function ChatMessagesList({
           <ArrowUpCircleIcon className="size-10 text-orange-500 transition-colors hover:text-orange-300" />
         </button>
       </form>
+      {modal && (
+        <div className="relative rounded-md p-3 flex flex-col gap-2 bg-neutral-200">
+          {product.buyerId &&
+            roomUser.find(({ id }) => id === product.buyerId) && (
+              <form>
+                <button className="bg-orange-500 hover:bg-orange-300 transition-colors rounded-md font-semibold px-2 p-1">
+                  리뷰 작성하기
+                </button>
+              </form>
+            )}
+          {userId !== product.userId && !product.sold_out && (
+            <form action={onPurchase}>
+              <button className="bg-orange-500 hover:bg-orange-300 transition-colors rounded-md font-semibold px-2 p-1">
+                구매하기
+              </button>
+            </form>
+          )}
+          <form>
+            <button className="bg-red-500 hover:bg-red-300 transition-colors rounded-md font-semibold px-2 p-1">
+              상대방 차단하기
+            </button>
+          </form>
+          <div className="absolute left-3 bottom-full w-0 h-0 border-l-8 border-r-8 border-b-8 border-transparent border-b-neutral-200" />
+        </div>
+      )}
     </div>
   );
 }

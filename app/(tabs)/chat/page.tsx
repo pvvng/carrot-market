@@ -5,6 +5,18 @@ import { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
+export type ChatsType = Prisma.PromiseReturnType<typeof getChats>;
+
+export interface ProductType {
+  id: number;
+  userId: number;
+  title: string;
+  price: number;
+  photo: string;
+  sold_out: boolean;
+  buyerId: number | null;
+}
+
 async function getChats(userId: number) {
   const chats = await db.chatRoom.findMany({
     where: { users: { some: { id: userId } } },
@@ -30,8 +42,6 @@ async function getChats(userId: number) {
 
   return chats;
 }
-
-export type ChatsType = Prisma.PromiseReturnType<typeof getChats>;
 
 export default async function Chat() {
   const session = await getSession();
