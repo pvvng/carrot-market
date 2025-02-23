@@ -48,8 +48,6 @@ export default function ChatsList({ initialChats, userId }: ChatsListProps) {
     };
   }, []);
 
-  console.log(chats);
-
   return chats.map((room) => {
     // 대화중인 사용자
     const talkingUser = room.users.filter((user) => user.id !== userId)[0];

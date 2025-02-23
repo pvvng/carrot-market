@@ -23,6 +23,9 @@ async function getChats(userId: number) {
         },
       },
     },
+    orderBy: {
+      created_at: "desc", // 최근 메시지를 받은 채팅방이 먼저 오도록 정렬
+    },
   });
 
   return chats;
@@ -35,7 +38,7 @@ export default async function Chat() {
   const initialChats = await getChats(session.id!);
 
   return (
-    <div className="p-5 flex flex-col">
+    <div className="p-5 flex flex-col pb-24">
       <ChatsList initialChats={initialChats} userId={session.id!} />
     </div>
   );

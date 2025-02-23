@@ -52,6 +52,24 @@ export default function ChatMessagesList({
     messageRef.current?.scrollIntoView({ behavior: "auto" });
   };
 
+  const openModal = () => {
+    setModal((pre) => !pre);
+  };
+
+  const onPurchase = async () => {
+    const purchase = confirm("정말 구매하시겠습니까?");
+
+    if (!purchase) {
+      return;
+    }
+
+    changeProductState(product.id, true);
+
+    await sendMessage(
+      `${user.username}님께서 ${product.title} 을 구매하였습니다.`
+    );
+  };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -62,6 +80,14 @@ export default function ChatMessagesList({
       return;
     }
 
+    if (messageRef.current) {
+      messageRef.current.value = "";
+    }
+
+    await sendMessage(message);
+  };
+
+  const sendMessage = async (message: string) => {
     // ui 표시용 가짜 메시지
     const tempMessage = {
       id: Date.now(),
@@ -85,10 +111,6 @@ export default function ChatMessagesList({
       event: "message",
       payload: { ...tempMessage, chatRoomId },
     });
-
-    if (messageRef.current) {
-      messageRef.current.value = "";
-    }
 
     // db에 저장
     await saveMessage(message, chatRoomId);
@@ -235,11 +257,11 @@ export default function ChatMessagesList({
         </div>
       ))}
       {modal && (
-        <div className="bg-neutral-100 p-5 rounded-md flex items-center justify-around">
-          {userId == product.userId && !product.sold_out && (
-            <form action={() => changeProductState(product.id, true)}>
+        <div className="relative rounded-md p-3 flex flex-col gap-2 bg-neutral-200">
+          {userId !== product.userId && !product.sold_out && (
+            <form action={onPurchase}>
               <button className="bg-orange-500 hover:bg-orange-300 transition-colors rounded-md font-semibold px-2 p-1">
-                판매완료
+                구매하기
               </button>
             </form>
           )}
@@ -248,12 +270,13 @@ export default function ChatMessagesList({
               상대방 차단하기
             </button>
           </form>
+          <div className="absolute left-5 -bottom-2 w-0 h-0 border-l-8 border-r-8 border-t-8 border-transparent border-t-neutral-200"></div>
         </div>
       )}
       <form className="flex relative items-center gap-2" onSubmit={onSubmit}>
         <span
           className="cursor-pointer hover:text-neutral-400 transition-colors"
-          onClick={() => setModal((pre) => !pre)}
+          onClick={openModal}
         >
           {modal ? (
             <MinusCircleIcon className="size-10" />
