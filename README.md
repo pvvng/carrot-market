@@ -1314,3 +1314,90 @@ npm i server-only
 > 이미지 base 64 인코딩하는 곳
 >
 > https://www.base64-image.de
+
+### 21. Live Streaming with CloudFlare
+
+- **Create Live Input(get Stream Id, Stream Key)**
+
+> [공식문서](https://developers.cloudflare.com/stream/get-started/#step-1-create-a-live-input)
+
+```curl
+curl -X POST \
+-H "Authorization: Bearer <API_TOKEN>" \
+-D '{"meta": {"name":"test stream"},"recording": { "mode": "automatic" }}' \
+https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/stream/live_inputs
+```
+
+```json
+// response
+{
+  "uid": "f256e6ea9341d51eea64c9454659e576",
+  "rtmps": {
+    "url": "rtmps://live.cloudflare.com:443/live/",
+    "streamKey": "MTQ0MTcjM3MjI1NDE3ODIyNTI1MjYyMjE4NTI2ODI1NDcxMzUyMzcf256e6ea9351d51eea64c9454659e576"
+  },
+  "created": "2021-09-23T05:05:53.451415Z",
+  "modified": "2021-09-23T05:05:53.451415Z",
+  "meta": {
+    "name": "test stream"
+  },
+  "status": null,
+  "recording": {
+    "mode": "automatic",
+    "requireSignedURLs": false,
+    "allowedOrigins": null
+  }
+}
+```
+
+```tsx
+// use in actions
+const response = await fetch(
+  `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/stream/live_inputs`,
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.CLOUDFLARE_API_KEY}`,
+    },
+    body: JSON.stringify({
+      meta: { name: titleResult.data },
+      recording: { mode: "automatic" },
+    }),
+  }
+);
+
+const data = await response.json();
+
+// get userId
+const session = await getSession();
+
+// save stream id, stream key in db
+const stream = await db.liveStream.create({
+  data: {
+    title: titleResult.data,
+    stream_id: data.result.uid,
+    stream_key: data.result.rtmps.streamKey,
+    userId: session.id!,
+  },
+});
+```
+
+- **Play Live Streaming**
+
+> [공식문서](https://developers.cloudflare.com/stream/get-started/#step-3-play-the-live-stream-in-your-website-or-app)
+
+```jsx
+<iframe
+  src="https://customer-<CODE>.cloudflarestream.com/<VIDEO_UID>/iframe"
+  title="Example Stream video"
+  frameBorder="0"
+  allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+></iframe>
+```
+
+- **Code Challenge**
+
+1. 스트리밍 종료 처리하기 (종료 / 녹화된 영상 틀어주기)
+2. 실시간 댓글 기능 구현하기
+3. 스트리밍들의 썸네일 받아서 라이브 페이지 완성하기
