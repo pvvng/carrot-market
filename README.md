@@ -1396,8 +1396,14 @@ const stream = await db.liveStream.create({
 ></iframe>
 ```
 
-- **Code Challenge**
+- **Live Streaming Code Challenge**
 
 1. 스트리밍 종료 처리하기 (종료 / 녹화된 영상 틀어주기)
 2. 실시간 댓글 기능 구현하기
 3. 스트리밍들의 썸네일 받아서 라이브 페이지 완성하기
+
+- **Final Code Challenge**
+
+1. 프로필 페이지에 구매한 상품들, 판매한 상품들 목록 표시, 나에 대한 리뷰 표시
+2. 제품 판매 완료 버튼 만들기, 판매 완료 후 서로의 리뷰를 남기는 기능 만들기
+3. 프로필 수정, 프로필 열람 기능 만들기
