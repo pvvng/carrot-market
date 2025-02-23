@@ -48,6 +48,8 @@ export default function ChatsList({ initialChats, userId }: ChatsListProps) {
     };
   }, []);
 
+  console.log(chats);
+
   return chats.map((room) => {
     // 대화중인 사용자
     const talkingUser = room.users.filter((user) => user.id !== userId)[0];
@@ -80,9 +82,15 @@ export default function ChatsList({ initialChats, userId }: ChatsListProps) {
             <div className="flex items-center gap-1 *:text-neutral-200 *:text-sm">
               <p>{talkingUser.username}</p>
               <p>·</p>
-              <p>{formatToTimeAgo(lastMsg.created_at.toString())}</p>
+              {lastMsg ? (
+                <p>{formatToTimeAgo(lastMsg.created_at.toString())}</p>
+              ) : (
+                <p>0일 전</p>
+              )}
             </div>
-            <p className="truncate">{lastMsg.payload}</p>
+            <p className="truncate">
+              {lastMsg ? lastMsg.payload : "아직 메시지가 없습니다."}
+            </p>
           </div>
           {unReadMessages.length > 0 ? (
             <div className="size-5 bg-red-500 rounded-full flex justify-center items-center text-sm font-semibold">
