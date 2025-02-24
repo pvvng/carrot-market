@@ -4,6 +4,7 @@ import {
   ChatBubbleBottomCenterIcon,
   HandThumbUpIcon,
 } from "@heroicons/react/24/outline";
+import { PlusIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 
 async function getPosts() {
@@ -36,7 +37,7 @@ export default async function Life() {
   const posts = await getPosts();
 
   return (
-    <div className="p-5 flex flex-col">
+    <div className="p-5 flex flex-col mb-24">
       {posts.map((post) => (
         <Link
           key={post.id}
@@ -64,6 +65,13 @@ export default async function Life() {
           </div>
         </Link>
       ))}
+      <Link
+        href="/posts/add"
+        className="bg-orange-500 text-white flex items-center justify-center rounded-full size-16 
+        fixed bottom-24 right-8 transition-colors hover:bg-orange-400"
+      >
+        <PlusIcon className="size-10" />
+      </Link>
     </div>
   );
 }

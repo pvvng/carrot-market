@@ -41,7 +41,7 @@ export default function CommentForm({
     }
   );
 
-  const onClick = async () => {
+  const commentAction = async () => {
     const payload = inputRef.current?.value;
     if (!payload) return;
 
@@ -49,21 +49,14 @@ export default function CommentForm({
       reducerFn(payload);
     });
 
-    const error = await addComment(postId, payload);
-    if (error) {
-      setErrors([...error]);
-    }
-
     // 값 초기화
     if (inputRef.current) {
       inputRef.current.value = "";
     }
-  };
 
-  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault(); // 기본 엔터 제출 방지
-      onClick(); // 버튼 클릭 이벤트 실행
+    const error = await addComment(postId, payload);
+    if (error) {
+      setErrors([...error]);
     }
   };
 
@@ -116,7 +109,7 @@ export default function CommentForm({
         </div>
       ))}
 
-      <div className="flex gap-3 items-center pt-5">
+      <form action={commentAction} className="flex gap-3 items-center pt-5">
         <input
           ref={inputRef}
           className="w-3/5 bg-transparent rounded-md h-10 border-none transition
@@ -126,12 +119,9 @@ export default function CommentForm({
           placeholder="내용을 입력하세요."
           minLength={0}
           maxLength={100}
-          onKeyDown={onKeyDown}
         />
-        <button onClick={onClick} className="primary-btn h-10 w-2/5 px-4">
-          댓글 등록
-        </button>
-      </div>
+        <button className="primary-btn h-10 w-2/5 px-4">댓글 등록</button>
+      </form>
       <div className="mt-1 flex flex-col gap-2">
         {errors.map((error, i) => (
           <p key={error + i} className="text-red-500">

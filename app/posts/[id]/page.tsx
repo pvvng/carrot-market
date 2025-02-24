@@ -6,6 +6,7 @@ import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { formatToTimeAgo } from "@/lib/utils";
 import { EyeIcon } from "@heroicons/react/24/outline";
+import { UserIcon } from "@heroicons/react/24/solid";
 import { unstable_cache as nextCache, revalidateTag } from "next/cache";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -13,11 +14,6 @@ import { notFound } from "next/navigation";
 interface PostDetailPageProps {
   params: Promise<{ id: string }>;
 }
-
-const getCachedPost = nextCache(getPost, ["post-detatil"], {
-  tags: ["#post"],
-  revalidate: 60,
-});
 
 async function getPost(id: number) {
   try {
@@ -88,13 +84,20 @@ export default async function PostDetail({ params }: PostDetailPageProps) {
   return (
     <div className="p-5 text-white">
       <div className="flex items-center gap-2 mb-2">
-        <Image
-          src={post.user.avatar!}
-          alt={post.user.username}
-          width={28}
-          height={28}
-          className="size-7 rounded-full bg-white"
-        />
+        <div className="relative size-7 rounded-full overflow-hidden bg-neutral-200">
+          {post.user.avatar ? (
+            <Image
+              src={post.user.avatar}
+              alt={post.user.username}
+              fill
+              priority
+              sizes="28"
+              className="object-cover"
+            />
+          ) : (
+            <UserIcon />
+          )}
+        </div>
         <div>
           <span className="text-sm font-semibold">{post.user.username}</span>
           <div className="text-xs">
