@@ -25,6 +25,7 @@ async function getRoom(id: string) {
           sold_out: true,
           userId: true,
           buyerId: true,
+          review: { select: { id: true } },
         },
       },
     },

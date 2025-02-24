@@ -41,8 +41,8 @@ model User {
   likes           Like[]
   chat_rooms      ChatRoom[]
   messages        Message[]
-  MessageRead     MessageRead[]
-  LiveStream      LiveStream[]
+  messageRead     MessageRead[]
+  liveStream      LiveStream[]
   reviewsSend     Review[]      @relation("Review_sender")
   reviewsReceived Review[]      @relation("Review_receiver")
 }
@@ -76,8 +76,8 @@ model Product {
   buyerUser   User?      @relation("Buyer_products", fields: [buyerId], references: [id], onDelete: Cascade)
   userId      Int
   buyerId     Int?
-  Review      Review[]
-  ChatRoom    ChatRoom[]
+  review      Review[]
+  chatRoom    ChatRoom[]
 }
 
 model Post {

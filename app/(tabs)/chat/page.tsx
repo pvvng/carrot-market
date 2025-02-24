@@ -14,6 +14,9 @@ export interface ProductType {
   price: number;
   photo: string;
   sold_out: boolean;
+  review: {
+    id: number;
+  }[];
   buyerId: number | null;
 }
 

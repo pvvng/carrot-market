@@ -281,6 +281,7 @@ export default function ChatMessagesList({
       {modal && (
         <div className="relative rounded-md p-3 flex gap-2 bg-neutral-950">
           {product.buyerId &&
+            product.review.length === 0 &&
             roomUser.find(({ id }) => id === product.buyerId) && (
               <Link
                 href={`/products/p/${product.id}/review`}

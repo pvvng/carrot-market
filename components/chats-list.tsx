@@ -59,10 +59,14 @@ export default function ChatsList({ initialChats, userId }: ChatsListProps) {
     );
 
     return (
-      <a key={room.id} href={`/chat/${room.id}`} className="*:text-white">
-        <div className="border-b p-5 border-neutral-500 flex justify-between items-center gap-5">
+      <a
+        key={room.id}
+        href={`/chat/${room.id}`}
+        className="relative *:text-white"
+      >
+        <div className="border-b p-5 border-neutral-500 flex items-center gap-5">
           <div className="flex gap-2 items-center">
-            <div className="*:bg-white">
+            <div className="relative bg-neutral-200 rounded-full">
               {talkingUser.avatar ? (
                 <Image
                   src={talkingUser.avatar}
@@ -72,7 +76,15 @@ export default function ChatsList({ initialChats, userId }: ChatsListProps) {
                   className="size-8 rounded-full"
                 />
               ) : (
-                <UserIcon className="text-black size-8 rounded-full" />
+                <UserIcon className="size-8" />
+              )}
+              {unReadMessages.length > 0 && (
+                <div
+                  className="absolute size-5 top-5 right-5 bg-red-500 rounded-full 
+                  flex justify-center items-center text-sm font-semibold"
+                >
+                  {unReadMessages.length}
+                </div>
               )}
             </div>
           </div>
@@ -90,13 +102,6 @@ export default function ChatsList({ initialChats, userId }: ChatsListProps) {
               {lastMsg ? lastMsg.payload : "아직 메시지가 없습니다."}
             </p>
           </div>
-          {unReadMessages.length > 0 ? (
-            <div className="size-5 bg-red-500 rounded-full flex justify-center items-center text-sm font-semibold">
-              {unReadMessages.length}
-            </div>
-          ) : (
-            <div className="size-5" />
-          )}
         </div>
       </a>
     );
