@@ -4,6 +4,7 @@ import getSession from "@/lib/session";
 import { UserIcon } from "@heroicons/react/24/solid";
 import { revalidateTag } from "next/cache";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 async function getUser() {
@@ -57,11 +58,12 @@ export default async function Profile() {
           </div>
           <p className="font-semibold text-lg">{user.username}</p>
         </div>
-        <form className="w-full">
-          <button className="bg-neutral-700 w-full font-medium py-1 rounded-md hover:bg-neutral-600 transition-colors">
-            프로필 수정
-          </button>
-        </form>
+        <Link
+          href="/profile/edit"
+          className="bg-neutral-700 w-full font-medium py-1 rounded-md hover:bg-neutral-600 transition-colors text-white text-center"
+        >
+          프로필 수정
+        </Link>
       </div>
       <div className="bg-neutral-950 rounded-md flex flex-col p-5 gap-2">
         <p className="font-semibold text-sm p-1">나의 거래</p>

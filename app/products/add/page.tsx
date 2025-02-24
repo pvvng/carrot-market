@@ -4,10 +4,11 @@ import Button from "@/components/button";
 import Input from "@/components/input";
 import { PhotoIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
-import { getUploadUrl, uploadProduct } from "./actions";
+import { uploadProduct } from "./actions";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProductFormType, productSchema } from "./schema";
+import { getUploadUrl } from "@/lib/data/upload-url";
 
 const MAX_FILE_SIZE_MB = 1;
 
