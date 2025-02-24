@@ -158,6 +158,7 @@ model LiveStream {
   userId     Int
 }
 
+// product id에 buyer가 존재할 수 있으니까 /review/[productId] 로 보내서 거기서 리뷰 작성하도록 ㄱㄱㄱ
 model Review {
   rating     Int
   payload    String
