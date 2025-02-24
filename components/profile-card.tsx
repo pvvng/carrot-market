@@ -17,7 +17,7 @@ type CardIconType =
   | "purchase"
   | "post"
   | "receivedReview"
-  | "givenReview";
+  | "sendReview";
 
 interface Props {
   icon: CardIconType;
@@ -32,7 +32,7 @@ export default function ProfileCard({ icon, text, link }: Props) {
     sell: <ReceiptRefundIcon />,
     purchase: <ShoppingBagIcon />,
     post: <PencilSquareIcon />,
-    givenReview: <SparklesIcon />,
+    sendReview: <SparklesIcon />,
     receivedReview: <UsersIcon />,
   };
 

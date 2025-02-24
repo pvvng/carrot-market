@@ -43,8 +43,8 @@ model User {
   messages        Message[]
   MessageRead     MessageRead[]
   LiveStream      LiveStream[]
-  reviewsGiven    Review[]      @relation("Review_buyer")
-  reviewsReceived Review[]      @relation("Review_seller")
+  reviewsSend     Review[]      @relation("Review_sender")
+  reviewsReceived Review[]      @relation("Review_receiver")
 }
 
 model SMSToken {
@@ -165,10 +165,10 @@ model Review {
   payload    String?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  buyer      User     @relation("Review_buyer", fields: [buyerId], references: [id], onDelete: Cascade)
-  seller     User     @relation("Review_seller", fields: [sellerId], references: [id], onDelete: Cascade)
+  sender     User     @relation("Review_sender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("Review_receiver", fields: [receiverId], references: [id], onDelete: Cascade)
   product    Product  @relation(fields: [productId], references: [id])
-  buyerId    Int
-  sellerId   Int
+  senderId   Int
+  receiverId Int
   productId  Int
 }

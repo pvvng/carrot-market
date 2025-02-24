@@ -81,15 +81,29 @@ export default async function ProductReview({ params }: ProductReviewProps) {
       return;
     }
 
-    await db.review.create({
-      data: {
-        buyerId: product.buyerId!,
-        sellerId: product.userId,
-        productId: product.id,
-        rating: parseInt(result.data.rating),
-        payload: result.data.payload !== "" ? result.data.payload : null,
-      },
-    });
+    if (userPosition === "seller") {
+      await db.review.create({
+        data: {
+          senderId: userId,
+          receiverId: product.buyerId!,
+          productId: product.id,
+          rating: parseInt(result.data.rating),
+          payload: result.data.payload !== "" ? result.data.payload : null,
+        },
+      });
+    }
+
+    if (userPosition === "buyer") {
+      await db.review.create({
+        data: {
+          senderId: userId,
+          receiverId: product.userId,
+          productId: product.id,
+          rating: parseInt(result.data.rating),
+          payload: result.data.payload !== "" ? result.data.payload : null,
+        },
+      });
+    }
 
     return redirect("/profile");
   };
@@ -129,7 +143,7 @@ export default async function ProductReview({ params }: ProductReviewProps) {
             <Input
               type="radio"
               name="rating"
-              value="-1"
+              value="1"
               className="hidden"
               required
               defaultChecked
