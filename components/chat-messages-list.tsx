@@ -13,6 +13,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { createClient, RealtimeChannel } from "@supabase/supabase-js";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 interface ChatMessageListProps {
@@ -278,28 +279,29 @@ export default function ChatMessagesList({
         </button>
       </form>
       {modal && (
-        <div className="relative rounded-md p-3 flex flex-col gap-2 bg-neutral-200">
+        <div className="relative rounded-md p-3 flex gap-2 bg-neutral-950">
           {product.buyerId &&
             roomUser.find(({ id }) => id === product.buyerId) && (
-              <form>
-                <button className="bg-orange-500 hover:bg-orange-300 transition-colors rounded-md font-semibold px-2 p-1">
-                  리뷰 작성하기
-                </button>
-              </form>
+              <Link
+                href={`/products/p/${product.id}/review`}
+                className="w-full bg-orange-500 hover:bg-orange-400 transition-colors rounded-md font-semibold px-2 p-1 text-white text-center"
+              >
+                리뷰 작성하기
+              </Link>
             )}
           {userId !== product.userId && !product.sold_out && (
-            <form action={onPurchase}>
-              <button className="bg-orange-500 hover:bg-orange-300 transition-colors rounded-md font-semibold px-2 p-1">
+            <form className="w-full" action={onPurchase}>
+              <button className="w-full bg-orange-500 hover:bg-orange-400 transition-colors rounded-md font-semibold px-2 p-1">
                 구매하기
               </button>
             </form>
           )}
-          <form>
-            <button className="bg-red-500 hover:bg-red-300 transition-colors rounded-md font-semibold px-2 p-1">
+          <form className="w-full">
+            <button className="w-full bg-red-500 hover:bg-red-400 transition-colors rounded-md font-semibold px-2 p-1">
               상대방 차단하기
             </button>
           </form>
-          <div className="absolute left-3 bottom-full w-0 h-0 border-l-8 border-r-8 border-b-8 border-transparent border-b-neutral-200" />
+          <div className="absolute left-3 bottom-full w-0 h-0 border-l-8 border-r-8 border-b-8 border-transparent border-b-neutral-950" />
         </div>
       )}
     </div>

@@ -160,8 +160,9 @@ model LiveStream {
 
 // product id에 buyer가 존재할 수 있으니까 /review/[productId] 로 보내서 거기서 리뷰 작성하도록 ㄱㄱㄱ
 model Review {
+  id         Int      @id @default(autoincrement())
   rating     Int
-  payload    String
+  payload    String?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   buyer      User     @relation("Review_buyer", fields: [buyerId], references: [id], onDelete: Cascade)
@@ -170,6 +171,4 @@ model Review {
   buyerId    Int
   sellerId   Int
   productId  Int
-
-  @@id([buyerId, sellerId, productId]) // 복합 키 설정
 }
