@@ -63,5 +63,6 @@ export async function changeProductState(
 
   revalidateTag("#home");
   revalidateTag("#selling-products");
+  revalidateTag("#purchased-products");
   revalidatePath(`/products/p/${productId}`);
 }

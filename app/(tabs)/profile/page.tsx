@@ -66,7 +66,7 @@ export default async function Profile() {
       <div className="bg-neutral-950 rounded-md flex flex-col p-5 gap-2">
         <p className="font-semibold text-sm p-1">나의 거래</p>
         <ProfileCard icon="sell" text="판매내역" link="/profile/sell" />
-        <ProfileCard icon="purchase" text="구매내역" link="#" />
+        <ProfileCard icon="purchase" text="구매내역" link="/profile/purchase" />
         <ProfileCard icon="givenReview" text="받은 매너 평가" link="#" />
         <ProfileCard icon="receivedReview" text="보낸 매너 평가" link="#" />
       </div>

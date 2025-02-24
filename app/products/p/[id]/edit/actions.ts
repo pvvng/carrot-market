@@ -81,6 +81,7 @@ export async function editProduct<T>(_: T, formData: FormData) {
   // revalidateTag는 서버에서만 동작함
   revalidateTag("#home");
   revalidateTag("#selling-products");
+  revalidateTag("#purchased-products");
 
   revalidatePath(`/products/p/${product.id}`);
 
