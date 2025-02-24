@@ -82,7 +82,7 @@ export default async function Profile() {
         <p className="font-semibold text-sm p-1">나의 활동</p>
         <ProfileCard icon="heart" text="관심목록" link="#" />
         <ProfileCard icon="recent" text="최근 본 게시물" link="#" />
-        <ProfileCard icon="post" text="내 동네생활 글" link="#" />
+        <ProfileCard icon="post" text="내 동네생활 글" link="/profile/posts" />
       </div>
       <form action={logout} className="w-full">
         <button className="bg-red-500 w-full font-medium py-1 rounded-md hover:bg-red-400 transition-colors">

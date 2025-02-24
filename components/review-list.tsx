@@ -30,9 +30,9 @@ export default function ReviewList({ reviews }: { reviews: Reviews }) {
   };
 
   return (
-    <div className="p-5 flex flex-col gap-3">
+    <div className="mb-20 p-5 flex flex-col gap-3">
       <div
-        className="bg-black w-full grid grid-cols-2 text-center rounded-md cursor-pointer 
+        className="mb-5 bg-black w-full grid grid-cols-2 text-center rounded-md cursor-pointer 
     *:p-2 *:rounded-md *:transition-colors *:flex *:gap-2 *:items-center *:justify-center *:font-semibold"
       >
         <div
