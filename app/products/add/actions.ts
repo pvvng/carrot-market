@@ -46,6 +46,7 @@ export async function uploadProduct(formData: FormData) {
 
   // revalidateTag는 서버에서만 동작함
   revalidateTag("#home");
+  revalidateTag("#selling-products");
 
   return redirect(`/products/p/${product.id}`);
 }

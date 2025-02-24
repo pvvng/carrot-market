@@ -5,7 +5,6 @@ import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { Prisma } from "@prisma/client";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { redirect } from "next/navigation";
 
 /** 메시지 db에 저장하기 */
 export async function saveMessage(payload: string, chatRoomId: string) {
@@ -63,5 +62,6 @@ export async function changeProductState(
   });
 
   revalidateTag("#home");
+  revalidateTag("#selling-products");
   revalidatePath(`/products/p/${productId}`);
 }

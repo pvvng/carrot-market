@@ -1,4 +1,4 @@
-import ProfileCard from "@/components/transition-card";
+import ProfileCard from "@/components/profile-card";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { UserIcon } from "@heroicons/react/24/solid";
@@ -7,19 +7,11 @@ import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 
 async function getUser() {
-  await new Promise((res) => setTimeout(res, 3000));
   const session = await getSession();
   // 쿠키 세션을 통해서 user id 알아내기
   if (session.id) {
     const user = await db.user.findUnique({
       where: { id: session.id },
-      include: {
-        products: true,
-        boughtProducts: true,
-        reviewsReceived: true,
-        reviewsGiven: true,
-        posts: true,
-      },
     });
 
     if (user) {
@@ -73,7 +65,7 @@ export default async function Profile() {
       </div>
       <div className="bg-neutral-950 rounded-md flex flex-col p-5 gap-2">
         <p className="font-semibold text-sm p-1">나의 거래</p>
-        <ProfileCard icon="sell" text="판매내역" link="#" />
+        <ProfileCard icon="sell" text="판매내역" link="/profile/sell" />
         <ProfileCard icon="purchase" text="구매내역" link="#" />
         <ProfileCard icon="givenReview" text="받은 매너 평가" link="#" />
         <ProfileCard icon="receivedReview" text="보낸 매너 평가" link="#" />

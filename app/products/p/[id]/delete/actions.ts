@@ -11,4 +11,5 @@ export async function deleteProduct(id: number) {
 
   // home revalidate
   revalidateTag("#home");
+  revalidateTag("#selling-products");
 }

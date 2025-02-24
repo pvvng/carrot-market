@@ -9,7 +9,6 @@ interface ListProductProps {
   photo: string;
   id: number;
   sold_out: boolean;
-  hideSoldOutProducts: boolean;
 }
 export default function ListProduct({
   title,
@@ -18,12 +17,7 @@ export default function ListProduct({
   photo,
   id,
   sold_out,
-  hideSoldOutProducts,
 }: ListProductProps) {
-  if (hideSoldOutProducts && sold_out) {
-    return null;
-  }
-
   return (
     <Link
       href={`/products/p/${id}`}
