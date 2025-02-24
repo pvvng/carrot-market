@@ -1,3 +1,5 @@
+"use server";
+
 /** cloudflare에서 1회용 upload url 받는 action */
 export async function getUploadUrl() {
   const response = await fetch(
