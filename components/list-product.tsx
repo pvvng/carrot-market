@@ -1,4 +1,5 @@
 import { formatToTimeAgo, formatToWon } from "@/lib/utils";
+import { HeartIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -9,6 +10,7 @@ interface ListProductProps {
   photo: string;
   id: number;
   sold_out: boolean;
+  _count: { heart: number };
 }
 export default function ListProduct({
   title,
@@ -17,7 +19,10 @@ export default function ListProduct({
   photo,
   id,
   sold_out,
+  _count,
 }: ListProductProps) {
+  const { heart: heartCount } = _count;
+
   return (
     <Link
       href={`/products/p/${id}`}
@@ -41,12 +46,16 @@ export default function ListProduct({
           className={`object-cover ${sold_out && "opacity-50"}`}
         />
       </div>
-      <div className="flex flex-col gap-2 *:text-white">
+      <div className="flex flex-col gap-1 *:text-white">
         <span className="text-lg">{title}</span>
-        <span className="text-sm text-neutral-500">
+        <span className="text-lg font-semibold">{formatToWon(price)}원</span>
+        <span className="text-sm text-neutral-600">
           {formatToTimeAgo(created_at.toString())}
         </span>
-        <span className="text-lg font-semibold">{formatToWon(price)}원</span>
+        <span className="flex gap-1 items-center justify-start *:text-neutral-400">
+          <HeartIcon className="size-3" />
+          <span className="text-sm">{heartCount}</span>
+        </span>
       </div>
     </Link>
   );

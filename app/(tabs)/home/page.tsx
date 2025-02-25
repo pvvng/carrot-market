@@ -29,6 +29,9 @@ async function getInitialProducts() {
       photo: true,
       id: true,
       sold_out: true,
+      _count: {
+        select: { heart: true },
+      },
     },
     // 가져올 페이지/상품 개수
     take: PAGE_DATA_COUNT,

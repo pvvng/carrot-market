@@ -13,6 +13,9 @@ export const likeProduct = async (productId: number) => {
     });
 
     revalidateTag(`#product-heart-status-${productId}`);
+    revalidateTag("#home");
+    revalidateTag("#selling-products");
+    revalidateTag("#purchased-products");
   } catch (e) {}
 };
 
@@ -27,5 +30,8 @@ export const dislikeProduct = async (productId: number) => {
     });
 
     revalidateTag(`#product-heart-status-${productId}`);
+    revalidateTag("#home");
+    revalidateTag("#selling-products");
+    revalidateTag("#purchased-products");
   } catch (e) {}
 };
