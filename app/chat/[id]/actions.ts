@@ -4,7 +4,7 @@ import { unReadMessagesType } from "@/lib/data/un-read-messages";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { Prisma } from "@prisma/client";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 /** 메시지 db에 저장하기 */
 export async function saveMessage(payload: string, chatRoomId: string) {
@@ -19,8 +19,6 @@ export async function saveMessage(payload: string, chatRoomId: string) {
     },
     select: { id: true },
   });
-
-  revalidateTag("chat-room-list");
 
   return message;
 }
@@ -46,4 +44,25 @@ export async function markAsReadOneMessage(messageId: number, userId: number) {
   await db.messageRead.create({
     data: { messageId, userId },
   });
+}
+
+/** 상품 판매 상태 변경 */
+export async function changeProductState(
+  productId: number,
+  buyerId: number,
+  sold_out: boolean
+) {
+  if (typeof sold_out !== "boolean") {
+    return;
+  }
+
+  await db.product.update({
+    where: { id: productId },
+    data: { sold_out, buyerId },
+  });
+
+  revalidateTag("#home");
+  revalidateTag("#selling-products");
+  revalidateTag("#purchased-products");
+  revalidatePath(`/products/p/${productId}`);
 }

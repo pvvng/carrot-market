@@ -56,7 +56,7 @@ export default function TabBar() {
         <span>쇼핑</span>
       </Link>
       <Link href="/profile" className="flex flex-col items-center gap-1">
-        {pathname === "/profile" ? (
+        {pathname.includes("/profile") ? (
           <SolidUserIcon className="w-7 h-7" />
         ) : (
           <OutlineUserIcon className="w-7 h-7" />

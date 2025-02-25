@@ -2,14 +2,23 @@ import ChatsList from "@/components/chats-list";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { Prisma } from "@prisma/client";
-import { unstable_cache as nextCache } from "next/cache";
 
 export const dynamic = "force-dynamic";
 
-const getCachedChats = nextCache(getChats, ["chat-room-list"], {
-  tags: ["chat-room-list"],
-  revalidate: 60,
-});
+export type ChatsType = Prisma.PromiseReturnType<typeof getChats>;
+
+export interface ProductType {
+  id: number;
+  userId: number;
+  title: string;
+  price: number;
+  photo: string;
+  sold_out: boolean;
+  review: {
+    id: number;
+  }[];
+  buyerId: number | null;
+}
 
 async function getChats(userId: number) {
   const chats = await db.chatRoom.findMany({
@@ -29,19 +38,20 @@ async function getChats(userId: number) {
         },
       },
     },
+    orderBy: {
+      created_at: "desc", // 최근 메시지를 받은 채팅방이 먼저 오도록 정렬
+    },
   });
 
   return chats;
 }
 
-export type ChatsType = Prisma.PromiseReturnType<typeof getChats>;
-
 export default async function Chat() {
   const session = await getSession();
-  const initialChats = await getCachedChats(session.id!);
+  const initialChats = await getChats(session.id!);
 
   return (
-    <div className="p-5 flex flex-col">
+    <div className="p-5 flex flex-col pb-24">
       <ChatsList initialChats={initialChats} userId={session.id!} />
     </div>
   );

@@ -1,5 +1,10 @@
+import ProfileCard from "@/components/profile-card";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
+import { UserIcon } from "@heroicons/react/24/solid";
+import { revalidateTag } from "next/cache";
+import Image from "next/image";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 async function getUser() {
@@ -22,24 +27,69 @@ async function getUser() {
 }
 
 export default async function Profile() {
-  // get session(cookie)
   const user = await getUser();
 
-  // inline server action
   const logout = async () => {
     "use server";
     const session = await getSession();
     // 세션 쿠키 삭제
     await session.destroy();
-
+    revalidateTag("#user");
     redirect("/");
   };
 
   return (
-    <div>
-      <h1>welcome {user.username}</h1>
-      <form action={logout}>
-        <button>log out</button>
+    <div className="p-5 flex flex-col gap-4 mb-24">
+      <div className="bg-neutral-950 rounded-md flex flex-col gap-5 justify-center items-start p-5">
+        <div className="flex items-center gap-3">
+          <div className="size-14 rounded-full overflow-hidden bg-neutral-200 relative">
+            {user.avatar ? (
+              <Image
+                src={user.avatar}
+                alt={user.username}
+                fill
+                sizes="56"
+                priority
+                className="object-cover"
+              />
+            ) : (
+              <UserIcon />
+            )}
+          </div>
+          <p className="font-semibold text-lg">{user.username}</p>
+        </div>
+        <Link
+          href="/profile/edit"
+          className="bg-neutral-700 w-full font-medium py-1 rounded-md hover:bg-neutral-600 transition-colors text-white text-center"
+        >
+          프로필 수정
+        </Link>
+      </div>
+      <div className="bg-neutral-950 rounded-md flex flex-col p-5 gap-2">
+        <p className="font-semibold text-sm p-1">나의 거래</p>
+        <ProfileCard icon="sell" text="판매내역" link="/profile/sell" />
+        <ProfileCard icon="purchase" text="구매내역" link="/profile/purchase" />
+        <ProfileCard
+          icon="receivedReview"
+          text="받은 매너 평가"
+          link="/profile/review/receive"
+        />
+        <ProfileCard
+          icon="sendReview"
+          text="보낸 매너 평가"
+          link="/profile/review/send"
+        />
+      </div>
+      <div className="bg-neutral-950 rounded-md flex flex-col p-5 gap-2">
+        <p className="font-semibold text-sm p-1">나의 활동</p>
+        <ProfileCard icon="heart" text="관심목록" link="/profile/hearts" />
+        <ProfileCard icon="recent" text="최근 본 상품" link="/profile/recent" />
+        <ProfileCard icon="post" text="내 동네생활 글" link="/profile/posts" />
+      </div>
+      <form action={logout} className="w-full">
+        <button className="bg-red-500 w-full font-medium py-1 rounded-md hover:bg-red-400 transition-colors">
+          로그아웃
+        </button>
       </form>
     </div>
   );

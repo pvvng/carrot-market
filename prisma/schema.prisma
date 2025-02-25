@@ -21,27 +21,32 @@ datasource db {
 model User {
   // @default(autoincrement()) -> 사용자 id 자동으로 증가시키기
   // 최초 사용자 id = 1
-  id          Int           @id @default(autoincrement())
-  username    String        @unique
+  id              Int           @id @default(autoincrement())
+  username        String        @unique
   // 전화번호, 소셜 로그인 한 유저의 경우에는 email, pw가 정의되지 않을 수 있으므로 ? 사용
-  email       String?       @unique
-  password    String?
-  phone       String?       @unique
-  github_id   String?       @unique
-  avatar      String?
+  email           String?       @unique
+  password        String?
+  phone           String?       @unique
+  github_id       String?       @unique
+  avatar          String?
   // now() -> 사용자가 생성되는 시간 반환 함수
-  created_at  DateTime      @default(now())
+  created_at      DateTime      @default(now())
   // 사용자 레코드가 수정된 시간을 속성에 넣기
-  updated_at  DateTime      @updatedAt
-  tokens      SMSToken[]
-  products    Product[]
-  posts       Post[]
-  comments    Comment[]
-  likes       Like[]
-  chat_rooms  ChatRoom[]
-  messages    Message[]
-  MessageRead MessageRead[]
-  LiveStream  LiveStream[]
+  updated_at      DateTime      @updatedAt
+  tokens          SMSToken[]
+  products        Product[]     @relation("Seller_products") // 판매자의 제품
+  boughtProducts  Product[]     @relation("Buyer_products") // 구매자의 제품
+  posts           Post[]
+  comments        Comment[]
+  likes           Like[]
+  chat_rooms      ChatRoom[]
+  messages        Message[]
+  messageRead     MessageRead[]
+  liveStream      LiveStream[]
+  reviewsSend     Review[]      @relation("Review_sender")
+  reviewsReceived Review[]      @relation("Review_receiver")
+  heart           Heart[]
+  Recent          Recent[]
 }
 
 model SMSToken {
@@ -61,15 +66,22 @@ model SMSToken {
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   title       String
   price       Float
   description String
   photo       String
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sold_out    Boolean    @default(false) // 판매여부
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  user        User       @relation("Seller_products", fields: [userId], references: [id], onDelete: Cascade)
+  buyerUser   User?      @relation("Buyer_products", fields: [buyerId], references: [id], onDelete: Cascade)
   userId      Int
+  buyerId     Int?
+  review      Review[]
+  chatRoom    ChatRoom[]
+  heart       Heart[]
+  Recent      Recent[]
 }
 
 model Post {
@@ -108,12 +120,25 @@ model Like {
   @@id(name: "id", [userId, postId])
 }
 
+model Heart {
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id])
+  userId     Int
+  productId  Int
+
+  @@id(name: "id", [userId, productId])
+}
+
 model ChatRoom {
   id         String    @id @default(cuid())
   users      User[]
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
   messages   Message[]
+  product    Product   @relation(fields: [productId], references: [id])
+  productId  Int
 }
 
 model Message {
@@ -121,8 +146,8 @@ model Message {
   payload    String
   created_at DateTime      @default(now())
   updated_at DateTime      @updatedAt
-  room       ChatRoom      @relation(fields: [chatRoomId], references: [id])
-  user       User          @relation(fields: [userId], references: [id])
+  room       ChatRoom      @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   chatRoomId String
   userId     Int
   read       MessageRead[]
@@ -131,8 +156,8 @@ model Message {
 model MessageRead {
   id        Int      @id @default(autoincrement())
   read_at   DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
-  message   Message  @relation(fields: [messageId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
   messageId Int
   userId    Int
 }
@@ -144,6 +169,32 @@ model LiveStream {
   stream_id  String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  user       User     @relation(fields: [userId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     Int
+}
+
+// product id에 buyer가 존재할 수 있으니까 /review/[productId] 로 보내서 거기서 리뷰 작성하도록 ㄱㄱㄱ
+model Review {
+  id         Int      @id @default(autoincrement())
+  rating     Int
+  payload    String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  sender     User     @relation("Review_sender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("Review_receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id])
+  senderId   Int
+  receiverId Int
+  productId  Int
+}
+
+model Recent {
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  product    Product  @relation(fields: [productId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+  productId  Int
+  userId     Int
+
+  @@id(name: "id", [userId, productId])
 }

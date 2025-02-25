@@ -21,7 +21,6 @@ const getCachedProducts = nextCache(getInitialProducts, ["home-products"], {
 });
 
 async function getInitialProducts() {
-  console.log("home hit");
   const products = await db.product.findMany({
     select: {
       title: true,
@@ -29,13 +28,18 @@ async function getInitialProducts() {
       created_at: true,
       photo: true,
       id: true,
+      sold_out: true,
+      _count: {
+        select: { heart: true },
+      },
     },
     // 가져올 페이지/상품 개수
     take: PAGE_DATA_COUNT,
     // 최신순 정렬(내림차순)
-    orderBy: {
-      created_at: "desc",
-    },
+    orderBy: [
+      { sold_out: "asc" }, // false(0) → true(1) 순서로 정렬
+      { created_at: "desc" }, // 최신순 정렬
+    ],
   });
 
   return products;
@@ -49,6 +53,7 @@ export type initialProducts = Prisma.PromiseReturnType<
 // 페이지 실행시에는 최초 제품 페이지만 불러오기
 export default async function Products() {
   const initialProducts = await getCachedProducts();
+
   return (
     <div>
       <ProductList initialProducts={initialProducts} />

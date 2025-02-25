@@ -26,6 +26,14 @@ const productSchema = z.object({
     required_error: "가격 항목은 필수입니다.",
     invalid_type_error: "잘못된 타입입니다.",
   }),
+  sold_out: z
+    .enum(["0", "1"], {
+      errorMap: () => ({
+        message:
+          "판매 상태는 0(판매 중) 또는 1(판매 완료)만 입력할 수 있습니다.",
+      }),
+    })
+    .transform((val) => val === "1"),
 });
 
 export async function editProduct<T>(_: T, formData: FormData) {
@@ -35,6 +43,7 @@ export async function editProduct<T>(_: T, formData: FormData) {
     title: formData.get("title"),
     price: formData.get("price"),
     description: formData.get("description"),
+    sold_out: formData.get("sold_out"),
   };
 
   const result = productSchema.safeParse(data);
@@ -59,6 +68,7 @@ export async function editProduct<T>(_: T, formData: FormData) {
       photo: result.data.photo,
       description: result.data.description,
       price: result.data.price,
+      sold_out: result.data.sold_out,
       user: {
         connect: {
           id: session.id,
@@ -70,24 +80,10 @@ export async function editProduct<T>(_: T, formData: FormData) {
 
   // revalidateTag는 서버에서만 동작함
   revalidateTag("#home");
+  revalidateTag("#selling-products");
+  revalidateTag("#purchased-products");
+
   revalidatePath(`/products/p/${product.id}`);
 
   return redirect(`/products/p/${product.id}`);
-}
-
-/** cloudflare에서 1회용 upload url 받는 action */
-export async function getUploadUrl() {
-  const response = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v2/direct_upload`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.CLOUDFLARE_API_KEY}`,
-      },
-    }
-  );
-
-  const data = await response.json();
-
-  return data;
 }

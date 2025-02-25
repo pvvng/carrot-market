@@ -46,23 +46,8 @@ export async function uploadProduct(formData: FormData) {
 
   // revalidateTag는 서버에서만 동작함
   revalidateTag("#home");
+  revalidateTag("#selling-products");
+  revalidateTag("#purchased-products");
 
   return redirect(`/products/p/${product.id}`);
-}
-
-/** cloudflare에서 1회용 upload url 받는 action */
-export async function getUploadUrl() {
-  const response = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v2/direct_upload`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.CLOUDFLARE_API_KEY}`,
-      },
-    }
-  );
-
-  const data = await response.json();
-
-  return data;
 }

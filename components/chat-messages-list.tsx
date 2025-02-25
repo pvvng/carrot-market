@@ -1,15 +1,26 @@
 "use client";
 
-import { saveMessage } from "@/app/chat/[id]/actions";
+import { ProductType } from "@/app/(tabs)/chat/page";
+import { changeProductState, saveMessage } from "@/app/chat/[id]/actions";
 import { InitialChatMessages } from "@/lib/data/messages";
 import { UserType } from "@/lib/data/user";
-import { formatToTimeAgo } from "@/lib/utils";
-import { ArrowUpCircleIcon, UserIcon } from "@heroicons/react/24/solid";
+import { formatToTimeAgo, formatToWon } from "@/lib/utils";
+import { PlusCircleIcon } from "@heroicons/react/16/solid";
+import {
+  ArrowUpCircleIcon,
+  MinusCircleIcon,
+  UserIcon,
+} from "@heroicons/react/24/solid";
 import { createClient, RealtimeChannel } from "@supabase/supabase-js";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 interface ChatMessageListProps {
+  product: ProductType;
+  roomUser: {
+    id: number;
+  }[];
   initialMessages: InitialChatMessages;
   userId: number;
   user: UserType;
@@ -17,12 +28,16 @@ interface ChatMessageListProps {
 }
 
 export default function ChatMessagesList({
+  product,
   initialMessages,
   userId,
   user,
   chatRoomId,
+  roomUser,
 }: ChatMessageListProps) {
+  // 메시지 state
   const [messages, setMessages] = useState(initialMessages);
+  const [modal, setModal] = useState(false);
   // 메시지 Input ref
   const messageRef = useRef<HTMLInputElement>(null);
   // 온라인인 유저 저장하는 ref
@@ -32,6 +47,24 @@ export default function ChatMessagesList({
 
   const scrollToMessageInput = () => {
     messageRef.current?.scrollIntoView({ behavior: "auto" });
+  };
+
+  const openModal = () => {
+    setModal((pre) => !pre);
+  };
+
+  const onPurchase = async () => {
+    const purchase = confirm(`${product.title} 제품을 구매하시겠습니까?`);
+
+    if (!purchase) {
+      return;
+    }
+
+    changeProductState(product.id, userId!, true);
+
+    await sendMessage(
+      `${user.username}님께서 ${product.title} 을 구매하였습니다.`
+    );
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -44,6 +77,14 @@ export default function ChatMessagesList({
       return;
     }
 
+    if (messageRef.current) {
+      messageRef.current.value = "";
+    }
+
+    await sendMessage(message);
+  };
+
+  const sendMessage = async (message: string) => {
     // ui 표시용 가짜 메시지
     const tempMessage = {
       id: Date.now(),
@@ -67,10 +108,6 @@ export default function ChatMessagesList({
       event: "message",
       payload: { ...tempMessage, chatRoomId },
     });
-
-    if (messageRef.current) {
-      messageRef.current.value = "";
-    }
 
     // db에 저장
     await saveMessage(message, chatRoomId);
@@ -148,6 +185,32 @@ export default function ChatMessagesList({
 
   return (
     <div className="p-5 flex flex-col gap-5 min-h-screen justify-end">
+      <div className="flex flex-col gap-5">
+        <div className="aspect-square relative rounded-md overflow-hidden">
+          {product.sold_out && (
+            <div className="absolute inset-0 flex justify-center items-center font-semibold text-xl">
+              판매 완료된 상품입니다.
+            </div>
+          )}
+          <Image
+            src={`${product.photo}/public`}
+            alt={product.title}
+            fill
+            priority
+            className={`object-cover ${product.sold_out && "opacity-50"}`}
+          />
+        </div>
+        <div className="flex gap-2 justify-around items-center *:font-semibold pb-5 border-b-2 border-neutral-600">
+          <span>{product.title}</span>
+          <span>{formatToWon(product.price)} 원</span>
+          <span className="text-orange-500">
+            {product.sold_out ? "판매 완료" : "판매 중"}
+          </span>
+        </div>
+      </div>
+      {messages.length === 0 && (
+        <div className="py-8 text-center">채팅을 시작해보세요!</div>
+      )}
       {messages.map((msg) => (
         <div
           key={msg.id}
@@ -179,20 +242,28 @@ export default function ChatMessagesList({
               {msg.payload}
             </div>
             <div className="flex justify-between gap-2 items-center *:text-sm">
-              {msg.userId === userId && (
-                <span>
-                  {msg.read.filter((v) => v.userId !== userId).length === 0
-                    ? "안 "
-                    : ""}
-                  읽음
-                </span>
-              )}
+              {msg.userId === userId &&
+                msg.read.filter((v) => v.userId !== userId).length === 0 && (
+                  <span className="text-orange-500 font-semibold">
+                    읽지 않음
+                  </span>
+                )}
               <span>{formatToTimeAgo(msg.created_at.toString())}</span>
             </div>
           </div>
         </div>
       ))}
-      <form className="flex relative" onSubmit={onSubmit}>
+      <form className="flex relative items-center gap-2" onSubmit={onSubmit}>
+        <span
+          className="cursor-pointer hover:text-neutral-400 transition-colors"
+          onClick={openModal}
+        >
+          {modal ? (
+            <MinusCircleIcon className="size-10" />
+          ) : (
+            <PlusCircleIcon className="size-10" />
+          )}
+        </span>
         <input
           ref={messageRef}
           required
@@ -207,6 +278,33 @@ export default function ChatMessagesList({
           <ArrowUpCircleIcon className="size-10 text-orange-500 transition-colors hover:text-orange-300" />
         </button>
       </form>
+      {modal && (
+        <div className="relative rounded-md p-3 flex gap-2 bg-neutral-950">
+          {product.buyerId &&
+            product.review.length === 0 &&
+            roomUser.find(({ id }) => id === product.buyerId) && (
+              <Link
+                href={`/products/p/${product.id}/review`}
+                className="w-full bg-orange-500 hover:bg-orange-400 transition-colors rounded-md font-semibold px-2 p-1 text-white text-center"
+              >
+                리뷰 작성하기
+              </Link>
+            )}
+          {userId !== product.userId && !product.sold_out && (
+            <form className="w-full" action={onPurchase}>
+              <button className="w-full bg-orange-500 hover:bg-orange-400 transition-colors rounded-md font-semibold px-2 p-1">
+                구매하기
+              </button>
+            </form>
+          )}
+          <form className="w-full">
+            <button className="w-full bg-red-500 hover:bg-red-400 transition-colors rounded-md font-semibold px-2 p-1">
+              상대방 차단하기
+            </button>
+          </form>
+          <div className="absolute left-3 bottom-full w-0 h-0 border-l-8 border-r-8 border-b-8 border-transparent border-b-neutral-950" />
+        </div>
+      )}
     </div>
   );
 }

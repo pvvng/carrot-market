@@ -4,11 +4,13 @@ import ModalScrollBreak from "@/components/product-modal";
 import { getCachedProduct } from "@/lib/data/product";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
-import { PhotoIcon } from "@heroicons/react/16/solid";
-import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { UserIcon } from "@heroicons/react/24/solid";
+import { getCachedHeartStatus } from "@/lib/data/product-heart-status";
+import HeartButton from "@/components/heart-button";
+import { cacheCreateRecent } from "@/lib/data/recent-product";
 
 interface ProductDetailModalProps {
   params: Promise<{ id: string }>;
@@ -29,6 +31,11 @@ export default async function Modal({ params }: ProductDetailModalProps) {
   }
 
   const session = await getSession();
+  const { isLiked, likeCount } = await getCachedHeartStatus(
+    product.id,
+    session.id!
+  );
+  await cacheCreateRecent(product.id, session.id!);
 
   const createChatRoom = async () => {
     "use server";
@@ -43,6 +50,7 @@ export default async function Modal({ params }: ProductDetailModalProps) {
             { id: session.id! },
           ],
         },
+        productId: Number(id),
       },
       select: { id: true },
     });
@@ -57,11 +65,18 @@ export default async function Modal({ params }: ProductDetailModalProps) {
       <CloseButton />
       <div className="bg-neutral-900 aspect-square w-full max-w-screen-sm rounded-md overflow-auto p-5 *:text-white">
         <div className="aspect-square relative overflow-hidden">
+          {product.sold_out && (
+            <div className="absolute inset-0 flex justify-center items-center font-semibold text-2xl text-white">
+              판매 완료
+            </div>
+          )}
           <Image
             src={`${product.photo}/public`}
             alt={product.title}
             fill
-            className="object-cover rounded-md"
+            className={`object-cover rounded-md ${
+              product.sold_out && "opacity-50"
+            }`}
           />
         </div>
         <div className="w-full flex flex-col gap-2 text-center">
@@ -103,7 +118,12 @@ export default async function Modal({ params }: ProductDetailModalProps) {
         </div>
         <div className="p-5">
           <h1 className="text-2xl font-semibold">{product.title}</h1>
-          <p>{product.description}</p>
+          <p className="mb-2">{product.description}</p>
+          <HeartButton
+            isLiked={isLiked}
+            likeCount={likeCount}
+            productId={product.id}
+          />
         </div>
       </div>
     </div>
