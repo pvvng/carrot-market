@@ -2,6 +2,7 @@ import HeartButton from "@/components/heart-button";
 import { getCachedProduct } from "@/lib/data/product";
 import { getCachedHeartStatus } from "@/lib/data/product-heart-status";
 import { getCachedProductTitle } from "@/lib/data/product-title";
+import { cacheCreateRecent } from "@/lib/data/recent-product";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
 import { formatToWon } from "@/lib/utils";
@@ -55,6 +56,7 @@ export default async function ProductDetail({
     product.id,
     session.id!
   );
+  await cacheCreateRecent(product.id, session.id!);
 
   const createChatRoom = async () => {
     "use server";

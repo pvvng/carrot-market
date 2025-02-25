@@ -12,6 +12,7 @@ interface ListProductProps {
   sold_out: boolean;
   _count: { heart: number };
 }
+
 export default function ListProduct({
   title,
   price,

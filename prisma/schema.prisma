@@ -46,6 +46,7 @@ model User {
   reviewsSend     Review[]      @relation("Review_sender")
   reviewsReceived Review[]      @relation("Review_receiver")
   heart           Heart[]
+  Recent          Recent[]
 }
 
 model SMSToken {
@@ -80,6 +81,7 @@ model Product {
   review      Review[]
   chatRoom    ChatRoom[]
   heart       Heart[]
+  Recent      Recent[]
 }
 
 model Post {
@@ -184,4 +186,15 @@ model Review {
   senderId   Int
   receiverId Int
   productId  Int
+}
+
+model Recent {
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  product    Product  @relation(fields: [productId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
+  productId  Int
+  userId     Int
+
+  @@id(name: "id", [userId, productId])
 }

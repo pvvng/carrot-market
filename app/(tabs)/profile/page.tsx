@@ -83,7 +83,7 @@ export default async function Profile() {
       <div className="bg-neutral-950 rounded-md flex flex-col p-5 gap-2">
         <p className="font-semibold text-sm p-1">나의 활동</p>
         <ProfileCard icon="heart" text="관심목록" link="/profile/hearts" />
-        <ProfileCard icon="recent" text="최근 본 게시물" link="#" />
+        <ProfileCard icon="recent" text="최근 본 상품" link="/profile/recent" />
         <ProfileCard icon="post" text="내 동네생활 글" link="/profile/posts" />
       </div>
       <form action={logout} className="w-full">

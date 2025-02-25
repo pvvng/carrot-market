@@ -10,6 +10,7 @@ import { notFound, redirect } from "next/navigation";
 import { UserIcon } from "@heroicons/react/24/solid";
 import { getCachedHeartStatus } from "@/lib/data/product-heart-status";
 import HeartButton from "@/components/heart-button";
+import { cacheCreateRecent } from "@/lib/data/recent-product";
 
 interface ProductDetailModalProps {
   params: Promise<{ id: string }>;
@@ -34,6 +35,7 @@ export default async function Modal({ params }: ProductDetailModalProps) {
     product.id,
     session.id!
   );
+  await cacheCreateRecent(product.id, session.id!);
 
   const createChatRoom = async () => {
     "use server";
