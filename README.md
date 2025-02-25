@@ -1407,3 +1407,15 @@ const stream = await db.liveStream.create({
 1. 프로필 페이지에 구매한 상품들, 판매한 상품들 목록 표시, 나에 대한 리뷰 표시
 2. 제품 판매 완료 버튼 만들기, 판매 완료 후 서로의 리뷰를 남기는 기능 만들기
 3. 프로필 수정, 프로필 열람 기능 만들기
+
+### 22. deploy
+
+- **connect vercel**
+
+```bash
+npm i -g vercel
+vercel login
+vercel link
+# Neon Postgress db env 불러오기
+vercel env pull .env.development.local
+```
