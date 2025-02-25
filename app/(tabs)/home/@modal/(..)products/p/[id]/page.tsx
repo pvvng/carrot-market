@@ -94,7 +94,7 @@ export default async function Modal({ params }: ProductDetailModalProps) {
                     className="object-cover"
                   />
                 ) : (
-                  <UserIcon className="text-black" />
+                  <UserIcon />
                 )}
               </div>
               <h3>{product.user.username}</h3>
