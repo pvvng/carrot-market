@@ -1,4 +1,6 @@
+import HeartButton from "@/components/heart-button";
 import { getCachedProduct } from "@/lib/data/product";
+import { getCachedHeartStatus } from "@/lib/data/product-heart-status";
 import { getCachedProductTitle } from "@/lib/data/product-title";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
@@ -48,6 +50,11 @@ export default async function ProductDetail({
   }
 
   const isOwner = await getIsOwner(product.userId);
+  const session = await getSession();
+  const { isLiked, likeCount } = await getCachedHeartStatus(
+    product.id,
+    session.id!
+  );
 
   const createChatRoom = async () => {
     "use server";
@@ -71,7 +78,7 @@ export default async function ProductDetail({
   };
 
   return (
-    <div>
+    <div className="mb-36">
       <div className="relative aspect-square">
         {product.sold_out && (
           <div className="absolute inset-0 flex justify-center items-center font-semibold text-2xl text-white">
@@ -107,9 +114,14 @@ export default async function ProductDetail({
           <h3>{product.user.username}</h3>
         </div>
       </div>
-      <div className="p-5 h-80">
+      <div className="p-5">
         <h1 className="text-2xl font-semibold">{product.title}</h1>
-        <p>{product.description}</p>
+        <p className="mb-2">{product.description}</p>
+        <HeartButton
+          isLiked={isLiked}
+          likeCount={likeCount}
+          productId={product.id}
+        />
       </div>
       <div
         className="w-full max-w-screen-sm fixed bottom-0 p-5 bg-neutral-800 

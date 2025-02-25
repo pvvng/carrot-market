@@ -4,11 +4,12 @@ import ModalScrollBreak from "@/components/product-modal";
 import { getCachedProduct } from "@/lib/data/product";
 import db from "@/lib/db";
 import getSession from "@/lib/session";
-import { PhotoIcon } from "@heroicons/react/16/solid";
-import { UserIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { UserIcon } from "@heroicons/react/24/solid";
+import { getCachedHeartStatus } from "@/lib/data/product-heart-status";
+import HeartButton from "@/components/heart-button";
 
 interface ProductDetailModalProps {
   params: Promise<{ id: string }>;
@@ -29,6 +30,10 @@ export default async function Modal({ params }: ProductDetailModalProps) {
   }
 
   const session = await getSession();
+  const { isLiked, likeCount } = await getCachedHeartStatus(
+    product.id,
+    session.id!
+  );
 
   const createChatRoom = async () => {
     "use server";
@@ -111,7 +116,12 @@ export default async function Modal({ params }: ProductDetailModalProps) {
         </div>
         <div className="p-5">
           <h1 className="text-2xl font-semibold">{product.title}</h1>
-          <p>{product.description}</p>
+          <p className="mb-2">{product.description}</p>
+          <HeartButton
+            isLiked={isLiked}
+            likeCount={likeCount}
+            productId={product.id}
+          />
         </div>
       </div>
     </div>
