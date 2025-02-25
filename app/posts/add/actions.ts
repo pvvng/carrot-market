@@ -30,7 +30,6 @@ export async function uploadPost(_: any, formData: FormData) {
   const result = postSchema.safeParse(data);
 
   if (!result.success) {
-    console.log(result.error.flatten());
     return result.error.flatten();
   }
 

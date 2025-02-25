@@ -77,7 +77,6 @@ export default async function ProductReview({ params }: ProductReviewProps) {
     const result = reviewSchema.safeParse(data);
 
     if (!result.success) {
-      console.log(result.error.flatten().fieldErrors);
       return;
     }
 

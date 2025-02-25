@@ -9,7 +9,6 @@ const titleSchema = z.string().min(0).max(30);
 
 export async function startStream(_: any, formData: FormData) {
   const titleResult = titleSchema.safeParse(formData.get("title"));
-  console.log(titleResult);
   if (!titleResult.success) {
     return titleResult.error.flatten();
   }
